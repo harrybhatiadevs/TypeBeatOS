@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  createdAt    DateTime  @default(now())
+  sessions     Session[]
+  profile      Profile?
+  beats        Beat[]
+}
+
+model Session {
+  token     String   @id
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+}
+
+model Profile {
+  userId            String @id
+  user              User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  producerName      String @default("")
+  youtubeUrl        String @default("")
+  storeUrl          String @default("")
+  instagramUrl      String @default("")
+  contactEmail      String @default("")
+  licenseText       String @default("")
+  descriptionFooter String @default("")
+  scheduleDays      String @default("1,3,5")
+  scheduleTime      String @default("18:00")
+}
+
+model Beat {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name            String
+  targetArtist    String
+  secondaryArtist String   @default("")
+  genre           String   @default("")
+  mood            String   @default("")
+  bpm             Int?
+  key             String   @default("")
+  storeLink       String   @default("")
+  licensePrice    String   @default("")
+  exclusivePrice  String   @default("")
+  audioPath       String   @default("")
+  createdAt       DateTime @default(now())
+  package         Package?
+}
+
+model Package {
+  id            String    @id @default(cuid())
+  beatId        String    @unique
+  beat          Beat      @relation(fields: [beatId], references: [id], onDelete: Cascade)
+  titleOptions  String
+  selectedTitle String
+  description   String
+  tags          String
+  hashtags      String
+  pinnedComment String
+  thumbnailPath String    @default("")
+  videoPath     String    @default("")
+  videoStatus   String    @default("none")
+  videoError    String    @default("")
+  scheduledAt   DateTime?
+  status        String    @default("draft")
+  createdAt     DateTime  @default(now())
+}
