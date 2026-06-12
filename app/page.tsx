@@ -51,12 +51,12 @@ export default async function Landing() {
           <div className="hero-copy">
             <p className="eyebrow">
               <span className="eyebrow-dot" aria-hidden="true" />
-              For type-beat producers on YouTube
+              Upload ops for type-beat producers
             </p>
             <h1>
-              Upload a month of type beats
+              Batch your type beat uploads
               <br />
-              <span className="accent">in one sitting.</span>
+              <span className="accent">without the busywork.</span>
             </h1>
             <p className="sub">
               TypeBeatOS generates SEO titles, descriptions, tags, thumbnails, pinned comments, and
@@ -73,63 +73,17 @@ export default async function Landing() {
             <p className="form-note">Free plan included. No card required.</p>
           </div>
 
-          <div className="hero-preview" aria-label="TypeBeatOS upload package preview">
-            <div className="preview-window">
-              <div className="preview-bar">
-                <span />
-                <span />
-                <span />
-              </div>
-              <div className="preview-body">
-                <div className="preview-main">
-                  <div className="preview-kicker">Upload package</div>
-                  <h3>Dark Dreams - Drake Type Beat</h3>
-                  <p>SEO title, description, tags, thumbnail, pinned comment, and schedule.</p>
-                  <div className="preview-tags">
-                    <span>Drake type beat</span>
-                    <span>melodic trap</span>
-                    <span>92 BPM</span>
-                  </div>
-                </div>
-                <div className="preview-side">
-                  <div className="mini-stat">
-                    <strong>12</strong>
-                    <span>ready posts</span>
-                  </div>
-                  <div className="thumbnail-card">
-                    <span>TYPE BEAT</span>
-                    <strong>DARK DREAMS</strong>
-                  </div>
-                </div>
-              </div>
-              <div className="preview-schedule">
-                <div>
-                  <span>Mon</span>
-                  <strong>6:00 PM</strong>
-                </div>
-                <div>
-                  <span>Wed</span>
-                  <strong>6:00 PM</strong>
-                </div>
-                <div>
-                  <span>Fri</span>
-                  <strong>6:00 PM</strong>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="hero-proof" aria-label="TypeBeatOS workflow stats">
+          <div className="hero-metrics" aria-label="TypeBeatOS workflow highlights">
             <div>
-              <strong>SEO</strong>
+              <strong>SEO-ready</strong>
               <span>Titles, tags, descriptions</span>
             </div>
             <div>
-              <strong>Batch</strong>
+              <strong>Batch calendar</strong>
               <span>Queue a full calendar</span>
             </div>
             <div>
-              <strong>Brand</strong>
+              <strong>Repeatable brand</strong>
               <span>Reusable thumbnail style</span>
             </div>
           </div>
