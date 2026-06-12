@@ -86,6 +86,10 @@ model Package {
   youtubeVideoId String   @default("")
   uploadStatus  String    @default("none")
   uploadError   String    @default("")
+  viewCount     Int       @default(0)
+  likeCount     Int       @default(0)
+  commentCount  Int       @default(0)
+  statsUpdatedAt DateTime?
   scheduledAt   DateTime?
   status        String    @default("draft")
   createdAt     DateTime  @default(now())
