@@ -17,6 +17,8 @@ The YouTube growth system for type-beat producers.
 - **Video generation (Stage 3)** — render YouTube-ready MP4s (1280×720 h264 + AAC) from the saved thumbnail + beat audio via bundled ffmpeg. Two styles: static image (fast) or waveform visualizer overlay. Renders run in a background queue with live status on the package page.
 - **YouTube direct upload (Stage 4)** — connect a channel via Google OAuth (profile page), then upload any rendered package straight from the editor. Uploads go up private with `publishAt` set from the package schedule, including title/description/tags metadata (category: Music) and the custom thumbnail (best-effort). Status tracked per package with links to YouTube Studio when done. Verified end to end against the live API.
 - **Analytics (Stage 5)** — views, likes, and comments per upload pulled from the YouTube Data API on demand (1 quota unit per 50 videos), plus aggregations: best performing artist keywords and best upload days. CTR/impressions need the YouTube Analytics API scope — future work.
+- **Onboarding** — new signups land in a 3-step wizard (brand & store link → posting schedule → connect YouTube), every step skippable. The dashboard shows a setup checklist until the core steps are done.
+- **Auto BPM & key detection** — leave BPM/key blank when adding a beat with audio and TypeBeatOS detects them from the file (ffmpeg decode → onset-based tempo via music-tempo → Krumhansl-Schmuckler chromagram key matching). Detected values flow into titles, tags, and the description.
 
 ### Optional AI enhancement
 

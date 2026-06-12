@@ -67,12 +67,12 @@ export default async function NewBeatPage({
               </datalist>
             </div>
             <div className="form-field">
-              <label htmlFor="bpm">BPM</label>
-              <input id="bpm" name="bpm" type="number" min="40" max="300" placeholder="142" />
+              <label htmlFor="bpm">BPM — auto-detected from audio if left blank</label>
+              <input id="bpm" name="bpm" type="number" min="40" max="300" placeholder="Auto-detect" />
             </div>
             <div className="form-field">
-              <label htmlFor="key">Key</label>
-              <input id="key" name="key" type="text" list="keys" placeholder="A minor" />
+              <label htmlFor="key">Key — auto-detected from audio if left blank</label>
+              <input id="key" name="key" type="text" list="keys" placeholder="Auto-detect" />
               <datalist id="keys">
                 {KEYS.map((k) => (
                   <option key={k} value={k} />

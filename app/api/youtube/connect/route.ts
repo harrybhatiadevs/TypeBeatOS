@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { randomBytes } from "crypto";
 import { getUser } from "@/lib/auth";
 import { appUrl, youtubeAuthUrl, youtubeConfigured } from "@/lib/youtube";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const user = await getUser();
   if (!user) return NextResponse.redirect(new URL("/login", appUrl()));
   if (!youtubeConfigured()) {
@@ -12,13 +12,14 @@ export async function GET() {
     );
   }
 
+  // Optional in-app path to land on after the OAuth round-trip (e.g. onboarding)
+  const ret = req.nextUrl.searchParams.get("return") || "";
+  const returnPath = ret.startsWith("/") && !ret.startsWith("//") ? ret : "/profile";
+
   const state = randomBytes(16).toString("hex");
   const res = NextResponse.redirect(youtubeAuthUrl(state));
-  res.cookies.set("yt_oauth_state", state, {
-    httpOnly: true,
-    sameSite: "lax",
-    maxAge: 600,
-    path: "/",
-  });
+  const cookieOpts = { httpOnly: true, sameSite: "lax" as const, maxAge: 600, path: "/" };
+  res.cookies.set("yt_oauth_state", state, cookieOpts);
+  res.cookies.set("yt_return", returnPath, cookieOpts);
   return res;
 }

@@ -5,14 +5,37 @@ import { requireUser } from "@/lib/auth";
 export default async function Dashboard() {
   const user = await requireUser();
 
-  const [beatCount, packages] = await Promise.all([
+  const [beatCount, packages, youtube] = await Promise.all([
     db.beat.count({ where: { userId: user.id } }),
     db.package.findMany({
       where: { beat: { userId: user.id } },
       include: { beat: true },
       orderBy: { createdAt: "desc" },
     }),
+    db.youTubeAccount.findUnique({ where: { userId: user.id } }),
   ]);
+
+  const setup = [
+    {
+      label: "Set your producer brand & store link",
+      done: !!(user.profile?.producerName && user.profile?.storeUrl),
+      href: "/profile",
+      hint: "feeds every description",
+    },
+    {
+      label: "Connect your YouTube channel",
+      done: !!youtube,
+      href: "/profile",
+      hint: "enables direct upload",
+    },
+    {
+      label: "Add your first beat",
+      done: beatCount > 0,
+      href: "/beats/new",
+      hint: "generates the full package",
+    },
+  ];
+  const setupIncomplete = setup.some((s) => !s.done);
 
   const scheduled = packages.filter((p) => p.scheduledAt && p.scheduledAt > new Date());
   const drafts = packages.filter((p) => p.status === "draft");
@@ -28,6 +51,26 @@ export default async function Dashboard() {
         {user.profile?.producerName ? `What's good, ${user.profile.producerName}` : "Dashboard"}
       </h1>
       <p className="page-sub">Your upload pipeline at a glance.</p>
+
+      {setupIncomplete && (
+        <div className="card">
+          <h3>Finish your setup</h3>
+          {setup.map((s) =>
+            s.done ? (
+              <div key={s.label} className="checklist-item done">
+                <span className="check">✓</span>
+                {s.label}
+              </div>
+            ) : (
+              <Link key={s.label} href={s.href} className="checklist-item">
+                <span className="check">○</span>
+                {s.label}
+                <span className="checklist-hint">{s.hint} →</span>
+              </Link>
+            )
+          )}
+        </div>
+      )}
 
       <div className="stats-grid">
         <div className="stat">

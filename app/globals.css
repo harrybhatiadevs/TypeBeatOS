@@ -1463,6 +1463,93 @@ textarea { resize: vertical; min-height: 100px; line-height: 1.5; }
 
 .app-page audio { border-radius: 999px; }
 
+/* ---------- Onboarding ---------- */
+.onb-wrap { max-width: 640px; margin: 0 auto; }
+
+.onb-steps {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.onb-step {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.onb-step.active {
+  border-color: rgba(229, 9, 20, 0.55);
+  background: rgba(229, 9, 20, 0.1);
+  color: #fff;
+}
+
+.onb-step.done { color: var(--accent-2); }
+
+.onb-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 0.75rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.onb-step.active .onb-step-num { background: var(--accent); color: #fff; }
+.onb-step.done .onb-step-num { background: rgba(255, 71, 87, 0.18); color: var(--accent-2); }
+
+@media (max-width: 620px) {
+  .onb-step-label { display: none; }
+  .onb-step { justify-content: center; }
+}
+
+/* ---------- Setup checklist (dashboard) ---------- */
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  margin-bottom: 8px;
+  color: var(--text);
+  text-decoration: none;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+
+a.checklist-item:hover { border-color: rgba(229, 9, 20, 0.45); background: rgba(229, 9, 20, 0.05); }
+
+.checklist-item .check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-dim);
+}
+
+.checklist-item.done { color: var(--text-dim); }
+.checklist-item.done .check { background: rgba(255, 71, 87, 0.16); color: var(--accent-2); }
+
+.checklist-item .checklist-hint { margin-left: auto; color: var(--text-dim); font-size: 0.82rem; }
+
 /* ---------- Login (reuses the signup auth shell) ---------- */
 .login-auth .auth-shell {
   grid-template-columns: 1fr;

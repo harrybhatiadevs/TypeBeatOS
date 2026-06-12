@@ -4,8 +4,13 @@ import { getUser } from "@/lib/auth";
 import { appUrl, exchangeCode, fetchChannel } from "@/lib/youtube";
 
 export async function GET(req: NextRequest) {
+  const ret = req.cookies.get("yt_return")?.value || "";
+  const returnPath = ret.startsWith("/") && !ret.startsWith("//") ? ret : "/profile";
+  const withParam = (param: string) =>
+    new URL(`${returnPath}${returnPath.includes("?") ? "&" : "?"}${param}`, appUrl());
+
   const fail = (msg: string) =>
-    NextResponse.redirect(new URL(`/profile?yt_error=${encodeURIComponent(msg)}`, appUrl()));
+    NextResponse.redirect(withParam(`yt_error=${encodeURIComponent(msg)}`));
 
   const user = await getUser();
   if (!user) return NextResponse.redirect(new URL("/login", appUrl()));
@@ -49,8 +54,9 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    const res = NextResponse.redirect(new URL("/profile?yt_connected=1", appUrl()));
+    const res = NextResponse.redirect(withParam("yt_connected=1"));
     res.cookies.delete("yt_oauth_state");
+    res.cookies.delete("yt_return");
     return res;
   } catch (err) {
     return fail(err instanceof Error ? err.message : "Connection failed");
