@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { updatePackage } from "@/lib/actions/packages";
 import ThumbnailBuilder from "./ThumbnailBuilder";
 import VideoGenerator from "./VideoGenerator";
+import YouTubeUploader from "./YouTubeUploader";
 
 type PkgProps = {
   id: string;
@@ -17,6 +18,9 @@ type PkgProps = {
   videoStatus: string;
   videoPath: string;
   videoError: string;
+  uploadStatus: string;
+  youtubeVideoId: string;
+  uploadError: string;
   scheduledAt: string; // ISO or ""
   status: string;
 };
@@ -57,10 +61,12 @@ export default function PackageEditor({
   pkg,
   beat,
   producerName,
+  youtube,
 }: {
   pkg: PkgProps;
   beat: BeatProps;
   producerName: string;
+  youtube: { configured: boolean; connected: boolean; channelTitle: string };
 }) {
   const [selectedTitle, setSelectedTitle] = useState(pkg.selectedTitle);
   const [description, setDescription] = useState(pkg.description);
@@ -245,6 +251,28 @@ export default function PackageEditor({
             initialError={pkg.videoError}
             hasAudio={!!beat.audioPath}
             hasThumbnail={!!pkg.thumbnailPath}
+          />
+
+          <YouTubeUploader
+            packageId={pkg.id}
+            configured={youtube.configured}
+            connected={youtube.connected}
+            channelTitle={youtube.channelTitle}
+            hasVideo={pkg.videoStatus === "done" && !!pkg.videoPath}
+            scheduledLabel={
+              scheduledAt
+                ? new Date(scheduledAt).toLocaleString(undefined, {
+                    weekday: "short",
+                    month: "short",
+                    day: "numeric",
+                    hour: "numeric",
+                    minute: "2-digit",
+                  })
+                : ""
+            }
+            initialStatus={pkg.uploadStatus}
+            initialVideoId={pkg.youtubeVideoId}
+            initialError={pkg.uploadError}
           />
 
 
