@@ -24,6 +24,10 @@ export default async function ProfilePage({
 
   return (
     <>
+      <p className="eyebrow">
+        <span className="eyebrow-dot" aria-hidden="true" />
+        Brand defaults
+      </p>
       <h1 className="page-title">Producer profile</h1>
       <p className="page-sub">
         Set this once — every generated description, pinned comment, and schedule uses it.

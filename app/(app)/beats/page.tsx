@@ -13,6 +13,10 @@ export default async function BeatsPage() {
 
   return (
     <>
+      <p className="eyebrow">
+        <span className="eyebrow-dot" aria-hidden="true" />
+        Catalog
+      </p>
       <h1 className="page-title">Beats</h1>
       <p className="page-sub">Every beat you&apos;ve added, with its upload package.</p>
 

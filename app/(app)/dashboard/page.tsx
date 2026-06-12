@@ -20,6 +20,10 @@ export default async function Dashboard() {
 
   return (
     <>
+      <p className="eyebrow">
+        <span className="eyebrow-dot" aria-hidden="true" />
+        Producer dashboard
+      </p>
       <h1 className="page-title">
         {user.profile?.producerName ? `What's good, ${user.profile.producerName}` : "Dashboard"}
       </h1>
