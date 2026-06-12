@@ -73,18 +73,34 @@ export default async function Landing() {
             <p className="form-note">Free plan included. No card required.</p>
           </div>
 
-          <div className="hero-metrics" aria-label="TypeBeatOS workflow highlights">
-            <div>
-              <strong>SEO-ready</strong>
-              <span>Titles, tags, descriptions</span>
+          <div className="hero-preview" aria-label="TypeBeatOS workflow highlights">
+            <div className="preview-card preview-card-main">
+              <div className="preview-card-head">
+                <span>Upload package</span>
+                <strong>Ready</strong>
+              </div>
+              <h3>Drake Type Beat - Midnight Run</h3>
+              <p>SEO title, description, tags, thumbnail direction, pinned comment, and schedule.</p>
+              <div className="preview-tags">
+                <span>SEO title</span>
+                <span>Tags</span>
+                <span>Thumbnail</span>
+              </div>
             </div>
-            <div>
-              <strong>Batch calendar</strong>
-              <span>Queue a full calendar</span>
+            <div className="preview-card">
+              <span>Generated assets</span>
+              <strong>6</strong>
+              <p>Ready to review</p>
             </div>
-            <div>
-              <strong>Repeatable brand</strong>
-              <span>Reusable thumbnail style</span>
+            <div className="preview-card">
+              <span>Next post</span>
+              <strong>Fri 6 PM</strong>
+              <p>Auto-spread calendar</p>
+            </div>
+            <div className="preview-card">
+              <span>Workflow</span>
+              <strong>One session</strong>
+              <p>Batch the month</p>
             </div>
           </div>
         </div>
