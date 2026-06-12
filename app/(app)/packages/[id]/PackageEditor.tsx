@@ -60,12 +60,10 @@ function CopyButton({ value, label = "Copy" }: { value: string; label?: string }
 export default function PackageEditor({
   pkg,
   beat,
-  producerName,
   youtube,
 }: {
   pkg: PkgProps;
   beat: BeatProps;
-  producerName: string;
   youtube: { configured: boolean; connected: boolean; channelTitle: string };
 }) {
   const [selectedTitle, setSelectedTitle] = useState(pkg.selectedTitle);
@@ -218,7 +216,6 @@ export default function PackageEditor({
             initialThumbnailPath={pkg.thumbnailPath}
             defaultTitle={beat.name.toUpperCase()}
             defaultSubtitle={`${beat.targetArtist.toUpperCase()} TYPE BEAT`}
-            producerName={producerName}
           />
 
           <div className="card">

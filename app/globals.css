@@ -330,6 +330,7 @@ input[type="time"],
 input[type="url"],
 input[type="datetime-local"],
 input[type="file"],
+input[type="color"],
 select,
 textarea {
   width: 100%;
@@ -342,6 +343,16 @@ textarea {
   font-family: inherit;
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+input[type="color"] {
+  min-height: 44px;
+  padding: 6px;
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
 }
 
 input:focus, select:focus, textarea:focus { border-color: rgba(229, 9, 20, 0.7); box-shadow: 0 0 0 4px rgba(229, 9, 20, 0.11); }

@@ -43,7 +43,6 @@ export default async function PackagePage({ params }: { params: Promise<{ id: st
         genre: pkg.beat.genre,
         audioPath: pkg.beat.audioPath,
       }}
-      producerName={user.profile?.producerName || ""}
       youtube={{
         configured: youtubeConfigured(),
         connected: !!youtube,

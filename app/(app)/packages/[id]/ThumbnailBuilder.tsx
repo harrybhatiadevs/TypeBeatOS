@@ -6,12 +6,13 @@ import { saveThumbnail } from "@/lib/actions/packages";
 const W = 1280;
 const H = 720;
 
-const GRADIENTS: [string, string][] = [
-  ["#1e1b4b", "#7c3aed"],
-  ["#0f172a", "#0e7490"],
-  ["#27272a", "#b91c1c"],
-  ["#0a0a0f", "#3f3f46"],
-  ["#312e81", "#db2777"],
+const FONT_OPTIONS = [
+  { label: "Inter", value: "Inter, sans-serif" },
+  { label: "Arial Black", value: "\"Arial Black\", Arial, sans-serif" },
+  { label: "Impact", value: "Impact, sans-serif" },
+  { label: "Georgia", value: "Georgia, serif" },
+  { label: "Times", value: "\"Times New Roman\", serif" },
+  { label: "Courier", value: "\"Courier New\", monospace" },
 ];
 
 export default function ThumbnailBuilder({
@@ -19,20 +20,23 @@ export default function ThumbnailBuilder({
   initialThumbnailPath,
   defaultTitle,
   defaultSubtitle,
-  producerName,
 }: {
   packageId: string;
   initialThumbnailPath: string;
   defaultTitle: string;
   defaultSubtitle: string;
-  producerName: string;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [title, setTitle] = useState(defaultTitle);
   const [subtitle, setSubtitle] = useState(defaultSubtitle);
-  const [gradient, setGradient] = useState(0);
   const [bgImage, setBgImage] = useState<HTMLImageElement | null>(null);
-  const [advisory, setAdvisory] = useState(true);
+  const [hideAllText, setHideAllText] = useState(false);
+  const [titleFont, setTitleFont] = useState(FONT_OPTIONS[0].value);
+  const [titleColor, setTitleColor] = useState("#ffffff");
+  const [titleSize, setTitleSize] = useState(120);
+  const [subtitleFont, setSubtitleFont] = useState(FONT_OPTIONS[0].value);
+  const [subtitleColor, setSubtitleColor] = useState("#ff4757");
+  const [subtitleSize, setSubtitleSize] = useState(44);
   const [saving, setSaving] = useState(false);
   const [savedPath, setSavedPath] = useState(initialThumbnailPath);
 
@@ -42,78 +46,49 @@ export default function ThumbnailBuilder({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Background
+    ctx.fillStyle = "#000000";
+    ctx.fillRect(0, 0, W, H);
+
     if (bgImage) {
-      const scale = Math.max(W / bgImage.width, H / bgImage.height);
+      const scale = Math.min(W / bgImage.width, H / bgImage.height);
       const w = bgImage.width * scale;
       const h = bgImage.height * scale;
       ctx.drawImage(bgImage, (W - w) / 2, (H - h) / 2, w, h);
-      // Darken for text contrast
-      ctx.fillStyle = "rgba(0,0,0,0.45)";
-      ctx.fillRect(0, 0, W, H);
-    } else {
-      const [c1, c2] = GRADIENTS[gradient];
-      const grad = ctx.createLinearGradient(0, 0, W, H);
-      grad.addColorStop(0, c1);
-      grad.addColorStop(1, c2);
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, W, H);
     }
 
-    // Subtle vignette
-    const vignette = ctx.createRadialGradient(W / 2, H / 2, H / 3, W / 2, H / 2, H);
-    vignette.addColorStop(0, "rgba(0,0,0,0)");
-    vignette.addColorStop(1, "rgba(0,0,0,0.5)");
-    ctx.fillStyle = vignette;
-    ctx.fillRect(0, 0, W, H);
+    if (!hideAllText) {
+      const vignette = ctx.createRadialGradient(W / 2, H / 2, H / 3, W / 2, H / 2, H);
+      vignette.addColorStop(0, "rgba(0,0,0,0)");
+      vignette.addColorStop(1, "rgba(0,0,0,0.42)");
+      ctx.fillStyle = vignette;
+      ctx.fillRect(0, 0, W, H);
 
-    // Subtitle (artist type beat)
-    ctx.textAlign = "center";
-    ctx.fillStyle = "#c4b5fd";
-    ctx.font = "700 44px Inter, sans-serif";
-    ctx.fillText(subtitle, W / 2, H / 2 - 80, W - 120);
-
-    // Title
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "900 120px Inter, sans-serif";
-    ctx.shadowColor = "rgba(0,0,0,0.6)";
-    ctx.shadowBlur = 24;
-    ctx.fillText(`"${title}"`, W / 2, H / 2 + 50, W - 100);
-    ctx.shadowBlur = 0;
-
-    // Producer name
-    if (producerName) {
-      ctx.font = "600 36px Inter, sans-serif";
-      ctx.fillStyle = "rgba(255,255,255,0.85)";
-      ctx.fillText(producerName, W / 2, H - 60, W - 120);
-    }
-
-    // Parental advisory sticker
-    if (advisory) {
-      const bw = 190;
-      const bh = 96;
-      const bx = W - bw - 40;
-      const by = H - bh - 40;
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(bx, by, bw, bh);
-      ctx.fillStyle = "#000000";
-      ctx.fillRect(bx + 6, by + 6, bw - 12, bh - 12);
-      ctx.fillStyle = "#ffffff";
+      // Subtitle (artist type beat)
       ctx.textAlign = "center";
-      ctx.font = "900 22px Inter, sans-serif";
-      ctx.fillText("PARENTAL", bx + bw / 2, by + 34);
-      ctx.fillText("ADVISORY", bx + bw / 2, by + 58);
-      ctx.font = "600 14px Inter, sans-serif";
-      ctx.fillText("EXPLICIT CONTENT", bx + bw / 2, by + 80);
+      ctx.fillStyle = subtitleColor;
+      ctx.font = `700 ${subtitleSize}px ${subtitleFont}`;
+      ctx.fillText(subtitle, W / 2, H / 2 - 80, W - 120);
+
+      // Title
+      ctx.fillStyle = titleColor;
+      ctx.font = `900 ${titleSize}px ${titleFont}`;
+      ctx.shadowColor = "rgba(0,0,0,0.7)";
+      ctx.shadowBlur = 28;
+      ctx.fillText(`"${title}"`, W / 2, H / 2 + 50, W - 100);
+      ctx.shadowBlur = 0;
     }
-  }, [title, subtitle, gradient, bgImage, advisory, producerName]);
+  }, [title, subtitle, bgImage, hideAllText, titleFont, titleColor, titleSize, subtitleFont, subtitleColor, subtitleSize]);
 
   const onImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const img = new Image();
-    img.onload = () => setBgImage(img);
-    img.src = URL.createObjectURL(file);
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      setBgImage(img);
+      URL.revokeObjectURL(url);
+    };
+    img.src = url;
   };
 
   const onSave = () => {
@@ -152,40 +127,70 @@ export default function ThumbnailBuilder({
           <label>Main text</label>
           <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
         </div>
+        <div className="form-field">
+          <label>Main text font</label>
+          <select value={titleFont} onChange={(e) => setTitleFont(e.target.value)}>
+            {FONT_OPTIONS.map((font) => (
+              <option key={font.value} value={font.value}>
+                {font.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="form-field">
+          <label>Main text colour</label>
+          <input type="color" value={titleColor} onChange={(e) => setTitleColor(e.target.value)} />
+        </div>
+        <div className="form-field full">
+          <label>Main text size</label>
+          <input
+            type="range"
+            min="48"
+            max="180"
+            value={titleSize}
+            onChange={(e) => setTitleSize(parseInt(e.target.value, 10))}
+          />
+        </div>
         <div className="form-field full">
           <label>Top line</label>
           <input type="text" value={subtitle} onChange={(e) => setSubtitle(e.target.value)} />
         </div>
         <div className="form-field">
-          <label>Background</label>
-          <div className="swatch-row">
-            {GRADIENTS.map(([c1, c2], i) => (
-              <button
-                key={i}
-                type="button"
-                className={`swatch${i === gradient && !bgImage ? " selected" : ""}`}
-                style={{ background: `linear-gradient(135deg, ${c1}, ${c2})` }}
-                onClick={() => {
-                  setBgImage(null);
-                  setGradient(i);
-                }}
-                aria-label={`Gradient ${i + 1}`}
-              />
+          <label>Top line font</label>
+          <select value={subtitleFont} onChange={(e) => setSubtitleFont(e.target.value)}>
+            {FONT_OPTIONS.map((font) => (
+              <option key={font.value} value={font.value}>
+                {font.label}
+              </option>
             ))}
-          </div>
+          </select>
         </div>
         <div className="form-field">
-          <label>Or upload image</label>
+          <label>Top line colour</label>
+          <input type="color" value={subtitleColor} onChange={(e) => setSubtitleColor(e.target.value)} />
+        </div>
+        <div className="form-field full">
+          <label>Top line size</label>
+          <input
+            type="range"
+            min="24"
+            max="90"
+            value={subtitleSize}
+            onChange={(e) => setSubtitleSize(parseInt(e.target.value, 10))}
+          />
+        </div>
+        <div className="form-field full">
+          <label>Background image</label>
           <input type="file" accept="image/*" onChange={onImageUpload} />
         </div>
         <div className="form-field full">
           <label className="checkbox-pill" style={{ alignSelf: "flex-start" }}>
             <input
               type="checkbox"
-              checked={advisory}
-              onChange={(e) => setAdvisory(e.target.checked)}
+              checked={hideAllText}
+              onChange={(e) => setHideAllText(e.target.checked)}
             />
-            <span>Parental advisory sticker</span>
+            <span>Hide all text</span>
           </label>
         </div>
         <div className="form-field full" style={{ flexDirection: "row", gap: 10 }}>

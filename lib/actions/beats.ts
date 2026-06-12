@@ -84,3 +84,55 @@ export async function deleteBeat(formData: FormData) {
   await db.beat.deleteMany({ where: { id, userId: user.id } });
   redirect("/beats");
 }
+
+export async function updateBeat(formData: FormData) {
+  const user = await requireUser();
+
+  const id = String(formData.get("id") || "").trim();
+  const name = String(formData.get("name") || "").trim();
+  const targetArtist = String(formData.get("targetArtist") || "").trim();
+
+  if (!id) redirect("/beats");
+  if (!name || !targetArtist) {
+    redirect(`/beats/${id}/edit?error=Beat+name+and+target+artist+are+required`);
+  }
+
+  const existingBeat = await db.beat.findFirst({ where: { id, userId: user.id } });
+  if (!existingBeat) redirect("/beats");
+
+  const bpmRaw = String(formData.get("bpm") || "").trim();
+  const bpm = bpmRaw ? parseInt(bpmRaw, 10) : null;
+
+  await db.beat.update({
+    where: { id: existingBeat.id },
+    data: {
+      name,
+      targetArtist,
+      secondaryArtist: String(formData.get("secondaryArtist") || "").trim(),
+      genre: String(formData.get("genre") || "").trim(),
+      mood: String(formData.get("mood") || "").trim(),
+      bpm: bpm && !isNaN(bpm) ? bpm : null,
+      key: String(formData.get("key") || "").trim(),
+      storeLink: String(formData.get("storeLink") || "").trim(),
+      licensePrice: String(formData.get("licensePrice") || "").trim(),
+      exclusivePrice: String(formData.get("exclusivePrice") || "").trim(),
+    },
+  });
+
+  const file = formData.get("audio");
+  if (file instanceof File && file.size > 0) {
+    const ext = path.extname(file.name).toLowerCase();
+    if (AUDIO_EXTS.has(ext)) {
+      const dir = path.join(process.cwd(), "uploads", "audio");
+      await mkdir(dir, { recursive: true });
+      const filename = `${existingBeat.id}${ext}`;
+      await writeFile(path.join(dir, filename), Buffer.from(await file.arrayBuffer()));
+      await db.beat.update({
+        where: { id: existingBeat.id },
+        data: { audioPath: `/api/files/audio/${filename}` },
+      });
+    }
+  }
+
+  redirect("/beats");
+}

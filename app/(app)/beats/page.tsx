@@ -64,6 +64,9 @@ export default async function BeatsPage() {
                     )}
                   </td>
                   <td style={{ textAlign: "right" }}>
+                    <Link href={`/beats/${b.id}/edit`} className="copy-btn" style={{ marginRight: 8 }}>
+                      Edit
+                    </Link>
                     <form action={deleteBeat} style={{ display: "inline" }}>
                       <input type="hidden" name="id" value={b.id} />
                       <button type="submit" className="copy-btn">
