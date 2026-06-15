@@ -37,6 +37,14 @@ model Session {
   expiresAt DateTime
 }
 
+model WaitlistSignup {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  role      String   @default("producer") // "producer" | "beta"
+  referrer  String   @default("")
+  createdAt DateTime @default(now())
+}
+
 model Profile {
   userId            String @id
   user              User   @relation(fields: [userId], references: [id], onDelete: Cascade)
