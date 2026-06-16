@@ -27,18 +27,19 @@ const BENEFITS = [
 export default function WaitlistPage() {
   return (
     <div className="marketing-page wl-page">
-      <DotField
-        className="wl-dotfield"
-        dotRadius={1.2}
-        dotSpacing={16}
-        bulgeStrength={45}
-        glowRadius={140}
-        sparkle={false}
-        waveAmplitude={0}
-        gradientFrom="rgba(237,7,44,0.28)"
-        gradientTo="rgba(154,62,240,0.16)"
-        glowColor="rgba(237,7,44,0.10)"
-      />
+      <div className="wl-dotfield-layer" aria-hidden="true">
+        <DotField
+          dotRadius={1.5}
+          dotSpacing={14}
+          bulgeStrength={67}
+          glowRadius={160}
+          sparkle={false}
+          waveAmplitude={0}
+          gradientFrom="rgba(237,7,44,0.42)"
+          gradientTo="rgba(154,62,240,0.30)"
+          glowColor="rgba(237,7,44,0.12)"
+        />
+      </div>
       <div className="wl-bg-overlay" aria-hidden="true" />
 
       <nav className="nav">

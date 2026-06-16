@@ -5,8 +5,8 @@
 .wl-page { position: relative; overflow-x: clip; }
 
 /* ---------- Interactive dot-field background ---------- */
-/* Canvas sits behind everything and never intercepts pointer events. */
-.wl-dotfield {
+/* Fixed full-page layer behind everything; never intercepts pointer events. */
+.wl-dotfield-layer {
   position: fixed;
   inset: 0;
   z-index: 0;

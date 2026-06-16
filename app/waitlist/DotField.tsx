@@ -1,11 +1,16 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useRef, memo } from "react";
+import "./DotField.css";
+
+const TWO_PI = Math.PI * 2;
 
 type DotFieldProps = {
-  className?: string;
   dotRadius?: number;
   dotSpacing?: number;
+  cursorRadius?: number;
+  cursorForce?: number;
+  bulgeOnly?: boolean;
   bulgeStrength?: number;
   glowRadius?: number;
   sparkle?: boolean;
@@ -13,182 +18,317 @@ type DotFieldProps = {
   gradientFrom?: string;
   gradientTo?: string;
   glowColor?: string;
+  className?: string;
+};
+
+type Dot = { ax: number; ay: number; sx: number; sy: number; vx: number; vy: number; x: number; y: number };
+
+type Snapshot = {
+  dotRadius: number;
+  dotSpacing: number;
+  cursorRadius: number;
+  cursorForce: number;
+  bulgeOnly: boolean;
+  bulgeStrength: number;
+  sparkle: boolean;
+  waveAmplitude: number;
+  gradientFrom: string;
+  gradientTo: string;
 };
 
 /**
- * Subtle interactive dot-grid background (React Bits-style).
- * Canvas only, behind content, pointer-events: none — never blocks the form.
- * Soft cursor "bulge" pushes nearby dots outward; a restrained red->purple
- * gradient colours the field. No sparkle, no wave (disabled by spec).
+ * Faithful TypeScript port of the React Bits <DotField /> component.
+ * Same engine: mouse-speed "engagement", per-dot spring easing, and an SVG
+ * radial glow that follows the cursor.
  *
- * Performance / accessibility:
- *  - prefers-reduced-motion -> static field, no listeners, no rAF.
- *  - coarse pointer / mobile  -> static field + lower density.
- *  - the rAF loop idles itself once the cursor settles, so it isn't
- *    repainting every frame when nothing is moving.
+ * Adaptations for this app (a fixed, full-page background):
+ *  - mouse position is mapped via the canvas's own bounding rect (viewport
+ *    coords) so it stays correct as the page scrolls;
+ *  - prefers-reduced-motion / coarse-pointer / narrow screens render a single
+ *    static frame (no rAF, no listeners), and small screens drop dot density;
+ *  - the wrapping layer is pointer-events: none so it never blocks the form.
  */
-export default function DotField({
-  className,
-  dotRadius = 1.2,
-  dotSpacing = 16,
-  bulgeStrength = 45,
-  glowRadius = 140,
+const DotField = memo(function DotField({
+  dotRadius = 1.5,
+  dotSpacing = 14,
+  cursorRadius = 500,
+  cursorForce = 0.1,
+  bulgeOnly = true,
+  bulgeStrength = 67,
+  glowRadius = 160,
   sparkle = false,
   waveAmplitude = 0,
-  gradientFrom = "rgba(237,7,44,0.28)",
-  gradientTo = "rgba(154,62,240,0.16)",
-  glowColor = "rgba(237,7,44,0.10)",
+  gradientFrom = "rgba(168, 85, 247, 0.35)",
+  gradientTo = "rgba(180, 151, 207, 0.25)",
+  glowColor = "#120F17",
+  className,
 }: DotFieldProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const glowRef = useRef<SVGCircleElement>(null);
+  const dotsRef = useRef<Dot[]>([]);
+  const mouseRef = useRef({ x: -9999, y: -9999, prevX: -9999, prevY: -9999, speed: 0 });
+  const rafRef = useRef<number>(0);
+  const sizeRef = useRef({ w: 0, h: 0 });
+  const glowOpacity = useRef(0);
+  const engagement = useRef(0);
+  const propsRef = useRef<Snapshot>({
+    dotRadius, dotSpacing, cursorRadius, cursorForce, bulgeOnly, bulgeStrength, sparkle, waveAmplitude, gradientFrom, gradientTo,
+  });
+  propsRef.current = { dotRadius, dotSpacing, cursorRadius, cursorForce, bulgeOnly, bulgeStrength, sparkle, waveAmplitude, gradientFrom, gradientTo };
+  const rebuildRef = useRef<(() => void) | null>(null);
+  // SSR-stable id (Math.random() here would cause a hydration mismatch in Next).
+  const glowId = `dot-field-glow-${useId().replace(/[:]/g, "")}`;
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    const glowEl = glowRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
-    // Non-null aliases so the nested setup()/draw() closures keep the narrowing.
     const cv = canvas;
     const c2d = ctx;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const coarse = window.matchMedia("(pointer: coarse)").matches;
+    const interactive = !reduced && !coarse && window.innerWidth >= 768;
 
-    let w = 0;
-    let h = 0;
-    let spacing = dotSpacing;
-    let interactive = false;
-    let raf = 0;
-    let active = false;
-    let idle = 0;
-    let grad: CanvasGradient;
+    let resizeTimer: ReturnType<typeof setTimeout>;
+    let speedInterval: ReturnType<typeof setInterval> | undefined;
+    let frameCount = 0;
 
-    const target = { x: -9999, y: -9999 };
-    const cur = { x: -9999, y: -9999 };
+    function resize() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(doResize, 100);
+    }
 
-    const isMobile = () => window.innerWidth < 768;
+    function doResize() {
+      const parent = cv.parentElement;
+      const rect = parent ? parent.getBoundingClientRect() : { width: window.innerWidth, height: window.innerHeight };
+      const w = rect.width;
+      const h = rect.height;
 
-    function setup() {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      w = window.innerWidth;
-      h = window.innerHeight;
-      // lower density on small screens; never interactive on touch / reduced-motion
-      spacing = isMobile() ? Math.round(dotSpacing * 1.7) : dotSpacing;
-      interactive = !reduced && !coarse && !isMobile();
-
-      cv.width = Math.floor(w * dpr);
-      cv.height = Math.floor(h * dpr);
+      cv.width = w * dpr;
+      cv.height = h * dpr;
       cv.style.width = `${w}px`;
       cv.style.height = `${h}px`;
       c2d.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      grad = c2d.createLinearGradient(0, 0, w, h);
-      grad.addColorStop(0, gradientFrom);
-      grad.addColorStop(1, gradientTo);
-
-      draw();
+      sizeRef.current = { w, h };
+      buildDots(w, h);
+      if (!interactive) drawStatic();
     }
 
-    function draw() {
-      const c = c2d;
-      c.clearRect(0, 0, w, h);
-
-      // soft cursor glow, behind the dots
-      if (interactive && active && cur.x > -9000) {
-        const g = c.createRadialGradient(cur.x, cur.y, 0, cur.x, cur.y, glowRadius);
-        g.addColorStop(0, glowColor);
-        g.addColorStop(1, "rgba(0,0,0,0)");
-        c.fillStyle = g;
-        c.fillRect(cur.x - glowRadius, cur.y - glowRadius, glowRadius * 2, glowRadius * 2);
-      }
-
-      c.fillStyle = grad;
-      c.beginPath();
-      const r = glowRadius;
-      const bulging = interactive && active && cur.x > -9000;
-      for (let y = spacing / 2; y < h; y += spacing) {
-        for (let x = spacing / 2; x < w; x += spacing) {
-          let px = x;
-          let py = y;
-          if (bulging) {
-            const dx = x - cur.x;
-            const dy = y - cur.y;
-            const dist = Math.hypot(dx, dy);
-            if (dist > 0.001 && dist < r) {
-              const f = 1 - dist / r;
-              const push = (bulgeStrength * f * f) / dist;
-              px = x + dx * push;
-              py = y + dy * push;
-            }
-          }
-          c.moveTo(px + dotRadius, py);
-          c.arc(px, py, dotRadius, 0, Math.PI * 2);
+    function buildDots(w: number, h: number) {
+      const p = propsRef.current;
+      // lighter grid on small screens
+      const densityMul = window.innerWidth < 768 ? 1.6 : 1;
+      const step = (p.dotRadius + p.dotSpacing) * densityMul;
+      const cols = Math.floor(w / step);
+      const rows = Math.floor(h / step);
+      const padX = (w % step) / 2;
+      const padY = (h % step) / 2;
+      const dots: Dot[] = new Array(rows * cols);
+      let idx = 0;
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          const ax = padX + col * step + step / 2;
+          const ay = padY + row * step + step / 2;
+          dots[idx++] = { ax, ay, sx: ax, sy: ay, vx: 0, vy: 0, x: ax, y: ay };
         }
       }
-      c.fill();
+      dotsRef.current = dots;
     }
 
-    function loop() {
-      cur.x += (target.x - cur.x) * 0.18;
-      cur.y += (target.y - cur.y) * 0.18;
-      draw();
-      const moved = Math.hypot(target.x - cur.x, target.y - cur.y);
-      idle = moved < 0.4 ? idle + 1 : 0;
-      if (idle > 24) {
-        // settled — leave the static frame up and stop painting
-        raf = 0;
-        return;
+    function gradient() {
+      const p = propsRef.current;
+      const g = c2d.createLinearGradient(0, 0, sizeRef.current.w, sizeRef.current.h);
+      g.addColorStop(0, p.gradientFrom);
+      g.addColorStop(1, p.gradientTo);
+      return g;
+    }
+
+    function drawStatic() {
+      const dots = dotsRef.current;
+      const { w, h } = sizeRef.current;
+      const rad = propsRef.current.dotRadius / 2;
+      c2d.clearRect(0, 0, w, h);
+      c2d.fillStyle = gradient();
+      c2d.beginPath();
+      for (let i = 0; i < dots.length; i++) {
+        const d = dots[i];
+        c2d.moveTo(d.ax + rad, d.ay);
+        c2d.arc(d.ax, d.ay, rad, 0, TWO_PI);
       }
-      raf = requestAnimationFrame(loop);
+      c2d.fill();
     }
 
-    function ensureLoop() {
-      if (!raf) raf = requestAnimationFrame(loop);
+    function onMouseMove(e: MouseEvent) {
+      // viewport-relative so it stays correct for a fixed, scrolling page
+      const rect = cv.getBoundingClientRect();
+      mouseRef.current.x = e.clientX - rect.left;
+      mouseRef.current.y = e.clientY - rect.top;
     }
 
-    function onMove(e: MouseEvent) {
-      target.x = e.clientX;
-      target.y = e.clientY;
-      if (cur.x < -9000) {
-        cur.x = target.x;
-        cur.y = target.y;
+    function updateMouseSpeed() {
+      const m = mouseRef.current;
+      const dx = m.prevX - m.x;
+      const dy = m.prevY - m.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      m.speed += (dist - m.speed) * 0.5;
+      if (m.speed < 0.001) m.speed = 0;
+      m.prevX = m.x;
+      m.prevY = m.y;
+    }
+
+    function tick() {
+      frameCount++;
+      const dots = dotsRef.current;
+      const m = mouseRef.current;
+      const { w, h } = sizeRef.current;
+      const p = propsRef.current;
+      const len = dots.length;
+      const t = frameCount * 0.02;
+
+      const targetEngagement = Math.min(m.speed / 5, 1);
+      engagement.current += (targetEngagement - engagement.current) * 0.06;
+      if (engagement.current < 0.001) engagement.current = 0;
+      const eng = engagement.current;
+
+      glowOpacity.current += (eng - glowOpacity.current) * 0.08;
+      if (glowEl) {
+        glowEl.setAttribute("cx", String(m.x));
+        glowEl.setAttribute("cy", String(m.y));
+        glowEl.style.opacity = String(glowOpacity.current);
       }
-      active = true;
-      idle = 0;
-      ensureLoop();
+
+      c2d.clearRect(0, 0, w, h);
+      c2d.fillStyle = gradient();
+
+      const cr = p.cursorRadius;
+      const crSq = cr * cr;
+      const rad = p.dotRadius / 2;
+      const isBulge = p.bulgeOnly;
+
+      c2d.beginPath();
+      for (let i = 0; i < len; i++) {
+        const d = dots[i];
+        const dx = m.x - d.ax;
+        const dy = m.y - d.ay;
+        const distSq = dx * dx + dy * dy;
+
+        if (distSq < crSq && eng > 0.01) {
+          const dist = Math.sqrt(distSq);
+          if (isBulge) {
+            const tt = 1 - dist / cr;
+            const push = tt * tt * p.bulgeStrength * eng;
+            const angle = Math.atan2(dy, dx);
+            d.sx += (d.ax - Math.cos(angle) * push - d.sx) * 0.15;
+            d.sy += (d.ay - Math.sin(angle) * push - d.sy) * 0.15;
+          } else {
+            const angle = Math.atan2(dy, dx);
+            const move = (500 / dist) * (m.speed * p.cursorForce);
+            d.vx += Math.cos(angle) * -move;
+            d.vy += Math.sin(angle) * -move;
+          }
+        } else if (isBulge) {
+          d.sx += (d.ax - d.sx) * 0.1;
+          d.sy += (d.ay - d.sy) * 0.1;
+        }
+
+        if (!isBulge) {
+          d.vx *= 0.9;
+          d.vy *= 0.9;
+          d.x = d.ax + d.vx;
+          d.y = d.ay + d.vy;
+          d.sx += (d.x - d.sx) * 0.1;
+          d.sy += (d.y - d.sy) * 0.1;
+        }
+
+        let drawX = d.sx;
+        let drawY = d.sy;
+        if (p.waveAmplitude > 0) {
+          drawY += Math.sin(d.ax * 0.03 + t) * p.waveAmplitude;
+          drawX += Math.cos(d.ay * 0.03 + t * 0.7) * p.waveAmplitude * 0.5;
+        }
+
+        if (p.sparkle) {
+          const hash = ((i * 2654435761) ^ (frameCount >> 3)) >>> 0;
+          if (hash % 100 < 3) {
+            c2d.moveTo(drawX + rad * 1.8, drawY);
+            c2d.arc(drawX, drawY, rad * 1.8, 0, TWO_PI);
+          } else {
+            c2d.moveTo(drawX + rad, drawY);
+            c2d.arc(drawX, drawY, rad, 0, TWO_PI);
+          }
+        } else {
+          c2d.moveTo(drawX + rad, drawY);
+          c2d.arc(drawX, drawY, rad, 0, TWO_PI);
+        }
+      }
+      c2d.fill();
+
+      rafRef.current = requestAnimationFrame(tick);
     }
 
-    function onLeave() {
-      // ease the bulge away off-screen, then settle
-      target.x = -9999;
-      target.y = -9999;
-      idle = 0;
-      ensureLoop();
-    }
-
-    setup();
-    window.addEventListener("resize", setup);
+    doResize();
+    window.addEventListener("resize", resize);
     if (interactive) {
-      window.addEventListener("mousemove", onMove, { passive: true });
-      window.addEventListener("mouseout", onLeave);
+      window.addEventListener("mousemove", onMouseMove, { passive: true });
+      speedInterval = setInterval(updateMouseSpeed, 20);
+      rafRef.current = requestAnimationFrame(tick);
     }
+
+    rebuildRef.current = () => {
+      const { w, h } = sizeRef.current;
+      if (w > 0 && h > 0) {
+        buildDots(w, h);
+        if (!interactive) drawStatic();
+      }
+    };
 
     return () => {
-      window.removeEventListener("resize", setup);
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseout", onLeave);
-      if (raf) cancelAnimationFrame(raf);
+      cancelAnimationFrame(rafRef.current);
+      if (speedInterval) clearInterval(speedInterval);
+      clearTimeout(resizeTimer);
+      window.removeEventListener("resize", resize);
+      window.removeEventListener("mousemove", onMouseMove);
     };
-  }, [
-    dotRadius,
-    dotSpacing,
-    bulgeStrength,
-    glowRadius,
-    sparkle,
-    waveAmplitude,
-    gradientFrom,
-    gradientTo,
-    glowColor,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  return <canvas ref={canvasRef} className={className} aria-hidden="true" />;
-}
+  useEffect(() => {
+    rebuildRef.current?.();
+  }, [dotRadius, dotSpacing]);
+
+  return (
+    <div className={`dot-field-container${className ? ` ${className}` : ""}`} aria-hidden="true">
+      <canvas
+        ref={canvasRef}
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
+      />
+      <svg
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}
+      >
+        <defs>
+          <radialGradient id={glowId}>
+            <stop offset="0%" stopColor={glowColor} />
+            <stop offset="100%" stopColor="transparent" />
+          </radialGradient>
+        </defs>
+        <circle
+          ref={glowRef}
+          cx="-9999"
+          cy="-9999"
+          r={glowRadius}
+          fill={`url(#${glowId})`}
+          style={{ opacity: 0, willChange: "opacity" }}
+        />
+      </svg>
+    </div>
+  );
+});
+
+DotField.displayName = "DotField";
+
+export default DotField;
