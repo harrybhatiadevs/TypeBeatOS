@@ -7,27 +7,13 @@ export default async function Landing() {
   const ctaLabel = user ? "Open dashboard" : "Get started free";
 
   return (
-    <div className="marketing-page">
+    <>
       <nav className="nav">
         <div className="nav-inner">
-          <Link href="/" className="logo marketing-logo" aria-label="TypeBeatOS home">
-            <span className="logo-mark" aria-hidden="true">
-              TB
-            </span>
-            <span className="logo-word">
-              TypeBeat<span>OS</span>
-            </span>
+          <Link href="/" className="logo">
+            TypeBeat<span>OS</span>
           </Link>
           <div className="nav-links">
-            <a href="#workflow" className="nav-link nav-link-public">
-              Workflow
-            </a>
-            <a href="#features" className="nav-link nav-link-public">
-              Features
-            </a>
-            <a href="#pricing" className="nav-link nav-link-public">
-              Pricing
-            </a>
             {user ? (
               <Link href="/dashboard" className="btn btn-primary btn-sm">
                 Dashboard
@@ -106,7 +92,7 @@ export default async function Landing() {
         </div>
       </header>
 
-      <section className="problem" id="workflow">
+      <section className="problem">
         <div className="container">
           <h2>
             You know consistency wins.
@@ -134,7 +120,7 @@ export default async function Landing() {
         </div>
       </section>
 
-      <section className="how section-panel">
+      <section className="how">
         <div className="container">
           <h2>
             From beat file to scheduled upload
@@ -170,7 +156,7 @@ export default async function Landing() {
         </div>
       </section>
 
-      <section className="features" id="features">
+      <section className="features">
         <div className="container">
           <h2>
             Built for the type-beat workflow.
@@ -179,7 +165,7 @@ export default async function Landing() {
           </h2>
           <div className="features-grid">
             <div className="feature">
-              <div className="feature-icon">SEO</div>
+              <div className="feature-icon">🎯</div>
               <h3>Type-beat SEO titles</h3>
               <p>
                 Multiple title options using real type-beat structures: artist keywords, beat name,
@@ -187,7 +173,7 @@ export default async function Landing() {
               </p>
             </div>
             <div className="feature">
-              <div className="feature-icon">TXT</div>
+              <div className="feature-icon">📝</div>
               <h3>Descriptions with your links</h3>
               <p>
                 Your BeatStars/Airbit links, license info, contact email, socials, and
@@ -195,7 +181,7 @@ export default async function Landing() {
               </p>
             </div>
             <div className="feature">
-              <div className="feature-icon">#</div>
+              <div className="feature-icon">#️⃣</div>
               <h3>Tags &amp; hashtags</h3>
               <p>
                 Searchable tags from artist, genre, mood, BPM, key, related artists, and &quot;type
@@ -203,7 +189,7 @@ export default async function Landing() {
               </p>
             </div>
             <div className="feature">
-              <div className="feature-icon">IMG</div>
+              <div className="feature-icon">🖼️</div>
               <h3>Thumbnail builder</h3>
               <p>
                 Pick a background, drop your text and producer name — get consistent, on-brand
@@ -211,7 +197,7 @@ export default async function Landing() {
               </p>
             </div>
             <div className="feature">
-              <div className="feature-icon">PIN</div>
+              <div className="feature-icon">📌</div>
               <h3>Pinned comments</h3>
               <p>
                 The purchase-link pinned comment, written and ready to paste the moment your video
@@ -219,7 +205,7 @@ export default async function Landing() {
               </p>
             </div>
             <div className="feature">
-              <div className="feature-icon">CAL</div>
+              <div className="feature-icon">📅</div>
               <h3>Upload calendar</h3>
               <p>
                 Batch your beats and auto-spread them across a posting schedule. One session = a
@@ -321,6 +307,6 @@ export default async function Landing() {
           <p>© 2026 TypeBeatOS. Not affiliated with YouTube, BeatStars, or any artist mentioned.</p>
         </div>
       </footer>
-    </div>
+    </>
   );
 }
