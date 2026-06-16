@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import WaitlistForm from "./WaitlistForm";
 import Reveal from "./Reveal";
+import DotField from "./DotField";
 import "./waitlist.css";
 
 export const metadata: Metadata = {
@@ -26,7 +27,19 @@ const BENEFITS = [
 export default function WaitlistPage() {
   return (
     <div className="marketing-page wl-page">
-      <div className="wl-aurora" aria-hidden="true" />
+      <DotField
+        className="wl-dotfield"
+        dotRadius={1.2}
+        dotSpacing={16}
+        bulgeStrength={45}
+        glowRadius={140}
+        sparkle={false}
+        waveAmplitude={0}
+        gradientFrom="rgba(237,7,44,0.28)"
+        gradientTo="rgba(154,62,240,0.16)"
+        glowColor="rgba(237,7,44,0.10)"
+      />
+      <div className="wl-bg-overlay" aria-hidden="true" />
 
       <nav className="nav">
         <div className="nav-inner">

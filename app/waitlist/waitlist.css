@@ -4,17 +4,32 @@
 
 .wl-page { position: relative; overflow-x: clip; }
 
-/* ---------- Subtle background (toned-down glow) ---------- */
-.wl-aurora {
+/* ---------- Interactive dot-field background ---------- */
+/* Canvas sits behind everything and never intercepts pointer events. */
+.wl-dotfield {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Dark overlay above the dot-field so text stays readable: clear in the
+   centre, darker toward the top (under the nav) and the bottom. */
+.wl-bg-overlay {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(36rem 30rem at 50% -8%, rgba(229, 9, 20, 0.10), transparent 62%),
-    radial-gradient(28rem 24rem at 88% 6%, rgba(255, 71, 87, 0.05), transparent 60%);
+    radial-gradient(120% 75% at 50% 50%, rgba(5, 5, 6, 0) 38%, rgba(5, 5, 6, 0.55) 100%),
+    linear-gradient(180deg, rgba(5, 5, 6, 0.6) 0%, rgba(5, 5, 6, 0) 18%, rgba(5, 5, 6, 0) 82%, rgba(5, 5, 6, 0.7) 100%);
 }
-.wl-page > *:not(.wl-aurora) { position: relative; z-index: 1; }
+
+/* Real content rides above both background layers. */
+.wl-page > nav,
+.wl-page > header,
+.wl-page > section,
+.wl-page > footer { position: relative; z-index: 1; }
 
 /* ---------- Hero ---------- */
 .wl-hero {
@@ -46,14 +61,18 @@
 .wl-form { display: flex; gap: 8px; width: 100%; }
 
 .wl-form {
-  background: rgba(255, 255, 255, 0.035);
+  background: rgba(12, 10, 12, 0.55);
+  backdrop-filter: blur(6px);
   border: 1px solid var(--border);
   border-radius: 999px;
   padding: 7px 7px 7px 8px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  transition: border-color 0.2s ease;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
-.wl-form:focus-within { border-color: rgba(229, 9, 20, 0.5); }
+.wl-form:focus-within {
+  border-color: rgba(229, 9, 20, 0.5);
+  box-shadow: 0 12px 38px rgba(229, 9, 20, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
 
 .wl-form input {
   flex: 1;
@@ -129,8 +148,9 @@
   text-align: left;
   border: 1px solid var(--border);
   border-radius: 18px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  background: linear-gradient(180deg, rgba(20, 16, 20, 0.7), rgba(10, 9, 11, 0.62));
+  backdrop-filter: blur(6px);
+  box-shadow: 0 28px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   padding: 22px 24px;
 }
 
@@ -228,7 +248,8 @@
   font-weight: 860;
   letter-spacing: -0.025em;
   line-height: 1.1;
-  margin: 10px 0 0;
+  max-width: none;       /* override inherited .marketing-page h2 max-width: 880px */
+  margin: 10px auto 0;   /* auto L/R so the heading centers in its container */
 }
 
 /* ---------- Steps ---------- */
