@@ -33,21 +33,62 @@ export default async function Landing() {
       </nav>
 
       <header className="hero">
-        <div className="container">
-          <p className="eyebrow">For type-beat producers on YouTube</p>
-          <h1>
-            Upload a month of type beats
-            <br />
-            <span className="accent">in one sitting.</span>
-          </h1>
-          <p className="sub">
-            TypeBeatOS generates SEO titles, descriptions, tags, thumbnails, pinned comments, and
-            upload schedules — so you can focus on making beats.
-          </p>
-          <Link href={cta} className="btn btn-primary">
-            {ctaLabel}
-          </Link>
-          <p className="form-note">Free plan included. No card required.</p>
+        <div className="container hero-shell">
+          <div className="hero-copy">
+            <p className="eyebrow">
+              <span className="eyebrow-dot" aria-hidden="true" />
+              Upload ops for type-beat producers
+            </p>
+            <h1>
+              Batch your type beat uploads
+              <br />
+              <span className="accent">without the busywork.</span>
+            </h1>
+            <p className="sub">
+              TypeBeatOS generates SEO titles, descriptions, tags, thumbnails, pinned comments, and
+              upload schedules so you can focus on making beats.
+            </p>
+            <div className="hero-actions">
+              <Link href={cta} className="btn btn-primary">
+                {ctaLabel}
+              </Link>
+              <a href="#workflow" className="btn btn-ghost">
+                See workflow
+              </a>
+            </div>
+            <p className="form-note">Free plan included. No card required.</p>
+          </div>
+
+          <div className="hero-preview" aria-label="TypeBeatOS workflow highlights">
+            <div className="preview-card preview-card-main">
+              <div className="preview-card-head">
+                <span>Upload package</span>
+                <strong>Ready</strong>
+              </div>
+              <h3>Drake Type Beat - Midnight Run</h3>
+              <p>SEO title, description, tags, thumbnail direction, pinned comment, and schedule.</p>
+              <div className="preview-tags">
+                <span>SEO title</span>
+                <span>Tags</span>
+                <span>Thumbnail</span>
+              </div>
+            </div>
+            <div className="preview-card">
+              <span>Generated assets</span>
+              <strong>6</strong>
+              <p>Ready to review</p>
+            </div>
+            <div className="preview-card">
+              <span>Next post</span>
+              <strong>Fri 6 PM</strong>
+              <p>Auto-spread calendar</p>
+            </div>
+            <div className="preview-card">
+              <span>Workflow</span>
+              <strong>One session</strong>
+              <p>Batch the month</p>
+            </div>
+          </div>
         </div>
       </header>
 

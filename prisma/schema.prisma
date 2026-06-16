@@ -8,13 +8,26 @@ datasource db {
 }
 
 model User {
-  id           String    @id @default(cuid())
-  email        String    @unique
+  id           String          @id @default(cuid())
+  email        String          @unique
   passwordHash String
-  createdAt    DateTime  @default(now())
+  onboardedAt  DateTime?
+  createdAt    DateTime        @default(now())
   sessions     Session[]
   profile      Profile?
   beats        Beat[]
+  youtube      YouTubeAccount?
+}
+
+model YouTubeAccount {
+  userId       String   @id
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken  String
+  refreshToken String
+  expiresAt    DateTime
+  channelId    String   @default("")
+  channelTitle String   @default("")
+  createdAt    DateTime @default(now())
 }
 
 model Session {
@@ -22,6 +35,14 @@ model Session {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   expiresAt DateTime
+}
+
+model WaitlistSignup {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  role      String   @default("producer") // "producer" | "beta"
+  referrer  String   @default("")
+  createdAt DateTime @default(now())
 }
 
 model Profile {
@@ -71,6 +92,13 @@ model Package {
   videoPath     String    @default("")
   videoStatus   String    @default("none")
   videoError    String    @default("")
+  youtubeVideoId String   @default("")
+  uploadStatus  String    @default("none")
+  uploadError   String    @default("")
+  viewCount     Int       @default(0)
+  likeCount     Int       @default(0)
+  commentCount  Int       @default(0)
+  statsUpdatedAt DateTime?
   scheduledAt   DateTime?
   status        String    @default("draft")
   createdAt     DateTime  @default(now())

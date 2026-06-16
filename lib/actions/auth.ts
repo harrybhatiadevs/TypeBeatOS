@@ -25,7 +25,7 @@ export async function signup(formData: FormData) {
   });
 
   await createSession(user.id);
-  redirect("/dashboard");
+  redirect("/onboarding");
 }
 
 export async function login(formData: FormData) {

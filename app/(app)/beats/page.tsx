@@ -13,6 +13,10 @@ export default async function BeatsPage() {
 
   return (
     <>
+      <p className="eyebrow">
+        <span className="eyebrow-dot" aria-hidden="true" />
+        Catalog
+      </p>
       <h1 className="page-title">Beats</h1>
       <p className="page-sub">Every beat you&apos;ve added, with its upload package.</p>
 
@@ -60,6 +64,9 @@ export default async function BeatsPage() {
                     )}
                   </td>
                   <td style={{ textAlign: "right" }}>
+                    <Link href={`/beats/${b.id}/edit`} className="copy-btn" style={{ marginRight: 8 }}>
+                      Edit
+                    </Link>
                     <form action={deleteBeat} style={{ display: "inline" }}>
                       <input type="hidden" name="id" value={b.id} />
                       <button type="submit" className="copy-btn">
