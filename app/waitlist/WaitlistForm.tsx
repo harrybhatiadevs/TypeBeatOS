@@ -4,22 +4,17 @@ import { useState } from "react";
 import { joinWaitlist, type WaitlistResult } from "@/lib/actions/waitlist";
 
 export default function WaitlistForm({
-  role = "producer",
-  cta = "Join the waitlist",
+  cta = "Join waitlist",
   placeholder = "your@email.com",
-  variant = "default",
 }: {
-  role?: "producer" | "beta";
   cta?: string;
   placeholder?: string;
-  variant?: "default" | "hero";
 }) {
   const [state, setState] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [message, setMessage] = useState("");
 
   async function action(formData: FormData) {
     setState("loading");
-    formData.set("role", role);
     let res: WaitlistResult;
     try {
       res = await joinWaitlist(formData);
@@ -32,7 +27,7 @@ export default function WaitlistForm({
 
   if (state === "done") {
     return (
-      <div className={`wl-form-success${variant === "hero" ? " hero" : ""}`} role="status">
+      <div className="wl-form-success" role="status">
         <span className="wl-check" aria-hidden="true">✓</span>
         <span>{message}</span>
       </div>
@@ -40,7 +35,7 @@ export default function WaitlistForm({
   }
 
   return (
-    <form action={action} className={`wl-form${variant === "hero" ? " hero" : ""}`}>
+    <form action={action} className="wl-form">
       <input
         type="email"
         name="email"
