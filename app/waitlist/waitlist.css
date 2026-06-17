@@ -14,6 +14,17 @@
 
 .tb-page a { text-decoration: none; }
 
+/* Neutralise inherited globals (h1/h2/h3 weights + h2 centering) so the
+   Bebas Neue display type renders at its real single weight (400),
+   not a faux-bold synthesised from globals' 700-900 element rules. */
+.tb-page h1,
+.tb-page h2,
+.tb-page h3 {
+  font-weight: 400;
+  text-align: left;
+  letter-spacing: inherit;
+}
+
 .tb-red { color: #ed072c; }
 
 .tb-display,
@@ -41,20 +52,20 @@
   background: radial-gradient(circle, #ed072c 0%, transparent 70%);
 }
 .tb-glow-left {
-  top: -10rem;
-  left: -10rem;
-  width: 600px;
-  height: 600px;
-  opacity: 0.6;
-  filter: blur(140px);
+  top: -12rem;
+  left: -12rem;
+  width: 560px;
+  height: 560px;
+  opacity: 0.42;
+  filter: blur(150px);
 }
 .tb-glow-right {
-  top: 33%;
-  right: -15rem;
-  width: 700px;
-  height: 700px;
-  opacity: 0.3;
-  filter: blur(160px);
+  top: 38%;
+  right: -16rem;
+  width: 640px;
+  height: 640px;
+  opacity: 0.2;
+  filter: blur(170px);
 }
 
 /* All real content rides above the glow */
@@ -175,18 +186,24 @@
   border-radius: 9999px;
   backdrop-filter: blur(4px);
 }
-.tb-form-input {
+/* Higher specificity than globals' input[type="email"] so no inner box,
+   border, radius, or focus ring leaks in — just a transparent field. */
+.tb-form .tb-form-input,
+.tb-form .tb-form-input:focus {
   flex: 1;
   min-width: 0;
+  width: auto;
   border: none;
+  border-radius: 0;
   background: transparent;
   outline: none;
+  box-shadow: none;
   padding: 0.625rem 1rem;
   font-family: inherit;
   font-size: 0.875rem;
   color: #fff;
 }
-.tb-form-input::placeholder { color: rgba(255, 255, 255, 0.4); }
+.tb-form .tb-form-input::placeholder { color: rgba(255, 255, 255, 0.4); }
 .tb-form-btn {
   flex-shrink: 0;
   border: none;
@@ -351,7 +368,8 @@
   padding: 10rem 1.5rem;
   text-align: center;
 }
-.tb-final-h2 {
+.tb-page .tb-final-h2 {
+  text-align: center;
   text-transform: uppercase;
   line-height: 0.85;
   letter-spacing: -0.02em;
