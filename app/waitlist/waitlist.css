@@ -127,7 +127,7 @@
 .tb-hero {
   max-width: 80rem;
   margin: 0 auto;
-  padding: 4rem 1.5rem 8rem;
+  padding: 2.5rem 1.5rem 5rem;
 }
 
 .tb-eyebrow {
@@ -155,10 +155,10 @@
 .tb-h1 {
   font-weight: 400;
   text-transform: uppercase;
-  line-height: 0.85;
+  line-height: 0.86;
   letter-spacing: -0.01em;
   color: #fff;
-  font-size: clamp(3.5rem, 11vw, 10rem);
+  font-size: clamp(2.75rem, 8.4vw, 7.25rem);
 }
 
 .tb-hero-grid {
@@ -255,7 +255,7 @@
 
 /* ---------- Stats strip ---------- */
 .tb-stats {
-  margin-top: 6rem;
+  margin-top: 3.5rem;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 2rem;
@@ -413,7 +413,7 @@
 
 /* ---------- Responsive ---------- */
 @media (min-width: 768px) {
-  .tb-hero { padding: 6rem 1.5rem 10rem; }
+  .tb-hero { padding: 3.5rem 1.5rem 6rem; }
   .tb-nav-links { display: flex; }
   .tb-hero-grid { grid-template-columns: 1fr auto; align-items: end; }
   .tb-hero-sub { font-size: 1.25rem; }
