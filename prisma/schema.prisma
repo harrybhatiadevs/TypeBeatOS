@@ -35,6 +35,9 @@ model Session {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   expiresAt DateTime
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 model WaitlistSignup {
@@ -43,6 +46,8 @@ model WaitlistSignup {
   role      String   @default("producer") // "producer" | "beta"
   referrer  String   @default("")
   createdAt DateTime @default(now())
+
+  @@index([createdAt])
 }
 
 model Profile {
@@ -76,6 +81,8 @@ model Beat {
   audioPath       String   @default("")
   createdAt       DateTime @default(now())
   package         Package?
+
+  @@index([userId, createdAt])
 }
 
 model Package {
@@ -102,4 +109,7 @@ model Package {
   scheduledAt   DateTime?
   status        String    @default("draft")
   createdAt     DateTime  @default(now())
+
+  @@index([scheduledAt])
+  @@index([status])
 }

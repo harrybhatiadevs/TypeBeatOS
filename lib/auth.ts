@@ -5,6 +5,7 @@ import { db } from "./db";
 
 const SESSION_COOKIE = "tbos_session";
 const SESSION_DAYS = 30;
+const IS_PROD = process.env.NODE_ENV === "production";
 
 export async function createSession(userId: string) {
   const token = randomBytes(32).toString("hex");
@@ -14,6 +15,7 @@ export async function createSession(userId: string) {
   cookieStore.set(SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: "lax",
+    secure: IS_PROD,
     expires: expiresAt,
     path: "/",
   });

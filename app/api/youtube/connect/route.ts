@@ -18,7 +18,13 @@ export async function GET(req: NextRequest) {
 
   const state = randomBytes(16).toString("hex");
   const res = NextResponse.redirect(youtubeAuthUrl(state));
-  const cookieOpts = { httpOnly: true, sameSite: "lax" as const, maxAge: 600, path: "/" };
+  const cookieOpts = {
+    httpOnly: true,
+    sameSite: "lax" as const,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 600,
+    path: "/",
+  };
   res.cookies.set("yt_oauth_state", state, cookieOpts);
   res.cookies.set("yt_return", returnPath, cookieOpts);
   return res;
