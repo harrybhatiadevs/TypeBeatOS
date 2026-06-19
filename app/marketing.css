@@ -128,20 +128,17 @@
   to   { opacity: 1; transform: translate(-50%, 0); }
 }
 
-.tb-brand { display: inline-flex; align-items: center; gap: 0.55rem; }
+.tb-brand { display: inline-flex; align-items: center; gap: 0.65rem; }
 .tb-badge {
   display: grid;
   place-items: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  border-radius: 6px;
-  background: linear-gradient(135deg, #ed072c, #8a0418);
+  width: 1.85rem;
+  height: 1.85rem;
   color: #fff;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  box-shadow: 0 0 18px rgba(237, 7, 44, 0.55);
+  /* Subtle red haze behind the logo, lifts the white glyph on dark glass */
+  filter: drop-shadow(0 0 10px rgba(237, 7, 44, 0.35));
 }
+.tb-badge img { display: block; }
 .tb-wordmark {
   color: #fff;
   font-size: 1.05rem;
@@ -647,6 +644,207 @@
 .tb-final-btn:hover { transform: translateY(-2px); box-shadow: 0 0 44px rgba(237, 7, 44, 0.7); }
 .tb-final-btn:hover::before { transform: translateX(100%); }
 
+/* ============================================================
+   Landing-page patterns — feature grid, problem chips, pricing
+   Shared with the waitlist so the product feels like one family.
+   ============================================================ */
+
+/* Secondary / ghost button: same pill silhouette as the primary, but
+   transparent with a hairline border. Pairs next to .tb-final-btn etc. */
+.tb-cta-ghost {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.85rem 1.75rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.025);
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  transition: transform 0.25s ease, border-color 0.25s ease, color 0.25s ease, background 0.25s ease;
+}
+.tb-cta-ghost:hover {
+  transform: translateY(-2px);
+  border-color: rgba(237, 7, 44, 0.55);
+  background: rgba(237, 7, 44, 0.06);
+  color: #fff;
+}
+
+/* ---------- Problem chips (landing) ---------- */
+.tb-problem-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0 0 3rem;
+}
+.tb-chip {
+  padding: 0.55rem 1.05rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.025);
+  border-radius: 9999px;
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.78);
+  transition: border-color 0.25s ease, color 0.25s ease, background 0.25s ease;
+}
+.tb-chip:hover { border-color: rgba(255, 255, 255, 0.2); color: #fff; }
+.tb-chip-repeat {
+  border-color: rgba(237, 7, 44, 0.45);
+  background: rgba(237, 7, 44, 0.08);
+  color: #fff;
+}
+.tb-problem-punch {
+  max-width: 38rem;
+  font-size: 1.125rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ---------- Feature grid (landing) ---------- */
+.tb-features {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  margin-top: 2.5rem;
+}
+.tb-feature {
+  position: relative;
+  padding: 1.75rem 1.75rem 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.025);
+  transition: border-color 0.3s ease, background 0.3s ease, transform 0.3s ease;
+}
+.tb-feature:hover {
+  transform: translateY(-3px);
+  border-color: rgba(237, 7, 44, 0.45);
+  background: rgba(237, 7, 44, 0.04);
+}
+.tb-feature-eyebrow {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+  color: #ed072c;
+  margin-bottom: 0.9rem;
+}
+.tb-feature-title {
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: clamp(1.5rem, 2.2vw, 1.85rem);
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: #fff;
+  margin-bottom: 0.75rem;
+}
+.tb-feature-body {
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ---------- Pricing (landing) ---------- */
+.tb-pricing {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-top: 2.5rem;
+}
+.tb-plan {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 1.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.5rem;
+  background: rgba(255, 255, 255, 0.025);
+  transition: border-color 0.3s ease, transform 0.3s ease;
+}
+.tb-plan:hover { transform: translateY(-3px); border-color: rgba(237, 7, 44, 0.4); }
+.tb-plan-featured {
+  border-color: rgba(237, 7, 44, 0.55);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(237, 7, 44, 0.18), transparent 18rem),
+    rgba(237, 7, 44, 0.04);
+  box-shadow: 0 24px 76px rgba(237, 7, 44, 0.18);
+}
+.tb-plan-badge {
+  position: absolute;
+  top: -0.7rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.25rem 0.85rem;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #ed072c, #b30420);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.tb-plan-name {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 1rem;
+}
+.tb-plan-price {
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: clamp(2.75rem, 4.5vw, 4rem);
+  line-height: 0.85;
+  letter-spacing: -0.02em;
+  color: #fff;
+  margin-bottom: 1.5rem;
+}
+.tb-plan-price small {
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: rgba(255, 255, 255, 0.5);
+}
+.tb-plan ul {
+  list-style: none;
+  margin: 0 0 1.75rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  flex: 1;
+}
+.tb-plan li {
+  position: relative;
+  padding-left: 1.25rem;
+  font-size: 0.92rem;
+  color: rgba(255, 255, 255, 0.72);
+}
+.tb-plan li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55rem;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 9999px;
+  background: #ed072c;
+}
+.tb-plan .tb-cta-ghost,
+.tb-plan .tb-final-btn {
+  margin-top: 0;
+  justify-content: center;
+  width: 100%;
+}
+
+/* ---------- Hero buttons row ---------- */
+.tb-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+.tb-hero-actions .tb-final-btn { margin-top: 0; }
+
 /* ---------- Footer ---------- */
 .tb-footer {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
@@ -679,6 +877,9 @@
      reads under the heading — see the brief. */
   .tb-step { gap: 3rem; padding: 1.5rem 0; }
   .tb-section-head { margin-bottom: 2rem; }
+  .tb-features { grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  .tb-pricing { grid-template-columns: repeat(4, 1fr); gap: 1.25rem; }
+  .tb-problem-grid { max-width: 56rem; }
   .tb-beta-grid { grid-template-columns: repeat(2, 1fr); align-items: center; }
   .tb-footer-inner { flex-direction: row; }
   .tb-marquee-text { font-size: 2rem; }

@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import WaitlistForm from "./WaitlistForm";
 import WaitlistEffects from "./WaitlistEffects";
-import "./waitlist.css";
+import "../marketing.css";
 
 export const metadata: Metadata = {
   title: "TypeBeatOS — The YouTube Upload System for Type-Beat Producers",
@@ -46,7 +47,9 @@ export default function WaitlistPage() {
       {/* NAV — floating glass pill */}
       <nav className="tb-nav" data-testid="waitlist-nav">
         <Link href="/waitlist" className="tb-brand" aria-label="TypeBeatOS home" data-testid="waitlist-brand">
-          <span className="tb-badge">TB</span>
+          <span className="tb-badge">
+            <Image src="/logo.svg" alt="" width={28} height={28} priority />
+          </span>
           <span className="tb-wordmark">
             TYPEBEAT<span>OS</span>
           </span>
