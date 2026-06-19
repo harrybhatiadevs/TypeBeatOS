@@ -1,0 +1,30 @@
+.git
+.github
+.next
+.vscode
+.idea
+node_modules
+npm-debug.log
+
+# Local dev state — never goes into a prod image
+.env
+.env.local
+.env.development
+.env.development.local
+prisma/dev.db*
+uploads
+/tmp
+
+# Editor / OS junk
+.DS_Store
+*.swp
+
+# Test + docs are not needed at runtime
+coverage
+docs
+*.md
+!README.md
+
+# Local-only helpers
+start-beta.sh
+stop-beta.sh
