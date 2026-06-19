@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import WaitlistForm from "./WaitlistForm";
+import WaitlistEffects from "./WaitlistEffects";
 import "./waitlist.css";
 
 export const metadata: Metadata = {
@@ -23,28 +24,38 @@ const PERKS = [
   "Title structures tuned to ranking artists",
 ];
 
+const MARQUEE = [
+  "Drake type beat",
+  "Travis Scott type beat",
+  "SEO-ready uploads",
+  "Auto BPM + key",
+  "Schedule the month",
+  "Make beats, not metadata",
+];
+
 export default function WaitlistPage() {
   return (
-    <div className="tb-page">
-      {/* ambient red glow */}
+    <div className="tb-page" data-testid="waitlist-page">
+      {/* ambient red glow + grain */}
       <div className="tb-glow-layer" aria-hidden="true">
         <div className="tb-glow tb-glow-left" />
         <div className="tb-glow tb-glow-right" />
       </div>
+      <div className="tb-grain" aria-hidden="true" />
 
-      {/* NAV */}
-      <nav className="tb-nav">
-        <Link href="/waitlist" className="tb-brand" aria-label="TypeBeatOS home">
+      {/* NAV — floating glass pill */}
+      <nav className="tb-nav" data-testid="waitlist-nav">
+        <Link href="/waitlist" className="tb-brand" aria-label="TypeBeatOS home" data-testid="waitlist-brand">
           <span className="tb-badge">TB</span>
           <span className="tb-wordmark">
             TYPEBEAT<span>OS</span>
           </span>
         </Link>
         <div className="tb-nav-links">
-          <a href="#how" className="tb-nav-link">How it works</a>
-          <a href="#beta" className="tb-nav-link">Beta access</a>
-          <a href="#join" className="tb-nav-cta">Join waitlist</a>
+          <a href="#how" className="tb-nav-link" data-testid="nav-link-how">How it works</a>
+          <a href="#beta" className="tb-nav-link" data-testid="nav-link-beta">Beta access</a>
         </div>
+        <a href="#join" className="tb-nav-cta" data-testid="nav-cta-join">Join waitlist</a>
       </nav>
 
       {/* HERO */}
@@ -54,11 +65,11 @@ export default function WaitlistPage() {
           Private beta · 2026
         </div>
 
-        <h1 className="tb-h1">
-          The YouTube <br />
-          upload system <br />
-          for <span className="tb-red">type-beat</span> <br />
-          producers.
+        <h1 className="tb-h1" data-testid="waitlist-hero-title">
+          <span className="tb-line"><span>The YouTube</span></span>
+          <span className="tb-line"><span>upload system</span></span>
+          <span className="tb-line"><span>for <span className="tb-red">type-beat</span></span></span>
+          <span className="tb-line"><span>producers.</span></span>
         </h1>
 
         <div className="tb-hero-grid">
@@ -72,7 +83,7 @@ export default function WaitlistPage() {
         </div>
 
         {/* stats strip */}
-        <div className="tb-stats">
+        <div className="tb-stats tb-reveal">
           <div className="tb-stat">
             <div className="tb-stat-num">10x</div>
             <div className="tb-stat-label">Faster uploads</div>
@@ -92,9 +103,22 @@ export default function WaitlistPage() {
         </div>
       </section>
 
+      {/* MARQUEE STRIP */}
+      <div className="tb-marquee" aria-hidden="true">
+        <div className="tb-marquee-track">
+          {[0, 1].map((dup) => (
+            <div key={dup} className="tb-marquee-text">
+              {MARQUEE.map((m) => (
+                <span key={`${dup}-${m}`}>{m}</span>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* HOW IT WORKS */}
       <section id="how" className="tb-section">
-        <div className="tb-section-head">
+        <div className="tb-section-head tb-reveal">
           <h2 className="tb-h2">
             How it <span className="tb-red">works</span>
           </h2>
@@ -105,8 +129,13 @@ export default function WaitlistPage() {
         </div>
 
         <div className="tb-steps">
-          {STEPS.map((s) => (
-            <div key={s.n} className="tb-step">
+          {STEPS.map((s, i) => (
+            <div
+              key={s.n}
+              className="tb-step tb-reveal"
+              data-delay={String(i + 1)}
+              data-testid={`waitlist-step-${s.n}`}
+            >
               <div className="tb-step-num">{s.n}</div>
               <h3 className="tb-step-title">{s.t}</h3>
               <p className="tb-step-body">{s.b}</p>
@@ -118,7 +147,7 @@ export default function WaitlistPage() {
       {/* BETA */}
       <section id="beta" className="tb-section">
         <div className="tb-beta-grid">
-          <div>
+          <div className="tb-reveal">
             <div className="tb-kicker">Beta access</div>
             <h2 className="tb-h2 tb-h2-left">
               Free during <br />
@@ -130,7 +159,7 @@ export default function WaitlistPage() {
             </p>
           </div>
 
-          <ul className="tb-perks">
+          <ul className="tb-perks tb-reveal" data-delay="1">
             {PERKS.map((p) => (
               <li key={p} className="tb-perk">
                 <span className="tb-perk-dot" aria-hidden="true" />
@@ -142,12 +171,12 @@ export default function WaitlistPage() {
       </section>
 
       {/* FINAL CTA */}
-      <section className="tb-final">
+      <section className="tb-final tb-reveal">
         <h2 className="tb-final-h2">
           Upload less. <br />
           <span className="tb-red">Release more.</span>
         </h2>
-        <a href="#join" className="tb-final-btn">
+        <a href="#join" className="tb-final-btn" data-testid="waitlist-final-cta">
           Join the waitlist
         </a>
       </section>
@@ -160,6 +189,8 @@ export default function WaitlistPage() {
           <span className="tb-footer-copy">© 2026 — Built for producers, by producers.</span>
         </div>
       </footer>
+
+      <WaitlistEffects />
     </div>
   );
 }
