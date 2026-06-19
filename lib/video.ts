@@ -3,6 +3,9 @@ import { mkdir } from "fs/promises";
 import path from "path";
 import ffmpegPath from "ffmpeg-static";
 import { db } from "./db";
+import { loggerFor } from "./logger";
+
+const log = loggerFor("video-render");
 
 export type VideoStyle = "static" | "waveform";
 
@@ -86,12 +89,18 @@ export function enqueueRender(packageId: string, style: VideoStyle) {
 }
 
 async function renderVideo(packageId: string, style: VideoStyle) {
+  const jobLog = log.child({ packageId, style });
   const pkg = await db.package.findUnique({
     where: { id: packageId },
     include: { beat: true },
   });
-  if (!pkg) return;
+  if (!pkg) {
+    jobLog.warn("package not found, skipping render");
+    return;
+  }
 
+  const startedAt = Date.now();
+  jobLog.info("render started");
   try {
     if (!pkg.beat.audioPath) throw new Error("Beat has no audio file");
     if (!pkg.thumbnailPath) throw new Error("Save a thumbnail first");
@@ -108,10 +117,16 @@ async function renderVideo(packageId: string, style: VideoStyle) {
       where: { id: packageId },
       data: { videoStatus: "done", videoPath: `/api/files/videos/${packageId}.mp4`, videoError: "" },
     });
+    jobLog.info({ durationMs: Date.now() - startedAt }, "render done");
   } catch (err) {
+    const message = err instanceof Error ? err.message : "Render failed";
+    jobLog.error(
+      { durationMs: Date.now() - startedAt, err: err instanceof Error ? err.message : err },
+      "render failed",
+    );
     await db.package.update({
       where: { id: packageId },
-      data: { videoStatus: "failed", videoError: err instanceof Error ? err.message : "Render failed" },
+      data: { videoStatus: "failed", videoError: message },
     });
   }
 }
