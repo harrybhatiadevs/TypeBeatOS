@@ -9,6 +9,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "db:push": "prisma db push",
+    "db:validate-postgres": "DATABASE_URL=postgresql://ci:ci@localhost:5432/ci prisma validate --schema=prisma/schema.postgres.prisma",
     "postinstall": "prisma generate"
   },
   "dependencies": {

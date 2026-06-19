@@ -26,6 +26,11 @@ jobs:
       - name: Run unit tests
         run: npm test
 
+      - name: Validate Postgres schema variant
+        # Catches SQLite-isms in prisma/schema.prisma drifting from the
+        # Postgres target before the cutover.
+        run: npm run db:validate-postgres
+
       - name: Build (Next.js)
         run: npm run build
         env:
