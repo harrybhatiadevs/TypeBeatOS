@@ -2,6 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getUser } from "@/lib/auth";
 import { appUrl, exchangeCode, fetchChannel } from "@/lib/youtube";
+import { oauthLimiter } from "@/lib/rate-limit";
+
+function clientIp(req: NextRequest): string {
+  const xff = req.headers.get("x-forwarded-for");
+  if (xff) {
+    const first = xff.split(",")[0]?.trim();
+    if (first) return first;
+  }
+  return req.headers.get("x-real-ip")?.trim() || "unknown";
+}
 
 export async function GET(req: NextRequest) {
   const ret = req.cookies.get("yt_return")?.value || "";
@@ -11,6 +21,9 @@ export async function GET(req: NextRequest) {
 
   const fail = (msg: string) =>
     NextResponse.redirect(withParam(`yt_error=${encodeURIComponent(msg)}`));
+
+  const gate = await oauthLimiter.consume(clientIp(req));
+  if (!gate.allowed) return fail("Too many requests — try again in a minute.");
 
   const user = await getUser();
   if (!user) return NextResponse.redirect(new URL("/login", appUrl()));

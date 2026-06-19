@@ -1,12 +1,20 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { waitlistLimiter } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/request-context";
 
 export type WaitlistResult = { ok: boolean; message: string; alreadyIn?: boolean };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function joinWaitlist(formData: FormData): Promise<WaitlistResult> {
+  const ip = await getClientIp();
+  const gate = await waitlistLimiter.consume(ip);
+  if (!gate.allowed) {
+    return { ok: false, message: "Too many submissions — try again in a minute." };
+  }
+
   const email = String(formData.get("email") || "").trim().toLowerCase();
   const role = String(formData.get("role") || "producer").trim();
 
