@@ -11,9 +11,9 @@ export const metadata: Metadata = {
 };
 
 const STEPS = [
-  { n: "01", t: "Drop your beat", b: "Upload the finished file. BPM and key auto-detect. Tag the target artist, genre and mood." },
-  { n: "02", t: "Generate the upload pack", b: "SEO title, description, tags, thumbnail and rendered MP4 — produced in a single pass." },
-  { n: "03", t: "Schedule to YouTube", b: "Connect your channel once. Space uploads across the week and publish on autopilot." },
+  { n: "1", t: "Drop your beat", b: "Upload the finished file. BPM and key auto-detect. Tag the target artist, genre and mood." },
+  { n: "2", t: "Generate the upload pack", b: "SEO title, description, tags, thumbnail and rendered MP4 — produced in a single pass." },
+  { n: "3", t: "Schedule to YouTube", b: "Connect your channel once. Space uploads across the week and publish on autopilot." },
 ];
 
 const PERKS = [
@@ -137,8 +137,10 @@ export default function WaitlistPage() {
               data-testid={`waitlist-step-${s.n}`}
             >
               <div className="tb-step-num">{s.n}</div>
-              <h3 className="tb-step-title">{s.t}</h3>
-              <p className="tb-step-body">{s.b}</p>
+              <div className="tb-step-content">
+                <h3 className="tb-step-title">{s.t}</h3>
+                <p className="tb-step-body">{s.b}</p>
+              </div>
             </div>
           ))}
         </div>

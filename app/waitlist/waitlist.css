@@ -203,6 +203,11 @@
   max-width: 80rem;
   margin: 0 auto;
   padding: 9rem 1.5rem 5rem;
+  /* Own the viewport: hero is a screen, not a header */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .tb-eyebrow {
@@ -240,7 +245,7 @@
   line-height: 0.86;
   letter-spacing: -0.01em;
   color: #fff;
-  font-size: clamp(2.75rem, 8.4vw, 7.5rem);
+  font-size: clamp(2.5rem, 7.4vw, 6.5rem);
 }
 .tb-h1 .tb-line {
   display: block;
@@ -420,11 +425,11 @@
 
 /* ---------- Stats strip ---------- */
 .tb-stats {
-  margin-top: 5rem;
+  margin-top: 3rem;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 2rem;
-  padding-top: 2.5rem;
+  gap: 1.25rem;
+  padding-top: 1.75rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 .tb-stat {
@@ -452,7 +457,13 @@
 .tb-section {
   max-width: 80rem;
   margin: 0 auto;
-  padding: 8rem 1.5rem;
+  padding: 4rem 1.5rem;
+  /* Each section owns a screen. Vertically centred so content doesn't
+     float at the top of an oversized container. */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 /* Reveal-on-scroll */
@@ -470,10 +481,13 @@
 .tb-reveal[data-delay="3"] { transition-delay: 0.3s; }
 
 .tb-section-head {
-  margin-bottom: 5rem;
+  margin-bottom: 2.5rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  /* Cap the head's column width so the paragraph reads naturally
+     under the heading rather than stretching across the page. */
+  max-width: 44rem;
 }
 .tb-h2 {
   text-transform: uppercase;
@@ -483,17 +497,30 @@
   font-size: clamp(2.5rem, 7vw, 6rem);
 }
 .tb-section-sub {
-  max-width: 24rem;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.55);
+  max-width: 32rem;
+  font-size: 1.125rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.62);
 }
 
-.tb-steps { display: grid; gap: 4rem; }
+/* Steps stack vertically as rows: large red digit on the left,
+   title + body to the right. Reads top-to-bottom like a manifesto. */
+.tb-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
 .tb-step {
   position: relative;
-  padding: 1.5rem 0;
+  display: grid;
+  grid-template-columns: minmax(3.5rem, auto) 1fr;
+  gap: 1.75rem;
+  align-items: baseline;
+  padding: 1.75rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   transition: transform 0.35s ease;
 }
+.tb-step:first-child { border-top: none; padding-top: 0; }
 .tb-step::before {
   content: "";
   position: absolute;
@@ -504,27 +531,30 @@
   background: linear-gradient(90deg, #ed072c, transparent);
   transition: width 0.5s ease;
 }
-.tb-step:hover { transform: translateY(-4px); }
-.tb-step:hover::before { width: 100%; }
+.tb-step:hover { transform: translateX(6px); }
+.tb-step:hover::before { width: 35%; }
 
 .tb-step-num {
-  margin-bottom: 1.5rem;
-  font-size: 1rem;
-  letter-spacing: 0.3em;
+  margin: 0;
+  line-height: 0.85;
+  letter-spacing: 0;
   color: #ed072c;
+  /* Premium display number — large Bebas Neue, sits as a column anchor */
+  font-size: clamp(3.5rem, 7vw, 6rem);
 }
 .tb-step-title {
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
   text-transform: uppercase;
   line-height: 0.95;
   letter-spacing: -0.02em;
   color: #fff;
-  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-size: clamp(1.75rem, 3vw, 2.75rem);
 }
 .tb-step-body {
-  max-width: 20rem;
+  max-width: 32rem;
+  font-size: 1rem;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.62);
 }
 
 /* ---------- Beta ---------- */
@@ -573,8 +603,14 @@
 .tb-final {
   max-width: 80rem;
   margin: 0 auto;
-  padding: 10rem 1.5rem;
+  padding: 6rem 1.5rem;
   text-align: center;
+  /* Final CTA owns its screen too — centred horizontally and vertically. */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 .tb-page .tb-final-h2 {
   text-align: center;
@@ -633,14 +669,16 @@
 
 /* ---------- Responsive ---------- */
 @media (min-width: 768px) {
-  .tb-hero { padding: 10rem 1.5rem 6rem; }
+  .tb-hero { padding: 8rem 1.5rem 4rem; }
   .tb-nav-links { display: flex; }
   .tb-hero-grid { grid-template-columns: 1fr auto; align-items: end; }
   .tb-hero-sub { font-size: 1.25rem; }
   .tb-stats { grid-template-columns: repeat(4, 1fr); }
   .tb-stat-num { font-size: 3.2rem; }
-  .tb-section-head { flex-direction: row; align-items: flex-end; justify-content: space-between; }
-  .tb-steps { grid-template-columns: repeat(3, 1fr); gap: 2.5rem; }
+  /* Section head stays column on every viewport so the paragraph
+     reads under the heading — see the brief. */
+  .tb-step { gap: 3rem; padding: 1.5rem 0; }
+  .tb-section-head { margin-bottom: 2rem; }
   .tb-beta-grid { grid-template-columns: repeat(2, 1fr); align-items: center; }
   .tb-footer-inner { flex-direction: row; }
   .tb-marquee-text { font-size: 2rem; }
