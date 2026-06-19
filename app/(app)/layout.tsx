@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { logout } from "@/lib/actions/auth";
@@ -13,9 +12,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <nav className="nav">
         <div className="nav-inner">
           <Link href="/dashboard" className="logo" aria-label="TypeBeatOS dashboard">
-            <span className="logo-mark">
-              <Image src="/logo.svg" alt="" width={28} height={28} priority />
-            </span>
+            <span className="logo-mark" aria-hidden="true" />
             <span className="logo-word">
               TYPEBEAT<span>OS</span>
             </span>

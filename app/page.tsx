@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { getUser } from "@/lib/auth";
 import WaitlistEffects from "./waitlist/WaitlistEffects";
@@ -115,9 +114,7 @@ export default async function Landing() {
       {/* NAV — floating glass pill */}
       <nav className="tb-nav" data-testid="landing-nav">
         <Link href="/" className="tb-brand" aria-label="TypeBeatOS home">
-          <span className="tb-badge">
-            <Image src="/logo.svg" alt="" width={28} height={28} priority />
-          </span>
+          <span className="tb-badge" aria-hidden="true" />
           <span className="tb-wordmark">
             TYPEBEAT<span>OS</span>
           </span>
@@ -309,8 +306,11 @@ export default async function Landing() {
 
       <footer className="tb-footer">
         <div className="tb-footer-inner">
-          <span className="tb-wordmark tb-footer-mark">
-            TYPEBEAT<span>OS</span>
+          <span className="tb-footer-brand">
+            <span className="tb-badge" aria-hidden="true" />
+            <span className="tb-wordmark tb-footer-mark">
+              TYPEBEAT<span>OS</span>
+            </span>
           </span>
           <span className="tb-footer-copy">
             © 2026 TypeBeatOS. Not affiliated with YouTube, BeatStars, or any artist

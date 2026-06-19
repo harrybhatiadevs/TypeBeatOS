@@ -128,17 +128,24 @@
   to   { opacity: 1; transform: translate(-50%, 0); }
 }
 
-.tb-brand { display: inline-flex; align-items: center; gap: 0.65rem; }
+.tb-brand { display: inline-flex; align-items: center; gap: 0.7rem; }
 .tb-badge {
-  display: grid;
-  place-items: center;
-  width: 1.85rem;
-  height: 1.85rem;
-  color: #fff;
-  /* Subtle red haze behind the logo, lifts the white glyph on dark glass */
-  filter: drop-shadow(0 0 10px rgba(237, 7, 44, 0.35));
+  display: block;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.55rem;
+  /* The brand JPG has heavy black padding around the glyph. Scale the
+     background up and centre it so we crop to just the TB mark — that
+     way the badge reads as a tight logo tile, not a tiny floating glyph. */
+  background-image: url("/logo.jpg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 215% 215%;
+  background-color: #000;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  /* Subtle red haze lifts the white glyph against the dark glass nav. */
+  box-shadow: 0 0 18px rgba(237, 7, 44, 0.32);
 }
-.tb-badge img { display: block; }
 .tb-wordmark {
   color: #fff;
   font-size: 1.05rem;
@@ -598,6 +605,7 @@
 
 /* ---------- Final CTA ---------- */
 .tb-final {
+  position: relative;
   max-width: 80rem;
   margin: 0 auto;
   padding: 6rem 1.5rem;
@@ -609,6 +617,27 @@
   align-items: center;
   justify-content: center;
 }
+/* Huge faded brand mark sitting behind the final CTA — premium watermark
+   that reinforces the logo without overwhelming the headline. */
+.tb-final::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: clamp(20rem, 45vw, 36rem);
+  aspect-ratio: 1 / 1;
+  transform: translate(-50%, -50%);
+  background-image: url("/logo.jpg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 215% 215%;
+  opacity: 0.07;
+  filter: blur(0.5px);
+  pointer-events: none;
+  z-index: 0;
+  mix-blend-mode: screen;
+}
+.tb-final > * { position: relative; z-index: 1; }
 .tb-page .tb-final-h2 {
   text-align: center;
   text-transform: uppercase;
@@ -862,7 +891,20 @@
   font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.42);
 }
-.tb-footer-mark { font-size: 1.05rem; color: rgba(255, 255, 255, 0.65); }
+.tb-footer-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.tb-footer-brand .tb-badge {
+  /* Footer badge is slightly larger and unboxed to feel more like a
+     signature than a UI tile. */
+  width: 1.65rem;
+  height: 1.65rem;
+  border-radius: 0.45rem;
+  box-shadow: 0 0 14px rgba(237, 7, 44, 0.25);
+}
+.tb-footer-mark { font-size: 1.05rem; color: rgba(255, 255, 255, 0.65); letter-spacing: 0.14em; }
 .tb-footer-mark span { color: #ed072c; }
 
 /* ---------- Responsive ---------- */
