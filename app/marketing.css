@@ -874,6 +874,135 @@
 }
 .tb-hero-actions .tb-final-btn { margin-top: 0; }
 
+/* ============================================================
+   Auth — login + signup screens
+   Same surface tokens as the marketing pages, but the centre
+   column is a single glass panel with a usable rectangular form
+   instead of the marketing pill.
+   ============================================================ */
+.tb-auth-wrap {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7rem 1.5rem 4rem;
+}
+.tb-auth-card {
+  width: 100%;
+  max-width: 28rem;
+  padding: 2.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.5rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.02)),
+    rgba(0, 0, 0, 0.5);
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.tb-auth-heading {
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: clamp(2.25rem, 4vw, 3rem);
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: #fff;
+  margin: 0 0 0.5rem;
+}
+.tb-auth-heading .tb-red { color: #ed072c; }
+.tb-auth-sub {
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0 0 1.75rem;
+}
+.tb-auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.tb-auth-field { display: flex; flex-direction: column; gap: 0.4rem; }
+.tb-auth-field label {
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+.tb-auth-input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  border-radius: 0.85rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+}
+.tb-auth-input::placeholder { color: rgba(255, 255, 255, 0.35); }
+.tb-auth-input:focus {
+  border-color: rgba(237, 7, 44, 0.7);
+  background: rgba(0, 0, 0, 0.55);
+  box-shadow: 0 0 0 4px rgba(237, 7, 44, 0.14);
+}
+.tb-auth-submit {
+  /* Match .tb-final-btn but full-width and form-friendly. */
+  position: relative;
+  overflow: hidden;
+  margin-top: 0.5rem;
+  padding: 0.85rem 1.5rem;
+  border: none;
+  border-radius: 9999px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #fff;
+  background: linear-gradient(135deg, #ed072c, #b30420);
+  box-shadow: 0 0 28px rgba(237, 7, 44, 0.4);
+  cursor: pointer;
+  transition: transform 0.22s ease, filter 0.22s ease, box-shadow 0.25s ease;
+}
+.tb-auth-submit::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, 0.45) 50%, transparent 70%);
+  transform: translateX(-100%);
+  transition: transform 0.7s ease;
+}
+.tb-auth-submit:hover { transform: translateY(-1px); filter: brightness(1.08); box-shadow: 0 0 38px rgba(237, 7, 44, 0.6); }
+.tb-auth-submit:hover::before { transform: translateX(100%); }
+.tb-auth-submit:disabled { opacity: 0.7; cursor: wait; transform: none; filter: none; }
+.tb-auth-error {
+  padding: 0.7rem 0.9rem;
+  border: 1px solid rgba(237, 7, 44, 0.45);
+  background: rgba(237, 7, 44, 0.1);
+  color: #ff8d94;
+  border-radius: 0.85rem;
+  font-size: 0.88rem;
+  margin-bottom: 0.75rem;
+}
+.tb-auth-alt {
+  margin: 1.25rem 0 0;
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.55);
+  text-align: center;
+}
+.tb-auth-alt a {
+  color: #ff8d94;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.tb-auth-alt a:hover { color: #fff; }
+
 /* ---------- Footer ---------- */
 .tb-footer {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
