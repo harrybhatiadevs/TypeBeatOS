@@ -44,13 +44,14 @@ YouTubeUploader components)
 
 ## Follow-ups
 
-- **Inline `style={{ color: "var(--text-dim)" }}` patches** in a handful
-  of app pages still read CSS variables from `globals.css`. Replace with
-  classnames so the `:root` token block can shrink further. Low priority
-  — works fine today.
-- **Brand mark format** — the current `logo.jpg` is a 2048×2048 raster.
-  Replace with a true SVG export if one becomes available so the badge
-  stays crisp at every density.
-- **`WaitlistEffects.tsx`** is imported by both `/` and `/waitlist` and
-  the file name reads wrong from outside the waitlist folder. Either
-  promote it to `app/TbPageEffects.tsx` or stop importing it from `/`.
+- ✅ **Inline `style={{ color: "var(--text-dim)" }}` patches** — retired
+  in commit `fc6a7ca`. New `.tb-muted` / `.tb-helper` / `.tb-accent` /
+  `.tb-row-end` utilities in `app-chrome.css` cover the affected app
+  pages. `globals.css` `:root` token block dropped to zero variables.
+- ✅ **`WaitlistEffects.tsx` rename** — done in commit `fc6a7ca`. The
+  file now lives at `app/TbPageEffects.tsx` and is imported by both
+  `/` and `/waitlist` as `import TbPageEffects from "../TbPageEffects"`.
+- ⏳ **Brand mark format** — the current `logo.jpg` is a 2048×2048
+  raster. Swap for a true SVG export if one becomes available so the
+  badge stays crisp at every density. No urgency — JPG looks fine at the
+  badge size today.
