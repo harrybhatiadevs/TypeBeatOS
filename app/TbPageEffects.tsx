@@ -3,11 +3,12 @@
 import { useEffect } from "react";
 
 /**
- * Tiny client controller for the waitlist page:
+ * Tiny client controller shared by every .tb-page surface (landing,
+ * waitlist, future marketing pages):
  *  - Adds .is-scrolled to .tb-nav after a small scroll threshold
  *  - Reveals .tb-reveal elements when they enter the viewport
  */
-export default function WaitlistEffects() {
+export default function TbPageEffects() {
   useEffect(() => {
     const nav = document.querySelector(".tb-nav");
 

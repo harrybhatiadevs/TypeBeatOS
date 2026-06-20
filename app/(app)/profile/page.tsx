@@ -56,7 +56,7 @@ export default async function ProfilePage({
           </div>
         ) : configured ? (
           <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
-            <p style={{ flex: 1, minWidth: 220, color: "var(--text-dim)" }}>
+            <p className="tb-muted" style={{ flex: 1, minWidth: 220 }}>
               Connect your channel to upload scheduled videos directly from each package.
             </p>
             <a href="/api/youtube/connect" className="btn btn-primary btn-sm">
@@ -64,7 +64,7 @@ export default async function ProfilePage({
             </a>
           </div>
         ) : (
-          <p style={{ color: "var(--text-dim)", fontSize: "0.93rem" }}>
+          <p className="tb-helper">
             Direct upload needs Google API credentials. Create an OAuth client in Google Cloud
             (YouTube Data API v3, redirect URI <code>{`{APP_URL}`}/api/youtube/callback</code>),
             then set <code>GOOGLE_CLIENT_ID</code> and <code>GOOGLE_CLIENT_SECRET</code> in{" "}

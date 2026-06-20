@@ -106,7 +106,7 @@ export default async function OnboardingPage({
         <form action={saveOnboardingSchedule}>
           <div className="card">
             <h3>When should your beats go live?</h3>
-            <p style={{ color: "var(--text-dim)", fontSize: "0.92rem", marginBottom: 18 }}>
+            <p className="tb-helper" style={{ marginBottom: 18 }}>
               The calendar auto-spreads your upload queue across these slots. Consistency &gt;
               volume — pick days you can actually keep.
             </p>
@@ -160,12 +160,12 @@ export default async function OnboardingPage({
               to your channel on schedule.
             </p>
           ) : configured ? (
-            <p style={{ color: "var(--text-dim)", fontSize: "0.92rem", marginBottom: 18 }}>
+            <p className="tb-helper" style={{ marginBottom: 18 }}>
               This is what lets TypeBeatOS publish scheduled uploads for you. You can also do this
               later from your profile.
             </p>
           ) : (
-            <p style={{ color: "var(--text-dim)", fontSize: "0.92rem", marginBottom: 18 }}>
+            <p className="tb-helper" style={{ marginBottom: 18 }}>
               YouTube upload isn&apos;t configured on this server yet — you can connect later from
               your profile once it is.
             </p>

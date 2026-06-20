@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getUser } from "@/lib/auth";
-import WaitlistEffects from "./waitlist/WaitlistEffects";
+import TbPageEffects from "./TbPageEffects";
 import "./marketing.css";
 
 const PROBLEMS = [
@@ -319,7 +319,7 @@ export default async function Landing() {
         </div>
       </footer>
 
-      <WaitlistEffects />
+      <TbPageEffects />
     </div>
   );
 }

@@ -1,25 +1,13 @@
 /* ============================================================
-   Global tokens + resets only.
-
-   Surface styling lives in:
-   - app/marketing.css      → tb-* design system (landing, waitlist,
-                              login, signup)
+   Global resets + body styling only. All surface design lives in:
+   - app/marketing.css        → tb-* design system (landing, waitlist,
+                                login, signup, 404, error)
    - app/(app)/app-chrome.css → app-page chrome (everything under (app))
 
-   What remains here is the bare minimum the rest of the surface still
-   reads from — the CSS variables that a handful of inline
-   `style={{ color: "var(--text-dim)" }}` patches in the app components
-   depend on, plus the body background and font.
+   The :root tokens that used to live here (--bg, --text-dim, etc) were
+   retired in the same pass that promoted .tb-muted / .tb-helper /
+   .tb-accent utilities. Nothing reads them anymore.
    ============================================================ */
-
-:root {
-  --bg: #000;
-  --text: #faf7f7;
-  --text-dim: #aaa0a2;
-  --accent: #ed072c;
-  --accent-2: #ff8d94;
-  --border: rgba(255, 255, 255, 0.08);
-}
 
 * {
   margin: 0;
@@ -33,8 +21,8 @@ html {
 
 body {
   font-family: "Inter", system-ui, -apple-system, sans-serif;
-  background: var(--bg);
-  color: var(--text);
+  background: #000;
+  color: #faf7f7;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }

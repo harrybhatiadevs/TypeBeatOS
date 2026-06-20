@@ -648,6 +648,17 @@
 /* ---------- Audio player ---------- */
 .app-page audio { width: 100%; border-radius: 9999px; }
 
+/* ---------- Utilities (retire inline style={{ color: var(--..) }}) ---------- */
+.app-page .tb-muted { color: rgba(255, 255, 255, 0.55); }
+.app-page .tb-muted-strong { color: rgba(255, 255, 255, 0.7); }
+.app-page .tb-accent { color: #ff8d94; }
+.app-page .tb-helper {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.55);
+}
+.app-page .tb-row-end { text-align: right; }
+
 /* ---------- Pulse animation (re-defined here so we don't depend on
    marketing.css being loaded on app pages) ---------- */
 @keyframes tb-pulse {

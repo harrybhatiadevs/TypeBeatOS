@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import WaitlistForm from "./WaitlistForm";
-import WaitlistEffects from "./WaitlistEffects";
+import TbPageEffects from "../TbPageEffects";
 import "../marketing.css";
 
 export const metadata: Metadata = {
@@ -195,7 +195,7 @@ export default function WaitlistPage() {
         </div>
       </footer>
 
-      <WaitlistEffects />
+      <TbPageEffects />
     </div>
   );
 }
