@@ -1,91 +1,56 @@
-# Design system audit — rolling out the waitlist look across the app
+# Design system — rollout map
 
-The waitlist page is the source of truth for the new visual identity:
+The waitlist page was the source of truth for the new visual identity:
 pure black, glass nav pill, Bebas Neue display headlines, red `#ed072c`
 accent, single-glyph numerals, `min-height: 100vh` sections that own a
 screen.
 
-Tokens + patterns live in [app/marketing.css](../app/marketing.css)
-under the `tb-*` namespace. The brand mark is at
-[public/logo.svg](../public/logo.svg).
+The rollout shipped across the UI/UX-Mockup-1 branch between 2026-06-19
+and 2026-06-20. Every public, auth, and authenticated surface now reads
+from one of two stylesheets:
+
+- **`app/marketing.css`** — `tb-*` design system. Loaded by every page
+  that doesn't sit under `(app)` — landing, waitlist, login, signup, 404,
+  route-error.
+- **`app/(app)/app-chrome.css`** — re-skins the existing app class
+  vocabulary (`.app-page`, `.nav`, `.card`, `.btn`, `.stat`, `.table`,
+  `.badge`, etc.) on top of the same tokens.
+
+Brand mark lives at [`public/logo.jpg`](../public/logo.jpg) (the
+recreated SVG placeholder was retired in commit `a01d4bc`).
 
 ## Status
 
-### Phase 1 — Public surface (done)
-- [x] `/waitlist` — the source of truth
-- [x] `/` (landing) — same hero / sections / nav / footer
-- [x] TB logo asset wired into both navs
-- [x] Shared `marketing.css` (was `waitlist.css`); landing + waitlist
-      import the same stylesheet
+| Phase | Scope | Commit | Status |
+| --- | --- | --- | --- |
+| 1 | Foundation + landing page (`/`, `/waitlist`) | `697060d` | ✅ Done |
+| 2 | Auth (`/login`, `/signup`) | `2f7a1dd` | ✅ Done |
+| 3 | App chrome (`(app)/*` re-skinned via `app-chrome.css`) | `9d3f0bf` | ✅ Done |
+| 4 | Legacy CSS purge in `globals.css` (1578 → 51 lines) | `2f7a1dd` | ✅ Done |
+| — | Brand mark + nav badge + footer mark + final-CTA watermark | `a01d4bc` | ✅ Done |
+| — | Custom 404 + route-error pages | `f04429f` | ✅ Done |
 
-### Phase 2 — Auth surface (not yet)
-- [ ] `app/login/page.tsx` — currently uses `.login-auth` / `.auth-card`
-      classes from `globals.css`
-- [ ] `app/signup/page.tsx` — currently uses `.signup-auth` classes from
-      `globals.css`
-- [ ] `app/waitlist/WaitlistForm.tsx` — already aligned, leave as-is
+## Coverage
 
-Plan: extract a small `<AuthShell>` that renders the same glass nav +
-hero treatment with the form panel on the right. Re-use `.tb-form`,
-`.tb-final-btn`, `.tb-eyebrow`. Drop `.signup-auth` / `.login-auth` from
-globals once both pages have migrated.
+Every route in the app now flows through the unified system:
 
-### Phase 3 — Authenticated app (not yet)
-The app pages live under `app/(app)/` and currently inherit `.app-page`
-styles from `globals.css` — cards on a dark gradient, sticky non-glass
-nav, large red accent on stat numerals. Pages:
+**Public:** `/`, `/waitlist`
+**Auth:** `/login`, `/signup`
+**Authenticated:** `/dashboard`, `/onboarding`, `/beats`, `/beats/new`,
+`/beats/[id]/edit`, `/calendar`, `/analytics`, `/profile`,
+`/packages/[id]` (+ PackageEditor, ThumbnailBuilder, VideoGenerator,
+YouTubeUploader components)
+**Errors:** 404 (`app/not-found.tsx`), route error (`app/error.tsx`)
 
-- [ ] `app/(app)/layout.tsx` + `app/(app)/NavLinks.tsx` (the app nav)
-- [ ] `app/(app)/dashboard/page.tsx`
-- [ ] `app/(app)/onboarding/page.tsx`
-- [ ] `app/(app)/beats/page.tsx` + `beats/new/page.tsx` + `beats/[id]/edit/page.tsx`
-- [ ] `app/(app)/calendar/page.tsx`
-- [ ] `app/(app)/analytics/page.tsx`
-- [ ] `app/(app)/profile/page.tsx`
-- [ ] `app/(app)/packages/[id]/page.tsx` and its four sub-components
-      (PackageEditor, ThumbnailBuilder, VideoGenerator, YouTubeUploader)
+## Follow-ups
 
-The app pages are dense data UIs — they shouldn't get full `min-height:
-100vh` per section (that's marketing only). The takeaways for the app
-are:
-
-1. **Nav** — replace the sticky `.nav` with the floating glass pill from
-   the waitlist (no scroll-shrink, just a permanent compact pill).
-2. **Page header** — eyebrow + Bebas Neue page title, same treatment as
-   `.tb-h2`.
-3. **Cards** — keep the rounded card pattern, but recolour the border,
-   background, and hover state to match `.tb-feature` / `.tb-plan`.
-4. **Buttons** — `.tb-final-btn` (primary) + `.tb-cta-ghost` (secondary).
-   Same shapes as today, just different gradient and red.
-5. **Inputs / forms** — the waitlist pill form is too marketing-y for a
-   data form; keep the existing input/select/textarea look but recolour
-   the focus ring to `#ed072c`.
-6. **Stat tiles / tables / badges** — use Bebas Neue for the big numerals
-   and the red `#ed072c` for accents; everything else can stay.
-
-Bulk of the legwork is the dashboard + packages flow. Once those are
-done, the rest of the app can copy the same patterns.
-
-### Phase 4 — Cleanup (after Phase 3)
-- [ ] Delete the legacy marketing / app block from `app/globals.css`
-      (lines ~140–1300) — that whole stretch becomes dead code once every
-      page has migrated.
-- [ ] Replace the placeholder logo at `public/logo.svg` with an exported
-      vector from the brand source if one exists. The current SVG is a
-      recreation based on the supplied image.
-- [ ] Consider promoting `WaitlistEffects.tsx` to a generic
-      `<TbPageEffects />` and importing from both `/` and `/waitlist`.
-      Today it's imported by relative path; that works but reads wrong.
-
-## Design tokens
-
-| Token | Value | Used by |
-| --- | --- | --- |
-| `--accent` (legacy) | `#e50914` | globals.css (`.app-page`, `.marketing-page`) |
-| New accent | `#ed072c` | marketing.css (waitlist + landing) |
-| Page background (waitlist/landing) | `#000` | marketing.css |
-| Page background (app/globals) | `#050506` + radial reds | globals.css |
-| Display font | `Bebas Neue` | both — already imported in `app/layout.tsx` |
-| Body font | `Inter` | both |
-
-Phase 4 collapses the duplicated tokens.
+- **Inline `style={{ color: "var(--text-dim)" }}` patches** in a handful
+  of app pages still read CSS variables from `globals.css`. Replace with
+  classnames so the `:root` token block can shrink further. Low priority
+  — works fine today.
+- **Brand mark format** — the current `logo.jpg` is a 2048×2048 raster.
+  Replace with a true SVG export if one becomes available so the badge
+  stays crisp at every density.
+- **`WaitlistEffects.tsx`** is imported by both `/` and `/waitlist` and
+  the file name reads wrong from outside the waitlist folder. Either
+  promote it to `app/TbPageEffects.tsx` or stop importing it from `/`.
