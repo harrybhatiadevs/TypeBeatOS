@@ -10,6 +10,8 @@
     "test:watch": "vitest",
     "db:push": "prisma db push",
     "db:validate-postgres": "DATABASE_URL=postgresql://ci:ci@localhost:5432/ci prisma validate --schema=prisma/schema.postgres.prisma",
+    "seed:dev": "CONFIRM_SEED=yes tsx scripts/seed-dev.ts",
+    "cleanup:dev": "CONFIRM_CLEANUP=yes tsx scripts/cleanup-test-data.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {
@@ -30,6 +32,7 @@
     "@types/react-dom": "^19",
     "@vitest/coverage-v8": "^4.1.9",
     "prisma": "^6.8.0",
+    "tsx": "^4.22.4",
     "typescript": "^5",
     "vitest": "^4.1.9"
   }

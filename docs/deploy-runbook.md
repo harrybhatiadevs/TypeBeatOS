@@ -8,6 +8,12 @@ The runbook assumes you've already run `docs/postgres-cutover.md` and
 have a Neon production `DATABASE_URL`. If you haven't, do that first —
 deploying against the dev SQLite file is meaningless.
 
+> **The old `start-beta.sh` / `stop-beta.sh` Cloudflare quick-tunnel
+> approach is retired.** Both scripts were deleted in the same commit
+> that introduced this runbook's successor. If you need a public preview
+> before the first Fly deploy, run `cloudflared tunnel --url
+> http://localhost:3000` ad-hoc.
+
 ## Pre-flight (one-time, ~10 min)
 
 1. `brew install flyctl` (or `curl -L https://fly.io/install.sh | sh`)
