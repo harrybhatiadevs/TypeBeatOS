@@ -191,6 +191,10 @@ export default function WaitlistPage() {
               TYPEBEAT<span>OS</span>
             </span>
           </span>
+          <span className="tb-footer-legal">
+            <Link href="/privacy">Privacy</Link>
+            <Link href="/terms">Terms</Link>
+          </span>
           <span className="tb-footer-copy">© 2026 — Built for producers, by producers.</span>
         </div>
       </footer>

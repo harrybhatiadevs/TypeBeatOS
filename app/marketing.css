@@ -1036,6 +1036,19 @@
 .tb-footer-mark { font-size: 1.05rem; color: rgba(255, 255, 255, 0.65); letter-spacing: 0.14em; }
 .tb-footer-mark span { color: #ed072c; }
 
+.tb-footer-legal {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.25rem;
+  font-size: 0.85rem;
+}
+.tb-footer-legal a {
+  color: rgba(255, 255, 255, 0.55);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.tb-footer-legal a:hover { color: #fff; }
+
 /* ---------- Responsive ---------- */
 @media (min-width: 768px) {
   .tb-hero { padding: 8rem 1.5rem 4rem; }
