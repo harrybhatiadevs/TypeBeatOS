@@ -1,49 +1,60 @@
-import { cookies } from "next/headers";
+/**
+ * Thin compatibility layer over Better-Auth. The public API
+ * (`getUser`, `requireUser`, `destroySession`) is identical to what
+ * the rest of the app was reading from the legacy custom-session
+ * module, so no caller had to change. Internally it now delegates to
+ * Better-Auth's session lookup + sign-out.
+ *
+ * createSession() is no longer used directly — Better-Auth issues the
+ * cookie automatically during signUpEmail / signInEmail.
+ */
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { randomBytes } from "crypto";
 import { db } from "./db";
-
-const SESSION_COOKIE = "tbos_session";
-const SESSION_DAYS = 30;
-const IS_PROD = process.env.NODE_ENV === "production";
-
-export async function createSession(userId: string) {
-  const token = randomBytes(32).toString("hex");
-  const expiresAt = new Date(Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000);
-  await db.session.create({ data: { token, userId, expiresAt } });
-  const cookieStore = await cookies();
-  cookieStore.set(SESSION_COOKIE, token, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: IS_PROD,
-    expires: expiresAt,
-    path: "/",
-  });
-}
+import { auth } from "./auth-server";
 
 export async function destroySession() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get(SESSION_COOKIE)?.value;
-  if (token) {
-    await db.session.deleteMany({ where: { token } });
-    cookieStore.delete(SESSION_COOKIE);
+  // Better-Auth handles cookie deletion + session row cleanup.
+  try {
+    await auth.api.signOut({ headers: await headers() });
+  } catch {
+    // If the cookie was already gone, swallow — same behaviour as the
+    // legacy implementation.
   }
 }
 
 export async function getUser() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get(SESSION_COOKIE)?.value;
-  if (!token) return null;
-  const session = await db.session.findUnique({
-    where: { token },
-    include: { user: { include: { profile: true } } },
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) return null;
+
+  // Better-Auth's User shape is lean — we need to hydrate the profile
+  // relation for the rest of the app to keep reading `user.profile.X`.
+  const user = await db.user.findUnique({
+    where: { id: session.user.id },
+    include: { profile: true },
   });
-  if (!session || session.expiresAt < new Date()) return null;
-  return session.user;
+  return user;
 }
 
 export async function requireUser() {
   const user = await getUser();
   if (!user) redirect("/login");
   return user;
+}
+
+/**
+ * Get the session cookie name that Better-Auth is configured to use.
+ * Exposed so other modules (middleware, manual cookie inspection)
+ * don't hardcode the string.
+ */
+export const SESSION_COOKIE = "tbos_session";
+
+/**
+ * Returns true if there's a live session cookie. Cheap — does not hit
+ * the DB. Use for middleware-level "is this request even maybe logged
+ * in" checks, not authorization.
+ */
+export async function hasSessionCookie() {
+  const c = await cookies();
+  return !!c.get(SESSION_COOKIE)?.value;
 }

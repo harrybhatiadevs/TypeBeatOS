@@ -10,9 +10,9 @@ export const metadata: Metadata = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; reset?: string }>;
 }) {
-  const { error } = await searchParams;
+  const { error, reset } = await searchParams;
 
   return (
     <div className="tb-page" data-testid="login-page">
@@ -43,6 +43,18 @@ export default async function LoginPage({
           </h1>
           <p className="tb-auth-sub">Pick up where you left off.</p>
 
+          {reset && (
+            <div
+              className="tb-auth-error"
+              style={{
+                borderColor: "rgba(110, 231, 161, 0.4)",
+                background: "rgba(110, 231, 161, 0.08)",
+                color: "#6ee7a1",
+              }}
+            >
+              Password updated. Log in with your new password.
+            </div>
+          )}
           {error && <div className="tb-auth-error">{error}</div>}
 
           <form action={login} className="tb-auth-form">
@@ -72,7 +84,10 @@ export default async function LoginPage({
             <button type="submit" className="tb-auth-submit">Log in</button>
           </form>
 
-          <p className="tb-auth-alt">
+          <p className="tb-auth-alt" style={{ marginBottom: "0.4rem" }}>
+            Forgot your password? <Link href="/forgot">Reset it</Link>
+          </p>
+          <p className="tb-auth-alt" style={{ marginTop: 0 }}>
             New here? <Link href="/signup">Create a free account</Link>
           </p>
         </div>

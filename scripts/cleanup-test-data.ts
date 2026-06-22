@@ -12,9 +12,13 @@
  */
 import { db } from "@/lib/db";
 
-// Both the legacy seed email and the current scripts/seed-dev.ts email
-// — the cleanup needs to catch either if the DB has been around a while.
-const TEST_EMAILS = ["test@typebeatos.com", "test@typebeatos.local"];
+// Every test-account email the codebase has ever issued — cleanup needs
+// to catch any of them regardless of which seed era they're from.
+const TEST_EMAILS = [
+  "test@typebeatos.com",
+  "test@typebeatos.local",
+  "ba-test@typebeatos.local",
+];
 
 async function main() {
   if (process.env.CONFIRM_CLEANUP !== "yes") {

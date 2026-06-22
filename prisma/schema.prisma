@@ -7,17 +7,86 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ============================================================
+// Auth (Better-Auth compatible)
+// ============================================================
+//
+// `User`, `Session`, `Account`, and `Verification` are the four Better-Auth
+// tables, augmented with the TypeBeatOS-specific fields we need
+// (`onboardedAt`, relations to producer data). The legacy `passwordHash`
+// column on User is preserved during the migration window so existing
+// dev accounts still work; new accounts created via Better-Auth store
+// their password on `Account.password`.
+
 model User {
-  id           String          @id @default(cuid())
-  email        String          @unique
-  passwordHash String
-  onboardedAt  DateTime?
-  createdAt    DateTime        @default(now())
-  sessions     Session[]
-  profile      Profile?
-  beats        Beat[]
-  youtube      YouTubeAccount?
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  image         String?
+  emailVerified Boolean   @default(false)
+  passwordHash  String    @default("") // legacy, retired once all sessions migrate
+  onboardedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  sessions Session[]
+  accounts Account[]
+  profile  Profile?
+  beats    Beat[]
+  youtube  YouTubeAccount?
 }
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Credentials (providerId = "credential")
+  password              String?
+  // OAuth providers (providerId = "google", "github", etc.)
+  accessToken           String?
+  refreshToken          String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  idToken               String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+}
+
+// ============================================================
+// Producer data
+// ============================================================
 
 model YouTubeAccount {
   userId       String   @id
@@ -28,16 +97,6 @@ model YouTubeAccount {
   channelId    String   @default("")
   channelTitle String   @default("")
   createdAt    DateTime @default(now())
-}
-
-model Session {
-  token     String   @id
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expiresAt DateTime
-
-  @@index([userId])
-  @@index([expiresAt])
 }
 
 model WaitlistSignup {
@@ -86,29 +145,29 @@ model Beat {
 }
 
 model Package {
-  id            String    @id @default(cuid())
-  beatId        String    @unique
-  beat          Beat      @relation(fields: [beatId], references: [id], onDelete: Cascade)
-  titleOptions  String
-  selectedTitle String
-  description   String
-  tags          String
-  hashtags      String
-  pinnedComment String
-  thumbnailPath String    @default("")
-  videoPath     String    @default("")
-  videoStatus   String    @default("none")
-  videoError    String    @default("")
-  youtubeVideoId String   @default("")
-  uploadStatus  String    @default("none")
-  uploadError   String    @default("")
-  viewCount     Int       @default(0)
-  likeCount     Int       @default(0)
-  commentCount  Int       @default(0)
+  id             String    @id @default(cuid())
+  beatId         String    @unique
+  beat           Beat      @relation(fields: [beatId], references: [id], onDelete: Cascade)
+  titleOptions   String
+  selectedTitle  String
+  description    String
+  tags           String
+  hashtags       String
+  pinnedComment  String
+  thumbnailPath  String    @default("")
+  videoPath      String    @default("")
+  videoStatus    String    @default("none")
+  videoError     String    @default("")
+  youtubeVideoId String    @default("")
+  uploadStatus   String    @default("none")
+  uploadError    String    @default("")
+  viewCount      Int       @default(0)
+  likeCount      Int       @default(0)
+  commentCount   Int       @default(0)
   statsUpdatedAt DateTime?
-  scheduledAt   DateTime?
-  status        String    @default("draft")
-  createdAt     DateTime  @default(now())
+  scheduledAt    DateTime?
+  status         String    @default("draft")
+  createdAt      DateTime  @default(now())
 
   @@index([scheduledAt])
   @@index([status])

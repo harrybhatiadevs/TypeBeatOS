@@ -14,8 +14,8 @@
  * The CONFIRM_SEED gate + NODE_ENV=production refuse keeps this script
  * from ever running against a real customer database.
  */
-import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
+import { auth } from "@/lib/auth-server";
 
 const TEST_EMAIL = "test@typebeatos.local";
 const TEST_PASSWORD = "review123!";
@@ -91,28 +91,42 @@ async function main() {
   // Wipe first — cascade deletes session, profile, beats, packages, YT account.
   await db.user.deleteMany({ where: { email: TEST_EMAIL } });
 
-  const user = await db.user.create({
-    data: {
-      email: TEST_EMAIL,
-      passwordHash: bcrypt.hashSync(TEST_PASSWORD, 10),
-      onboardedAt: new Date(),
-      profile: {
-        create: {
-          producerName: "prod. test",
-          contactEmail: TEST_EMAIL,
-          storeUrl: "https://beatstars.com/typebeatos",
-          youtubeUrl: "https://youtube.com/@typebeatos",
-          instagramUrl: "https://instagram.com/typebeatos",
-          licenseText:
-            "Free downloads are for non-profit use only. Must credit (prod. test). For monetised use, purchase a lease.",
-          descriptionFooter:
-            "New beats every Mon / Wed / Fri. Subscribe so you don't miss the next one.",
-          scheduleDays: "1,3,5",
-          scheduleTime: "18:00",
-        },
-      },
-    },
+  // Create the user + credential Account via Better-Auth so the password
+  // hashes match what production sign-in expects. signUpEmail also issues
+  // a session, but we throw that away — the seed isn't a logged-in caller.
+  const signupRes = await auth.api.signUpEmail({
+    body: { email: TEST_EMAIL, password: TEST_PASSWORD, name: "prod. test" },
+    asResponse: false,
   });
+  if (!signupRes?.user) throw new Error("Better-Auth signUpEmail returned no user");
+  const userId = signupRes.user.id;
+
+  // Mark onboarding done and attach the producer profile. Better-Auth
+  // doesn't know about either — they're our application data.
+  await db.user.update({
+    where: { id: userId },
+    data: { onboardedAt: new Date() },
+  });
+  await db.profile.upsert({
+    where: { userId },
+    create: {
+      userId,
+      producerName: "prod. test",
+      contactEmail: TEST_EMAIL,
+      storeUrl: "https://beatstars.com/typebeatos",
+      youtubeUrl: "https://youtube.com/@typebeatos",
+      instagramUrl: "https://instagram.com/typebeatos",
+      licenseText:
+        "Free downloads are for non-profit use only. Must credit (prod. test). For monetised use, purchase a lease.",
+      descriptionFooter:
+        "New beats every Mon / Wed / Fri. Subscribe so you don't miss the next one.",
+      scheduleDays: "1,3,5",
+      scheduleTime: "18:00",
+    },
+    update: {},
+  });
+  // Pull the full user back to keep the BEATS loop unchanged.
+  const user = (await db.user.findUnique({ where: { id: userId } }))!;
 
   // Three beats with three different package states so every UI surface has
   // something to render.
