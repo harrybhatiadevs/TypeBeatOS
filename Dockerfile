@@ -1,0 +1,75 @@
+# syntax=docker/dockerfile:1.7
+
+# ────────────────────────────────────────────────────────────────────────────
+# deps: install production + dev deps with the lockfile honored
+# ────────────────────────────────────────────────────────────────────────────
+FROM node:22-bookworm-slim AS deps
+WORKDIR /app
+
+# Native modules (bcryptjs is pure JS but ffmpeg-static + prisma fetch
+# platform-specific binaries via postinstall — keep apt minimal)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      openssl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY package.json package-lock.json ./
+COPY prisma ./prisma
+# `npm ci` runs the prisma generate postinstall, which needs the schema.
+RUN npm ci
+
+
+# ────────────────────────────────────────────────────────────────────────────
+# build: produce the standalone Next bundle
+# ────────────────────────────────────────────────────────────────────────────
+FROM node:22-bookworm-slim AS builder
+WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# DATABASE_URL is required by `next build` because prisma client init
+# reads it at module load. Throwaway file URL is enough for the build.
+ENV DATABASE_URL=file:./build.db
+RUN npm run build
+
+
+# ────────────────────────────────────────────────────────────────────────────
+# runner: minimal image — only the standalone server + runtime deps
+# ────────────────────────────────────────────────────────────────────────────
+FROM node:22-bookworm-slim AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+
+# openssl: required by Prisma's query engine
+# ca-certificates: outbound TLS (Google, Anthropic, R2)
+# tini: small init so SIGTERM reaches Node and Fly can stop us cleanly
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      openssl ca-certificates tini \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN groupadd -r nextjs && useradd -r -g nextjs -d /app -s /sbin/nologin nextjs
+
+# Next standalone output already includes the trimmed node_modules
+COPY --from=builder --chown=nextjs:nextjs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nextjs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nextjs /app/public ./public
+
+# Prisma client and engines + ffmpeg binary live outside the standalone
+# trace, so copy them explicitly.
+COPY --from=builder --chown=nextjs:nextjs /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder --chown=nextjs:nextjs /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder --chown=nextjs:nextjs /app/node_modules/ffmpeg-static ./node_modules/ffmpeg-static
+
+# Writable surface for renders + uploads. On Fly this gets mounted as a
+# volume (see fly.toml [mounts]) so files survive machine restarts.
+RUN mkdir -p /app/uploads /app/uploads/videos && chown -R nextjs:nextjs /app/uploads
+
+USER nextjs
+EXPOSE 3000
+
+ENTRYPOINT ["/usr/bin/tini", "--"]
+CMD ["node", "server.js"]

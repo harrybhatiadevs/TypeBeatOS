@@ -1,0 +1,17 @@
+# TypeBeatOS robots policy
+# - Allow crawlers on every public surface (landing, waitlist, legal pages)
+# - Disallow API + authenticated app routes; they require a session anyway
+#   but listing them keeps crawl budget focused on the marketing surface
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /dashboard
+Disallow: /beats
+Disallow: /calendar
+Disallow: /analytics
+Disallow: /profile
+Disallow: /onboarding
+Disallow: /packages/
+
+Sitemap: https://typebeatos.com/sitemap.xml

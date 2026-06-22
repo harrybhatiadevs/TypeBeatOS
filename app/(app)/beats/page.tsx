@@ -53,7 +53,7 @@ export default async function BeatsPage() {
                     {b.targetArtist}
                     {b.secondaryArtist ? ` x ${b.secondaryArtist}` : ""}
                   </td>
-                  <td style={{ color: "var(--text-dim)" }}>
+                  <td className="tb-muted">
                     {[b.bpm ? `${b.bpm} BPM` : "", b.key].filter(Boolean).join(" · ") || "—"}
                   </td>
                   <td>
@@ -63,7 +63,7 @@ export default async function BeatsPage() {
                       <span className="badge badge-draft">none</span>
                     )}
                   </td>
-                  <td style={{ textAlign: "right" }}>
+                  <td className="tb-row-end">
                     <Link href={`/beats/${b.id}/edit`} className="copy-btn" style={{ marginRight: 8 }}>
                       Edit
                     </Link>

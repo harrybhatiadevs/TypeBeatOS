@@ -120,7 +120,7 @@ export default async function Dashboard() {
                   <td>
                     <span className={`badge badge-${p.status}`}>{p.status}</span>
                   </td>
-                  <td style={{ color: "var(--text-dim)" }}>
+                  <td className="tb-muted">
                     {p.scheduledAt
                       ? p.scheduledAt.toLocaleString(undefined, {
                           weekday: "short",

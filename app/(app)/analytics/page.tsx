@@ -112,7 +112,7 @@ export default async function AnalyticsPage({
                     <td>{fmt(p.viewCount)}</td>
                     <td>{fmt(p.likeCount)}</td>
                     <td>{fmt(p.commentCount)}</td>
-                    <td style={{ textAlign: "right" }}>
+                    <td className="tb-row-end">
                       <a
                         href={`https://youtu.be/${p.youtubeVideoId}`}
                         target="_blank"
@@ -126,7 +126,7 @@ export default async function AnalyticsPage({
                 ))}
               </tbody>
             </table>
-            <p style={{ color: "var(--text-dim)", fontSize: "0.82rem", marginTop: 12 }}>
+            <p className="tb-helper" style={{ marginTop: 12, fontSize: "0.82rem" }}>
               {lastUpdated
                 ? `Last refreshed ${lastUpdated.toLocaleString()}`
                 : "Stats not pulled yet — hit refresh."}{" "}
@@ -162,7 +162,7 @@ export default async function AnalyticsPage({
             <div className="card">
               <h3>Best upload days</h3>
               {byDay.length === 0 ? (
-                <p style={{ color: "var(--text-dim)", fontSize: "0.9rem" }}>
+                <p className="tb-helper">
                   Schedule uploads to see which days perform.
                 </p>
               ) : (
@@ -188,7 +188,7 @@ export default async function AnalyticsPage({
             </div>
           </div>
 
-          <p style={{ color: "var(--text-dim)", fontSize: "0.85rem" }}>
+          <p className="tb-helper">
             CTR and impressions need the YouTube Analytics API scope — on the roadmap. Views,
             likes, and comments come from the YouTube Data API and refresh on demand.
           </p>

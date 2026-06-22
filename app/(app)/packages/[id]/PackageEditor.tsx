@@ -184,7 +184,7 @@ export default function PackageEditor({
               <CopyButton value={tags} />
             </div>
             <textarea rows={4} value={tags} onChange={(e) => setTags(e.target.value)} />
-            <p style={{ color: "var(--text-dim)", fontSize: "0.82rem", marginTop: 8 }}>
+            <p className="tb-helper" style={{ marginTop: 8, fontSize: "0.82rem" }}>
               {tags.length} / 500 characters (YouTube limit)
             </p>
 
@@ -229,7 +229,7 @@ export default function PackageEditor({
                 onChange={(e) => setScheduledAt(e.target.value)}
               />
             </div>
-            <p style={{ color: "var(--text-dim)", fontSize: "0.85rem", marginTop: 10 }}>
+            <p className="tb-helper" style={{ marginTop: 10 }}>
               Or leave blank and use ⚡ auto-schedule on the calendar page.
             </p>
           </div>

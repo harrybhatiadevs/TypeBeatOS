@@ -4,8 +4,16 @@ import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import { createSession, destroySession } from "@/lib/auth";
+import { authLimiter } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/request-context";
+
+const TOO_MANY = "Too+many+attempts.+Try+again+in+a+minute.";
 
 export async function signup(formData: FormData) {
+  const ip = await getClientIp();
+  const gate = await authLimiter.consume(ip);
+  if (!gate.allowed) redirect(`/signup?error=${TOO_MANY}`);
+
   const email = String(formData.get("email") || "").trim().toLowerCase();
   const password = String(formData.get("password") || "");
   const producerName = String(formData.get("producerName") || "").trim();
@@ -29,6 +37,10 @@ export async function signup(formData: FormData) {
 }
 
 export async function login(formData: FormData) {
+  const ip = await getClientIp();
+  const gate = await authLimiter.consume(ip);
+  if (!gate.allowed) redirect(`/login?error=${TOO_MANY}`);
+
   const email = String(formData.get("email") || "").trim().toLowerCase();
   const password = String(formData.get("password") || "");
 

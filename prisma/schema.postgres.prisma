@@ -1,0 +1,128 @@
+// Production target schema — kept in lockstep with `schema.prisma` so we
+// validate Postgres compatibility on every CI run before the cutover.
+//
+// Procedure during the SQLite → Postgres cutover:
+// 1. Provision a Neon project + dev branch
+// 2. Replace `schema.prisma` contents with this file's contents (same models,
+//    provider flipped)
+// 3. `DATABASE_URL=<neon-url> prisma migrate dev --name init_postgres`
+// 4. Run `scripts/cleanup-test-data.ts` against SQLite, copy production data
+//    out (waitlist signups, real user rows) and import to Postgres
+// 5. Smoke-check: login, signup, waitlist join, beat upload, package render
+// 6. Delete this file once the cutover is done
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String          @id @default(cuid())
+  email        String          @unique
+  passwordHash String
+  onboardedAt  DateTime?
+  createdAt    DateTime        @default(now())
+  sessions     Session[]
+  profile      Profile?
+  beats        Beat[]
+  youtube      YouTubeAccount?
+}
+
+model YouTubeAccount {
+  userId       String   @id
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken  String
+  refreshToken String
+  expiresAt    DateTime
+  channelId    String   @default("")
+  channelTitle String   @default("")
+  createdAt    DateTime @default(now())
+}
+
+model Session {
+  token     String   @id
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model WaitlistSignup {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  role      String   @default("producer") // "producer" | "beta"
+  referrer  String   @default("")
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model Profile {
+  userId            String @id
+  user              User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  producerName      String @default("")
+  youtubeUrl        String @default("")
+  storeUrl          String @default("")
+  instagramUrl      String @default("")
+  contactEmail      String @default("")
+  licenseText       String @default("")
+  descriptionFooter String @default("")
+  scheduleDays      String @default("1,3,5")
+  scheduleTime      String @default("18:00")
+}
+
+model Beat {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name            String
+  targetArtist    String
+  secondaryArtist String   @default("")
+  genre           String   @default("")
+  mood            String   @default("")
+  bpm             Int?
+  key             String   @default("")
+  storeLink       String   @default("")
+  licensePrice    String   @default("")
+  exclusivePrice  String   @default("")
+  audioPath       String   @default("")
+  createdAt       DateTime @default(now())
+  package         Package?
+
+  @@index([userId, createdAt])
+}
+
+model Package {
+  id             String    @id @default(cuid())
+  beatId         String    @unique
+  beat           Beat      @relation(fields: [beatId], references: [id], onDelete: Cascade)
+  titleOptions   String
+  selectedTitle  String
+  description    String
+  tags           String
+  hashtags       String
+  pinnedComment  String
+  thumbnailPath  String    @default("")
+  videoPath      String    @default("")
+  videoStatus    String    @default("none")
+  videoError     String    @default("")
+  youtubeVideoId String    @default("")
+  uploadStatus   String    @default("none")
+  uploadError    String    @default("")
+  viewCount      Int       @default(0)
+  likeCount      Int       @default(0)
+  commentCount   Int       @default(0)
+  statsUpdatedAt DateTime?
+  scheduledAt    DateTime?
+  status         String    @default("draft")
+  createdAt      DateTime  @default(now())
+
+  @@index([scheduledAt])
+  @@index([status])
+}

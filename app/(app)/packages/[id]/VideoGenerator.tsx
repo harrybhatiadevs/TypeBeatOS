@@ -69,14 +69,14 @@ export default function VideoGenerator({
           </div>
         </>
       ) : status === "rendering" ? (
-        <p style={{ color: "var(--accent-2)", fontWeight: 600 }}>
+        <p className="tb-accent" style={{ fontWeight: 600 }}>
           ⏳ Rendering… this can take a minute for longer beats. You can keep editing — it finishes
           in the background.
         </p>
       ) : (
         <>
           {!ready && (
-            <p style={{ color: "var(--text-dim)", fontSize: "0.9rem", marginBottom: 12 }}>
+            <p className="tb-helper" style={{ marginBottom: 12, fontSize: "0.9rem" }}>
               {!hasAudio && "Add a beat with an audio file to render a video. "}
               {!hasThumbnail && "Save a thumbnail first — it becomes the video visual."}
             </p>

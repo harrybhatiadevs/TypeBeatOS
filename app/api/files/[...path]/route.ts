@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readFile } from "fs/promises";
 import path from "path";
+import { safeResolveUnder } from "@/lib/safe-path";
 
 const TYPES: Record<string, string> = {
   ".png": "image/png",
@@ -21,10 +22,8 @@ export async function GET(
 ) {
   const { path: parts } = await params;
   const uploadsDir = path.join(process.cwd(), "uploads");
-  const filePath = path.join(uploadsDir, ...parts);
-
-  // Prevent path traversal
-  if (!filePath.startsWith(uploadsDir + path.sep)) {
+  const filePath = safeResolveUnder(uploadsDir, parts);
+  if (filePath === null) {
     return new NextResponse("Not found", { status: 404 });
   }
 

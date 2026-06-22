@@ -1,6 +1,9 @@
 import { readFile } from "fs/promises";
 import path from "path";
 import { db } from "./db";
+import { loggerFor } from "./logger";
+
+const log = loggerFor("youtube");
 
 const TOKEN_URL = "https://oauth2.googleapis.com/token";
 const SCOPES =
@@ -106,12 +109,18 @@ export function enqueueYouTubeUpload(packageId: string) {
 }
 
 async function uploadPackage(packageId: string) {
+  const jobLog = log.child({ packageId, op: "uploadPackage" });
   const pkg = await db.package.findUnique({
     where: { id: packageId },
     include: { beat: true },
   });
-  if (!pkg) return;
+  if (!pkg) {
+    jobLog.warn("package not found, skipping upload");
+    return;
+  }
 
+  const startedAt = Date.now();
+  jobLog.info({ scheduledAt: pkg.scheduledAt }, "upload started");
   try {
     if (!pkg.videoPath) throw new Error("Render the video first");
     const token = await validAccessToken(pkg.beat.userId);
@@ -194,12 +203,21 @@ async function uploadPackage(packageId: string) {
         status: "scheduled",
       },
     });
+    jobLog.info(
+      { youtubeVideoId: uploaded.id, durationMs: Date.now() - startedAt },
+      "upload done",
+    );
   } catch (err) {
+    const message = err instanceof Error ? err.message : "Upload failed";
+    jobLog.error(
+      { durationMs: Date.now() - startedAt, err: message },
+      "upload failed",
+    );
     await db.package.update({
       where: { id: packageId },
       data: {
         uploadStatus: "failed",
-        uploadError: err instanceof Error ? err.message : "Upload failed",
+        uploadError: message,
       },
     });
   }

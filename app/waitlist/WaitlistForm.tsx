@@ -5,10 +5,12 @@ import { joinWaitlist, type WaitlistResult } from "@/lib/actions/waitlist";
 
 export default function WaitlistForm({
   cta = "Join waitlist",
-  placeholder = "your@email.com",
+  placeholder = "you@studio.com",
+  id,
 }: {
   cta?: string;
   placeholder?: string;
+  id?: string;
 }) {
   const [state, setState] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [message, setMessage] = useState("");
@@ -27,32 +29,35 @@ export default function WaitlistForm({
 
   if (state === "done") {
     return (
-      <div className="wl-form-success" role="status">
-        <span className="wl-check" aria-hidden="true">✓</span>
-        <span>{message}</span>
+      <div id={id} className="tb-form tb-form-done" role="status">
+        <span className="tb-form-check" aria-hidden="true">✓</span>
+        <span className="tb-form-done-text">{message}</span>
       </div>
     );
   }
 
   return (
-    <form action={action} className="wl-form">
-      <input
-        type="email"
-        name="email"
-        required
-        placeholder={placeholder}
-        autoComplete="email"
-        aria-label="Email address"
-        disabled={state === "loading"}
-      />
-      <button type="submit" className="btn btn-primary" disabled={state === "loading"}>
-        {state === "loading" ? "Joining…" : cta}
-      </button>
+    <div className="tb-form-wrap">
+      <form id={id} action={action} className="tb-form">
+        <input
+          type="email"
+          name="email"
+          required
+          placeholder={placeholder}
+          autoComplete="email"
+          aria-label="Email address"
+          className="tb-form-input"
+          disabled={state === "loading"}
+        />
+        <button type="submit" className="tb-form-btn" disabled={state === "loading"}>
+          {state === "loading" ? "Joining…" : cta}
+        </button>
+      </form>
       {state === "error" && (
-        <p className="wl-form-error" role="alert">
+        <p className="tb-form-error" role="alert">
           {message}
         </p>
       )}
-    </form>
+    </div>
   );
 }

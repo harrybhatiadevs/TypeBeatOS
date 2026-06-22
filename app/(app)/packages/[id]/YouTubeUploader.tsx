@@ -62,7 +62,7 @@ export default function YouTubeUploader({
 
       {status === "uploaded" && videoId ? (
         <>
-          <p style={{ color: "var(--accent-2)", fontWeight: 600, marginBottom: 12 }}>
+          <p className="tb-accent" style={{ fontWeight: 600, marginBottom: 12 }}>
             ✓ Uploaded{scheduledLabel ? ` — publishes ${scheduledLabel}` : " as private"}
           </p>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
@@ -85,23 +85,23 @@ export default function YouTubeUploader({
           </div>
         </>
       ) : status === "uploading" ? (
-        <p style={{ color: "var(--accent-2)", fontWeight: 600 }}>
+        <p className="tb-accent" style={{ fontWeight: 600 }}>
           ⏳ Uploading to YouTube… this runs in the background.
         </p>
       ) : !configured ? (
-        <p style={{ color: "var(--text-dim)", fontSize: "0.9rem" }}>
+        <p className="tb-helper" style={{ fontSize: "0.9rem" }}>
           Direct upload needs Google API credentials — see the YouTube card in your{" "}
           <Link href="/profile">profile</Link> for setup.
         </p>
       ) : !connected ? (
-        <p style={{ color: "var(--text-dim)", fontSize: "0.9rem" }}>
+        <p className="tb-helper" style={{ fontSize: "0.9rem" }}>
           <Link href="/profile">Connect your YouTube channel</Link> to upload this package
           directly.
         </p>
       ) : (
         <>
           {error && <div className="form-error">{error}</div>}
-          <p style={{ color: "var(--text-dim)", fontSize: "0.9rem", marginBottom: 14 }}>
+          <p className="tb-helper" style={{ marginBottom: 14, fontSize: "0.9rem" }}>
             {hasVideo
               ? scheduledLabel
                 ? `Uploads to ${channelTitle} as private, set to publish ${scheduledLabel}.`

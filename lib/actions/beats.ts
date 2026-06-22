@@ -14,19 +14,25 @@ import {
   buildTitleOptions,
 } from "@/lib/generate";
 import { analyzeAudio } from "@/lib/audio-analysis";
+import { sniff } from "@/lib/file-magic";
 
-const AUDIO_EXTS = new Set([".mp3", ".wav", ".m4a", ".ogg", ".flac", ".aiff"]);
+const MAX_AUDIO_BYTES = 50 * 1024 * 1024; // 50 MB
 
 /** Save the uploaded audio for a beat; returns the saved path on disk, or null. */
 async function saveAudio(beatId: string, file: FormDataEntryValue | null) {
   if (!(file instanceof File) || file.size === 0) return null;
-  const ext = path.extname(file.name).toLowerCase();
-  if (!AUDIO_EXTS.has(ext)) return null;
+  if (file.size > MAX_AUDIO_BYTES) return null;
+
+  // Trust the actual bytes, not the supplied filename extension.
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const ext = sniff(bytes.subarray(0, 64), "audio");
+  if (!ext) return null;
+
   const dir = path.join(process.cwd(), "uploads", "audio");
   await mkdir(dir, { recursive: true });
   const filename = `${beatId}${ext}`;
   const diskPath = path.join(dir, filename);
-  await writeFile(diskPath, Buffer.from(await file.arrayBuffer()));
+  await writeFile(diskPath, Buffer.from(bytes));
   await db.beat.update({
     where: { id: beatId },
     data: { audioPath: `/api/files/audio/${filename}` },

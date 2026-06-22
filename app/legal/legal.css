@@ -1,0 +1,107 @@
+/* ============================================================
+   Legal pages (privacy, terms) — long-form readable copy on the
+   tb-* surface. Uses the same nav + page chrome as the marketing
+   surface, just a more readable centred prose column.
+   ============================================================ */
+
+.tb-legal {
+  position: relative;
+  z-index: 2;
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 8rem 1.5rem 6rem;
+}
+
+.tb-legal-header {
+  margin-bottom: 3rem;
+}
+
+.tb-legal-meta {
+  margin-top: 1rem;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.tb-legal h2 {
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: clamp(1.5rem, 2.4vw, 1.85rem);
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: #fff;
+  margin-top: 3rem;
+  margin-bottom: 1rem;
+}
+
+.tb-legal h2:first-of-type { margin-top: 0; }
+
+.tb-legal p {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.78);
+  margin-bottom: 1.25rem;
+}
+
+.tb-legal ul {
+  margin: 0 0 1.5rem 1.25rem;
+  padding: 0;
+  list-style: none;
+}
+
+.tb-legal li {
+  position: relative;
+  padding: 0.25rem 0 0.25rem 1.25rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.tb-legal li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.85rem;
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 9999px;
+  background: #ed072c;
+}
+
+.tb-legal a {
+  color: #ff8d94;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 141, 148, 0.3);
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.tb-legal a:hover {
+  color: #fff;
+  border-color: #fff;
+}
+
+.tb-legal-placeholder {
+  display: inline-block;
+  padding: 0.05rem 0.45rem;
+  margin: 0 0.15rem;
+  border: 1px dashed rgba(237, 7, 44, 0.55);
+  background: rgba(237, 7, 44, 0.08);
+  color: #ff8d94;
+  border-radius: 0.35rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.88em;
+}
+
+.tb-legal-callout {
+  margin-bottom: 2rem;
+  padding: 1rem 1.25rem;
+  border-left: 3px solid #ed072c;
+  background: rgba(237, 7, 44, 0.06);
+  border-radius: 0 0.6rem 0.6rem 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.tb-legal-callout strong { color: #ff8d94; }

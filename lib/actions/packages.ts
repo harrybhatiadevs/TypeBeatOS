@@ -6,6 +6,7 @@ import path from "path";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { nextSlots, parseScheduleDays } from "@/lib/schedule";
+import { sniff } from "@/lib/file-magic";
 
 async function ownedPackage(id: string, userId: string) {
   const pkg = await db.package.findUnique({ where: { id }, include: { beat: true } });
@@ -46,18 +47,26 @@ export async function updatePackage(input: {
   revalidatePath("/calendar");
 }
 
+const MAX_THUMB_BYTES = 8 * 1024 * 1024; // 8 MB
+
 export async function saveThumbnail(formData: FormData) {
   const user = await requireUser();
   const packageId = String(formData.get("packageId") || "");
   await ownedPackage(packageId, user.id);
 
   const file = formData.get("file");
-  if (!(file instanceof File) || file.type !== "image/png") throw new Error("Invalid image data");
+  if (!(file instanceof File) || file.size === 0) throw new Error("Invalid image data");
+  if (file.size > MAX_THUMB_BYTES) throw new Error("Thumbnail too large (max 8 MB)");
+
+  // Trust the bytes, not the Content-Type header.
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const ext = sniff(bytes.subarray(0, 16), "image");
+  if (ext !== ".png") throw new Error("Thumbnail must be a PNG");
 
   const dir = path.join(process.cwd(), "uploads", "thumbs");
   await mkdir(dir, { recursive: true });
   const filename = `${packageId}.png`;
-  await writeFile(path.join(dir, filename), Buffer.from(await file.arrayBuffer()));
+  await writeFile(path.join(dir, filename), Buffer.from(bytes));
 
   const thumbnailPath = `/api/files/thumbs/${filename}`;
   await db.package.update({ where: { id: packageId }, data: { thumbnailPath } });
