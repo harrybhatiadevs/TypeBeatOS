@@ -5,7 +5,7 @@
 // 1. Provision a Neon project + dev branch
 // 2. Replace `schema.prisma` contents with this file's contents (same models,
 //    provider flipped)
-// 3. `DATABASE_URL=<neon-url> prisma migrate dev --name init_postgres`
+// 3. `DATABASE_URL=<neon-dev-branch-url>` prisma migrate dev --name init_postgres
 // 4. Run `scripts/cleanup-test-data.ts` against SQLite, copy production data
 //    out (waitlist signups, real user rows) and import to Postgres
 // 5. Smoke-check: login, signup, waitlist join, beat upload, package render
@@ -20,17 +20,77 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ============================================================
+// Auth (Better-Auth compatible)
+// ============================================================
+
 model User {
-  id           String          @id @default(cuid())
-  email        String          @unique
-  passwordHash String
-  onboardedAt  DateTime?
-  createdAt    DateTime        @default(now())
-  sessions     Session[]
-  profile      Profile?
-  beats        Beat[]
-  youtube      YouTubeAccount?
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  image         String?
+  emailVerified Boolean   @default(false)
+  passwordHash  String    @default("") // legacy, retired once all sessions migrate
+  onboardedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  sessions Session[]
+  accounts Account[]
+  profile  Profile?
+  beats    Beat[]
+  youtube  YouTubeAccount?
 }
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  password              String?
+  accessToken           String?
+  refreshToken          String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  idToken               String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+}
+
+// ============================================================
+// Producer data
+// ============================================================
 
 model YouTubeAccount {
   userId       String   @id
@@ -41,16 +101,6 @@ model YouTubeAccount {
   channelId    String   @default("")
   channelTitle String   @default("")
   createdAt    DateTime @default(now())
-}
-
-model Session {
-  token     String   @id
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expiresAt DateTime
-
-  @@index([userId])
-  @@index([expiresAt])
 }
 
 model WaitlistSignup {
