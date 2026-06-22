@@ -15,6 +15,8 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 import { db } from "./db";
+import { email } from "./email";
+import { resetPasswordEmail } from "./email-templates";
 
 const IS_PROD = process.env.NODE_ENV === "production";
 const APP_URL = process.env.APP_URL || "http://localhost:3000";
@@ -30,6 +32,14 @@ export const auth = betterAuth({
     enabled: true,
     minPasswordLength: 8,
     autoSignIn: true,
+    // Better-Auth issues the reset token + a URL containing it, then
+    // invokes this callback to deliver it. We hand it to our email
+    // service — which logs to console in dev / sends via Resend in
+    // prod (see lib/email.ts).
+    sendResetPassword: async ({ user, url }) => {
+      const tmpl = resetPasswordEmail({ to: user.email, resetUrl: url });
+      await email.send(tmpl);
+    },
   },
 
   session: {
