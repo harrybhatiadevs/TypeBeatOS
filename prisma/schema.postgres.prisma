@@ -1,23 +1,14 @@
-// Production target schema — kept in lockstep with `schema.prisma` so we
-// validate Postgres compatibility on every CI run before the cutover.
-//
-// Procedure during the SQLite → Postgres cutover:
-// 1. Provision a Neon project + dev branch
-// 2. Replace `schema.prisma` contents with this file's contents (same models,
-//    provider flipped)
-// 3. `DATABASE_URL=<neon-dev-branch-url>` prisma migrate dev --name init_postgres
-// 4. Run `scripts/cleanup-test-data.ts` against SQLite, copy production data
-//    out (waitlist signups, real user rows) and import to Postgres
-// 5. Smoke-check: login, signup, waitlist join, beat upload, package render
-// 6. Delete this file once the cutover is done
+// Production schema for Neon PostgreSQL. Keep its models in lockstep with
+// `schema.prisma`, which remains the local SQLite development schema.
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ============================================================

@@ -83,6 +83,10 @@ async function main() {
     console.error("Refusing to run without CONFIRM_SEED=yes");
     process.exit(2);
   }
+  if (!process.env.DATABASE_URL?.startsWith("file:")) {
+    console.error("Refusing to seed a non-SQLite database");
+    process.exit(2);
+  }
   if (process.env.NODE_ENV === "production") {
     console.error("Refusing to seed a production database");
     process.exit(2);

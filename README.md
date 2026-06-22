@@ -36,15 +36,18 @@ Quota note: `videos.insert` costs ~1600 units of the default 10,000/day quota �
 
 ```bash
 npm install
-npx prisma db push   # creates prisma/dev.db (SQLite)
+npm run db:push      # creates prisma/dev.db (SQLite)
 npm run dev          # → http://localhost:3000
 ```
 
 ## Stack
 
-Next.js 15 (App Router, server actions) · TypeScript · Prisma + SQLite · plain CSS (no Tailwind). Beat audio and thumbnails are stored on disk under `uploads/` and served via `/api/files/*`.
+Next.js 15 (App Router, server actions) · TypeScript · Prisma with SQLite locally and Neon PostgreSQL in production · plain CSS (no Tailwind). Beat audio and thumbnails are stored on disk under `uploads/` and served via `/api/files/*`.
 
-Swapping SQLite for Postgres later is a one-line change in `prisma/schema.prisma` plus a new `DATABASE_URL`.
+Production database setup, migration, and verification instructions are in
+[`docs/postgres-cutover.md`](docs/postgres-cutover.md). Production uses a pooled
+`DATABASE_URL` for application traffic and a direct `DIRECT_URL` for migrations;
+neither credential belongs in git.
 
 ## Roadmap (from the product report)
 

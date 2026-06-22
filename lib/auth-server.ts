@@ -20,11 +20,14 @@ import { resetPasswordEmail } from "./email-templates";
 
 const IS_PROD = process.env.NODE_ENV === "production";
 const APP_URL = process.env.APP_URL || "http://localhost:3000";
+const DATABASE_PROVIDER = process.env.DATABASE_URL?.startsWith("postgres")
+  ? "postgresql"
+  : "sqlite";
 
 export const auth = betterAuth({
   baseURL: APP_URL,
   appName: "TypeBeatOS",
-  database: prismaAdapter(db, { provider: "sqlite" }),
+  database: prismaAdapter(db, { provider: DATABASE_PROVIDER }),
 
   // Email + password — the only flow we expose today. Magic links + OAuth
   // social login can be turned on later by adding to this config block.

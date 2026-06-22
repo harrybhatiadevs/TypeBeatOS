@@ -5,6 +5,7 @@ prisma/dev.db
 prisma/dev.db-journal
 .env
 .env*
+!.env.example
 .DS_Store
 *.log
 *.tsbuildinfo
