@@ -31,12 +31,12 @@ async function main() {
     const tables = rows.map(({ table_name }) => table_name);
     const missing = EXPECTED_TABLES.filter((table) => !tables.includes(table));
 
+    console.log("Connected to PostgreSQL successfully.");
+    console.log(`Tables (${tables.length}): ${tables.join(", ") || "none"}`);
+
     if (missing.length > 0) {
       throw new Error(`Neon schema is missing tables: ${missing.join(", ")}`);
     }
-
-    console.log("Connected to PostgreSQL successfully.");
-    console.log(`Tables (${tables.length}): ${tables.join(", ")}`);
   } finally {
     await db.$disconnect();
   }
