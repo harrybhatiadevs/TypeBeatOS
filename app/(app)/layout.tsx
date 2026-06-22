@@ -2,10 +2,15 @@ import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { logout } from "@/lib/actions/auth";
 import NavLinks from "./NavLinks";
+import VerifyEmailBanner from "./VerifyEmailBanner";
 import "./app-chrome.css";
 
-export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  await requireUser();
+export default async function AppLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const user = await requireUser();
 
   return (
     <div className="app-page">
@@ -30,6 +35,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </form>
         </div>
       </nav>
+      {!user.emailVerified && (
+        <VerifyEmailBanner email={user.email} />
+      )}
       <main className="app-main">{children}</main>
     </div>
   );

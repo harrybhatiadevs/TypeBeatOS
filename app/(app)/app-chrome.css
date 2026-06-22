@@ -648,6 +648,52 @@
 /* ---------- Audio player ---------- */
 .app-page audio { width: 100%; border-radius: 9999px; }
 
+/* ---------- Verify-email banner (shown until emailVerified) ---------- */
+.app-page .tb-verify-banner {
+  position: relative;
+  z-index: 2;
+  max-width: 1080px;
+  margin: 6rem auto 0;
+  padding: 0.85rem 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  border: 1px solid rgba(237, 7, 44, 0.35);
+  background: rgba(237, 7, 44, 0.07);
+  border-radius: 0.85rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.85);
+}
+.app-page .tb-verify-banner code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85em;
+  padding: 0.05rem 0.4rem;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 0.3rem;
+  color: #ff8d94;
+}
+.app-page .tb-verify-banner strong { color: #fff; }
+.app-page .tb-verify-dot {
+  flex-shrink: 0;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 9999px;
+  background: #ed072c;
+  box-shadow: 0 0 12px #ed072c;
+  animation: tb-pulse 1.6s ease-in-out infinite;
+}
+.app-page .tb-verify-copy { flex: 1; }
+.app-page .tb-verify-action { flex-shrink: 0; }
+.app-page .tb-verify-banner + .app-main { padding-top: 1.5rem; }
+@media (max-width: 620px) {
+  .app-page .tb-verify-banner {
+    margin: 5rem 1rem 0;
+    flex-wrap: wrap;
+  }
+  .app-page .tb-verify-action { width: 100%; display: flex; justify-content: flex-end; }
+}
+
 /* ---------- Utilities (retire inline style={{ color: var(--..) }}) ---------- */
 .app-page .tb-muted { color: rgba(255, 255, 255, 0.55); }
 .app-page .tb-muted-strong { color: rgba(255, 255, 255, 0.7); }

@@ -58,7 +58,12 @@ class ConsoleEmail implements EmailService {
     const id = `console-${Date.now().toString(36)}-${Math.random()
       .toString(36)
       .slice(2, 8)}`;
-    const preview = stripTags(payload.text || payload.html).slice(0, 320);
+    const body = stripTags(payload.text || payload.html);
+    // Pull every URL out of the body and surface them separately so
+    // reset / verify / magic-link URLs are easy to copy without
+    // scrolling. Token URLs are long.
+    const urls = body.match(/https?:\/\/\S+/g) || [];
+    const preview = body.slice(0, 240);
     // eslint-disable-next-line no-console
     console.log(
       "\n[email · console stub]\n" +
@@ -66,6 +71,9 @@ class ConsoleEmail implements EmailService {
         `  to:      ${payload.to}\n` +
         `  from:    ${payload.from || DEFAULT_FROM}\n` +
         `  subject: ${payload.subject}\n` +
+        (urls.length
+          ? urls.map((u, i) => `  url[${i}]: ${u}`).join("\n") + "\n"
+          : "") +
         `  preview: ${preview}\n`
     );
     return { id, provider: this.provider };
