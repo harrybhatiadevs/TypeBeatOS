@@ -6,9 +6,8 @@
  *
  *   CONFIRM_CLEANUP=yes npx tsx scripts/cleanup-test-data.ts
  *
- * The CONFIRM_CLEANUP gate is a guard against running this against a live
- * customer database by accident. The script exits with code 1 if it can't
- * delete the test account on a NODE_ENV=production database.
+ * The confirmation gate and SQLite URL check prevent this script from running
+ * against Neon or another live customer database by accident.
  */
 import { db } from "@/lib/db";
 
@@ -23,6 +22,10 @@ const TEST_EMAILS = [
 async function main() {
   if (process.env.CONFIRM_CLEANUP !== "yes") {
     console.error("Refusing to run without CONFIRM_CLEANUP=yes");
+    process.exit(2);
+  }
+  if (!process.env.DATABASE_URL?.startsWith("file:")) {
+    console.error("Refusing to clean a non-SQLite database");
     process.exit(2);
   }
 

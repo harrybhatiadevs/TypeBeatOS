@@ -35,7 +35,8 @@ fly volumes create typebeatos_data --region syd --size 10 --yes
 # Required
 fly secrets set \
   DATABASE_URL="<neon production pooled URL>" \
-  SESSION_SECRET="$(openssl rand -hex 32)" \
+  DIRECT_URL="<neon production direct URL>" \
+  BETTER_AUTH_SECRET="$(openssl rand -hex 32)" \
   GOOGLE_CLIENT_ID="<from Google Cloud OAuth client>" \
   GOOGLE_CLIENT_SECRET="<same>" \
   APP_URL="https://typebeatos.fly.dev"
@@ -50,9 +51,16 @@ Note: `APP_URL` should be the canonical public origin. Once a custom
 domain is attached, update it; Google's OAuth client redirect URI must
 match exactly.
 
+`DATABASE_URL` is the Neon pooled URL used by the running application (the
+hostname contains `-pooler`). `DIRECT_URL` is the matching non-pooled URL used
+only by Prisma migrations. Keep both in Fly secrets and out of git.
+
 ## Deploy
 
 ```bash
+DIRECT_URL="<neon production direct URL>" \
+DATABASE_URL="<neon production pooled URL>" \
+npm run db:migrate:deploy
 fly deploy --remote-only
 ```
 
