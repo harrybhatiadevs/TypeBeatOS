@@ -16,7 +16,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 import { db } from "./db";
 import { email } from "./email";
-import { resetPasswordEmail } from "./email-templates";
+import { resetPasswordEmail, verifyEmailEmail } from "./email-templates";
 
 const IS_PROD = process.env.NODE_ENV === "production";
 const APP_URL = process.env.APP_URL || "http://localhost:3000";
@@ -41,6 +41,23 @@ export const auth = betterAuth({
     // prod (see lib/email.ts).
     sendResetPassword: async ({ user, url }) => {
       const tmpl = resetPasswordEmail({ to: user.email, resetUrl: url });
+      await email.send(tmpl);
+    },
+  },
+
+  // Email verification — soft rollout. Send on signup but don't require
+  // verification to use the app yet (no `requireEmailVerification`). A
+  // banner in the app chrome reminds unverified producers to confirm;
+  // verification flips `User.emailVerified` so the banner disappears.
+  emailVerification: {
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, url }) => {
+      const tmpl = verifyEmailEmail({
+        to: user.email,
+        verifyUrl: url,
+        producerName: user.name || undefined,
+      });
       await email.send(tmpl);
     },
   },

@@ -38,6 +38,44 @@ function button(label: string, href: string): string {
   return `<a href="${href}" style="display:inline-block;background:${ACCENT};color:#fff;text-decoration:none;padding:14px 28px;border-radius:9999px;font-weight:700;letter-spacing:0.02em;">${label}</a>`;
 }
 
+export function verifyEmailEmail({
+  to,
+  verifyUrl,
+  producerName,
+}: {
+  to: string;
+  verifyUrl: string;
+  producerName?: string;
+}): EmailPayload {
+  const greeting = producerName ? `Hey ${producerName},` : "Hey,";
+  const html = shell(`
+    <h1 style="margin:0;font-size:24px;font-weight:800;line-height:1.2;color:${TEXT};">Verify your email</h1>
+    <p style="margin:14px 0 0;color:${TEXT_DIM};line-height:1.55;font-size:15px;">
+      ${greeting} thanks for joining TypeBeatOS — click the button to confirm this email address. It only takes a second and unlocks transactional email + future password recovery.
+    </p>
+    <div style="margin:28px 0 6px;">${button("Verify email", verifyUrl)}</div>
+    <p style="margin:18px 0 0;color:${TEXT_DIM};font-size:13px;word-break:break-all;">
+      Or paste this link into your browser:<br/>
+      <a href="${verifyUrl}" style="color:${ACCENT};">${verifyUrl}</a>
+    </p>
+  `);
+  const text = [
+    "Verify your TypeBeatOS email",
+    "",
+    `${greeting} click the link to confirm your email:`,
+    "",
+    verifyUrl,
+    "",
+    "If you didn't sign up, ignore this message.",
+  ].join("\n");
+  return {
+    to,
+    subject: "Verify your TypeBeatOS email",
+    html,
+    text,
+  };
+}
+
 export function resetPasswordEmail({
   to,
   resetUrl,
