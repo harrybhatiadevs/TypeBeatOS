@@ -132,24 +132,22 @@ export default async function Landing() {
       </nav>
 
       {/* HERO */}
-      <section className="tb-hero">
+      <section className="tb-hero tb-hero-center">
         <div className="tb-eyebrow">
           <span className="tb-eyebrow-dot" aria-hidden="true" />
           Upload ops for type-beat producers
         </div>
 
         <h1 className="tb-h1">
-          <span className="tb-line"><span>Batch a month</span></span>
-          <span className="tb-line"><span>of type-beat</span></span>
-          <span className="tb-line"><span>uploads <span className="tb-red">without</span></span></span>
-          <span className="tb-line"><span>the busywork.</span></span>
+          <span className="tb-line"><span>Scale your YouTube channel</span></span>
+          <span className="tb-line"><span className="tb-red">without the busywork.</span></span>
         </h1>
 
         <div className="tb-hero-grid">
           <p className="tb-hero-sub">
-            TypeBeatOS writes the SEO pack, builds the thumbnail, renders the video,
-            and schedules everything to your channel. Built for producers who&apos;d
-            rather make beats than chase metadata.
+            From finished beat to SEO-optimised upload in seconds. TypeBeatOS
+            automates your thumbnails, metadata, and scheduling so you can
+            focus on the music.
           </p>
 
           <div className="tb-hero-actions">
