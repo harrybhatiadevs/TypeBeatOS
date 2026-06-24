@@ -133,18 +133,10 @@
   display: block;
   width: 2rem;
   height: 2rem;
-  border-radius: 0.55rem;
-  /* The brand JPG has heavy black padding around the glyph. Scale the
-     background up and centre it so we crop to just the TB mark — that
-     way the badge reads as a tight logo tile, not a tiny floating glyph. */
-  background-image: url("/logo.jpg");
+  background-image: url("/logo.png");
   background-repeat: no-repeat;
   background-position: center;
-  background-size: 215% 215%;
-  background-color: #000;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  /* Subtle red haze lifts the white glyph against the dark glass nav. */
-  box-shadow: 0 0 18px rgba(237, 7, 44, 0.32);
+  background-size: contain;
 }
 .tb-wordmark {
   color: #fff;
@@ -286,6 +278,34 @@
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.62);
 }
+
+/* Landing-page hero only — centers the existing hero layout without
+   touching .tb-hero/.tb-h1/.tb-hero-grid, which the waitlist, auth, and
+   error pages also rely on. */
+.tb-hero-center {
+  align-items: center;
+  text-align: center;
+  min-height: 88vh;
+  padding: 6.5rem 1.5rem 3rem;
+}
+/* .tb-page h1 resets text-align to left with higher precedence than the
+   inherited value above — restate it explicitly here so the multi-line
+   headline is centred as one optically balanced block. */
+.tb-hero-center .tb-h1 {
+  text-align: center;
+  font-size: clamp(2.25rem, 6.2vw, 5.25rem);
+}
+.tb-hero-center .tb-eyebrow { margin-bottom: 1.5rem; }
+.tb-hero-center .tb-hero-grid {
+  margin-top: 2rem;
+  gap: 1.75rem;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  align-items: center;
+}
+.tb-hero-center .tb-hero-sub { margin: 0 auto; }
+.tb-hero-center .tb-hero-actions { justify-content: center; margin-top: 0.5rem; }
+.tb-hero-center .tb-stats { margin-top: 2rem; padding-top: 1.25rem; }
 
 /* ---------- Email form (pill) ---------- */
 .tb-form-wrap { width: 100%; max-width: 28rem; }
@@ -627,10 +647,10 @@
   width: clamp(20rem, 45vw, 36rem);
   aspect-ratio: 1 / 1;
   transform: translate(-50%, -50%);
-  background-image: url("/logo.jpg");
+  background-image: url("/logo.png");
   background-repeat: no-repeat;
   background-position: center;
-  background-size: 215% 215%;
+  background-size: contain;
   opacity: 0.07;
   filter: blur(0.5px);
   pointer-events: none;
@@ -1026,12 +1046,8 @@
   gap: 0.7rem;
 }
 .tb-footer-brand .tb-badge {
-  /* Footer badge is slightly larger and unboxed to feel more like a
-     signature than a UI tile. */
   width: 1.65rem;
   height: 1.65rem;
-  border-radius: 0.45rem;
-  box-shadow: 0 0 14px rgba(237, 7, 44, 0.25);
 }
 .tb-footer-mark { font-size: 1.05rem; color: rgba(255, 255, 255, 0.65); letter-spacing: 0.14em; }
 .tb-footer-mark span { color: #ed072c; }
