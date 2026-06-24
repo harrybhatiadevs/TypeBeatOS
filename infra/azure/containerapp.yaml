@@ -1,0 +1,113 @@
+# ============================================================================
+# TypeBeatOS — Azure Container Apps declarative spec
+# ============================================================================
+# Apply with:  az containerapp create -g <RG> -n <APP> --yaml <filled copy>
+#
+# ⚠️  SECRETS: every `value:` under `secrets:` below is a PLACEHOLDER.
+#     Do NOT commit real secret values. Copy this file to a gitignored
+#     working copy (e.g. containerapp.filled.yaml), fill the real values
+#     there, and deploy that copy. The committed file stays placeholder-only.
+#
+# Notes wired into this spec:
+#   - Single replica (min=max=1): render/upload queues are in-process and
+#     not durable yet. Raising maxReplicas requires roadmap C1 (Blob) + C2
+#     (durable queue) first.
+#   - Liveness = TCP:3000 (no DB) so a transient Neon outage does NOT restart
+#     the container; Readiness = /api/health (DB ping) controls traffic only.
+#   - Azure Files volume "uploads" mounted at /app/uploads mirrors the Fly
+#     volume so the existing local-filesystem code runs unchanged.
+#   - DIRECT_URL is intentionally absent — it is migration-only (run from a
+#     laptop), never needed by the running container.
+#   - Registry config lives here so a single `create` works (no separate
+#     `registry set` before the app exists).
+# ============================================================================
+
+location: <REGION>                       # e.g. australiaeast
+name: <APP>                              # e.g. ca-typebeatos
+type: Microsoft.App/containerApps
+properties:
+  # Get with: az containerapp env show -n <ENV> -g <RG> --query id -o tsv
+  managedEnvironmentId: /subscriptions/<SUBSCRIPTION_ID>/resourceGroups/<RG>/providers/Microsoft.App/managedEnvironments/<ENV>
+
+  configuration:
+    activeRevisionsMode: Single
+    ingress:
+      external: true
+      targetPort: 3000
+      transport: auto
+      allowInsecure: false               # forces HTTPS (Fly force_https analog)
+    registries:
+      - server: <ACR_LOGIN_SERVER>       # e.g. crtypebeatos1234.azurecr.io
+        username: <ACR_ADMIN_USERNAME>   # = ACR name when admin enabled
+        passwordSecretRef: acr-password
+    secrets:
+      - name: acr-password
+        value: <ACR_ADMIN_PASSWORD>      # az acr credential show --query passwords[0].value
+      - name: database-url
+        value: <NEON_POOLED_URL>         # pooled, hostname contains -pooler, sslmode=require
+      - name: better-auth-secret
+        value: <BETTER_AUTH_SECRET>      # generate ONCE: openssl rand -hex 32 — never regenerate
+      - name: google-client-id
+        value: <GOOGLE_CLIENT_ID>
+      - name: google-client-secret
+        value: <GOOGLE_CLIENT_SECRET>
+      - name: resend-api-key
+        value: <RESEND_API_KEY>          # optional — leave placeholder if email not live yet
+      - name: anthropic-api-key
+        value: <ANTHROPIC_API_KEY>       # optional — template generation works without it
+
+  template:
+    containers:
+      - name: typebeatos
+        image: <ACR_LOGIN_SERVER>/typebeatos:v1
+        resources:
+          cpu: 1.0
+          memory: 2.0Gi                  # ffmpeg render headroom; tunable
+        env:
+          - name: NODE_ENV
+            value: production
+          - name: APP_URL
+            value: https://PLACEHOLDER   # set to real FQDN after first create (see runbook step 7)
+          - name: EMAIL_FROM
+            value: <EMAIL_FROM>          # e.g. "TypeBeatOS <noreply@yourdomain>"; plain, not secret
+          - name: DATABASE_URL
+            secretRef: database-url
+          - name: BETTER_AUTH_SECRET
+            secretRef: better-auth-secret
+          - name: GOOGLE_CLIENT_ID
+            secretRef: google-client-id
+          - name: GOOGLE_CLIENT_SECRET
+            secretRef: google-client-secret
+          - name: RESEND_API_KEY
+            secretRef: resend-api-key
+          - name: ANTHROPIC_API_KEY
+            secretRef: anthropic-api-key
+        probes:
+          # Liveness: cheap TCP check, NO database. A Neon blip must not
+          # trigger a restart (which would drop in-flight in-process jobs).
+          - type: Liveness
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            failureThreshold: 3
+          # Readiness: DB-aware. On a Neon outage this replica stops receiving
+          # traffic (503) but is NOT restarted.
+          - type: Readiness
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+        volumeMounts:
+          - volumeName: uploads
+            mountPath: /app/uploads
+    scale:
+      minReplicas: 1                     # pinned single replica — see header notes
+      maxReplicas: 1
+    volumes:
+      - name: uploads
+        storageType: AzureFile
+        storageName: uploadsmount        # registered via `az containerapp env storage set`
