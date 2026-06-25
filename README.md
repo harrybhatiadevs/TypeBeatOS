@@ -7,7 +7,7 @@ The YouTube growth system for type-beat producers.
 ## What's built (Stages 2–5 of the roadmap)
 
 - **Landing page** at `/` — the validation page, now driving signups
-- **Auth** — email/password accounts with cookie sessions
+- **Auth** — email/password accounts via [Better-Auth](https://better-auth.com); email verification on signup (soft gate + in-app resend banner) and a full password-reset flow (`/forgot` → email → `/reset`)
 - **Producer profile** — store links, license text, description footer, default posting schedule
 - **Beat upload** — beat details + optional audio file
 - **Upload package generation** — SEO title options (type-beat structures), description with your links, tags (capped at YouTube's 500-char limit), hashtags, pinned comment
@@ -48,6 +48,23 @@ Production database setup, migration, and verification instructions are in
 [`docs/postgres-cutover.md`](docs/postgres-cutover.md). Production uses a pooled
 `DATABASE_URL` for application traffic and a direct `DIRECT_URL` for migrations;
 neither credential belongs in git.
+
+## Deployment
+
+Production runs on **Azure Container Apps** (single replica), built from the
+[`Dockerfile`](Dockerfile) as a Next.js standalone server.
+
+- **Database** — Neon PostgreSQL (pooled `DATABASE_URL` for the app, direct `DIRECT_URL` for migrations)
+- **File storage** — Azure Files share mounted at `/app/uploads` (audio, thumbnails, rendered MP4s persist across restarts)
+- **Email** — Resend (`RESEND_API_KEY`); falls back to a console stub when unset
+- **Registry / build** — Azure Container Registry; image built locally for `linux/amd64` and pushed (ACR Tasks is unavailable on credit subscriptions)
+- **Ingress** — external HTTPS on the auto-provisioned `*.azurecontainerapps.io` FQDN; health probed at `/api/health`
+- **Secrets** — held in the Container App secret store, never in git (a local `containerapp.filled.yaml` is gitignored)
+
+Full runbook (exact `az` commands, cost budget, probe design, smoke-test checklist):
+[`docs/azure-deployment.md`](docs/azure-deployment.md). The declarative app spec
+is [`infra/azure/containerapp.yaml`](infra/azure/containerapp.yaml). The retired
+Fly.io files (`fly.toml`, `docs/deploy-runbook.md`) are kept as a fallback.
 
 ## Roadmap (from the product report)
 
