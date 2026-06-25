@@ -10,3 +10,7 @@ prisma/dev.db-journal
 *.log
 *.tsbuildinfo
 .claude/
+
+# Local deploy config that contains REAL secrets — never commit
+containerapp.filled.yaml
+*.filled.yaml
