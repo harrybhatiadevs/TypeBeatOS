@@ -42,6 +42,7 @@
   line-height: 1.7;
   color: rgba(255, 255, 255, 0.78);
   margin-bottom: 1.25rem;
+  overflow-wrap: anywhere;
 }
 
 .tb-legal ul {
@@ -56,6 +57,7 @@
   font-size: 1rem;
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.78);
+  overflow-wrap: anywhere;
 }
 
 .tb-legal li::before {
@@ -91,6 +93,7 @@
   border-radius: 0.35rem;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.88em;
+  overflow-wrap: anywhere;
 }
 
 .tb-legal-callout {
@@ -105,3 +108,31 @@
 }
 
 .tb-legal-callout strong { color: #ff8d94; }
+
+@media (max-width: 560px) {
+  .tb-legal {
+    padding: 6.5rem 1rem 4rem;
+  }
+
+  .tb-legal-header {
+    margin-bottom: 2rem;
+  }
+
+  .tb-legal-meta {
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+  }
+
+  .tb-legal p,
+  .tb-legal li {
+    font-size: 0.95rem;
+  }
+
+  .tb-legal ul {
+    margin-left: 0;
+  }
+
+  .tb-legal-callout {
+    padding: 0.9rem 1rem;
+  }
+}

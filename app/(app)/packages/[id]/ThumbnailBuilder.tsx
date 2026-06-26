@@ -193,7 +193,7 @@ export default function ThumbnailBuilder({
             <span>Hide all text</span>
           </label>
         </div>
-        <div className="form-field full" style={{ flexDirection: "row", gap: 10 }}>
+        <div className="form-field full thumb-actions">
           <button type="button" className="btn btn-primary btn-sm" disabled={saving} onClick={onSave}>
             {saving ? "Saving…" : savedPath ? "✓ Update thumbnail" : "Save thumbnail"}
           </button>

@@ -101,40 +101,42 @@ export default async function Dashboard() {
             </Link>
           </div>
         ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Artist</th>
-                <th>Status</th>
-                <th>Scheduled</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recent.map((p) => (
-                <tr key={p.id}>
-                  <td>
-                    <Link href={`/packages/${p.id}`}>{p.selectedTitle}</Link>
-                  </td>
-                  <td>{p.beat.targetArtist}</td>
-                  <td>
-                    <span className={`badge badge-${p.status}`}>{p.status}</span>
-                  </td>
-                  <td className="tb-muted">
-                    {p.scheduledAt
-                      ? p.scheduledAt.toLocaleString(undefined, {
-                          weekday: "short",
-                          month: "short",
-                          day: "numeric",
-                          hour: "numeric",
-                          minute: "2-digit",
-                        })
-                      : "—"}
-                  </td>
+          <div className="table-scroll">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Artist</th>
+                  <th>Status</th>
+                  <th>Scheduled</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {recent.map((p) => (
+                  <tr key={p.id}>
+                    <td>
+                      <Link href={`/packages/${p.id}`}>{p.selectedTitle}</Link>
+                    </td>
+                    <td>{p.beat.targetArtist}</td>
+                    <td>
+                      <span className={`badge badge-${p.status}`}>{p.status}</span>
+                    </td>
+                    <td className="tb-muted">
+                      {p.scheduledAt
+                        ? p.scheduledAt.toLocaleString(undefined, {
+                            weekday: "short",
+                            month: "short",
+                            day: "numeric",
+                            hour: "numeric",
+                            minute: "2-digit",
+                          })
+                        : "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </>

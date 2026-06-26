@@ -91,41 +91,43 @@ export default async function AnalyticsPage({
                 </button>
               </form>
             </div>
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Video</th>
-                  <th>Artist</th>
-                  <th>Views</th>
-                  <th>Likes</th>
-                  <th>Comments</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {uploaded.map((p) => (
-                  <tr key={p.id}>
-                    <td>
-                      <Link href={`/packages/${p.id}`}>{p.selectedTitle}</Link>
-                    </td>
-                    <td>{p.beat.targetArtist}</td>
-                    <td>{fmt(p.viewCount)}</td>
-                    <td>{fmt(p.likeCount)}</td>
-                    <td>{fmt(p.commentCount)}</td>
-                    <td className="tb-row-end">
-                      <a
-                        href={`https://youtu.be/${p.youtubeVideoId}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="copy-btn"
-                      >
-                        Watch ↗
-                      </a>
-                    </td>
+            <div className="table-scroll">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Video</th>
+                    <th>Artist</th>
+                    <th>Views</th>
+                    <th>Likes</th>
+                    <th>Comments</th>
+                    <th></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {uploaded.map((p) => (
+                    <tr key={p.id}>
+                      <td>
+                        <Link href={`/packages/${p.id}`}>{p.selectedTitle}</Link>
+                      </td>
+                      <td>{p.beat.targetArtist}</td>
+                      <td>{fmt(p.viewCount)}</td>
+                      <td>{fmt(p.likeCount)}</td>
+                      <td>{fmt(p.commentCount)}</td>
+                      <td className="tb-row-end">
+                        <a
+                          href={`https://youtu.be/${p.youtubeVideoId}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="copy-btn"
+                        >
+                          Watch ↗
+                        </a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
             <p className="tb-helper" style={{ marginTop: 12, fontSize: "0.82rem" }}>
               {lastUpdated
                 ? `Last refreshed ${lastUpdated.toLocaleString()}`
@@ -137,26 +139,28 @@ export default async function AnalyticsPage({
           <div className="editor-grid">
             <div className="card">
               <h3>Best performing artists</h3>
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Artist keyword</th>
-                    <th>Uploads</th>
-                    <th>Views</th>
-                    <th>Avg / upload</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {byArtist.map((a) => (
-                    <tr key={a.artist}>
-                      <td style={{ fontWeight: 600 }}>{a.artist}</td>
-                      <td>{fmt(a.uploads)}</td>
-                      <td>{fmt(a.views)}</td>
-                      <td>{fmt(a.avgViews)}</td>
+              <div className="table-scroll">
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th>Artist keyword</th>
+                      <th>Uploads</th>
+                      <th>Views</th>
+                      <th>Avg / upload</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {byArtist.map((a) => (
+                      <tr key={a.artist}>
+                        <td style={{ fontWeight: 600 }}>{a.artist}</td>
+                        <td>{fmt(a.uploads)}</td>
+                        <td>{fmt(a.views)}</td>
+                        <td>{fmt(a.avgViews)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
 
             <div className="card">
@@ -166,24 +170,26 @@ export default async function AnalyticsPage({
                   Schedule uploads to see which days perform.
                 </p>
               ) : (
-                <table className="table">
-                  <thead>
-                    <tr>
-                      <th>Day</th>
-                      <th>Uploads</th>
-                      <th>Avg views</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {byDay.map((d) => (
-                      <tr key={d.day}>
-                        <td style={{ fontWeight: 600 }}>{d.day}</td>
-                        <td>{fmt(d.uploads)}</td>
-                        <td>{fmt(d.avgViews)}</td>
+                <div className="table-scroll">
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th>Day</th>
+                        <th>Uploads</th>
+                        <th>Avg views</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {byDay.map((d) => (
+                        <tr key={d.day}>
+                          <td style={{ fontWeight: 600 }}>{d.day}</td>
+                          <td>{fmt(d.uploads)}</td>
+                          <td>{fmt(d.avgViews)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </div>
           </div>

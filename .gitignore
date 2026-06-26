@@ -14,3 +14,6 @@ prisma/dev.db-journal
 # Local deploy config that contains REAL secrets — never commit
 containerapp.filled.yaml
 *.filled.yaml
+
+# Local responsive-audit screenshots (not product assets)
+responsive-audit-screenshots/
