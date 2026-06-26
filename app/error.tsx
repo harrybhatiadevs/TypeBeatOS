@@ -45,7 +45,7 @@ export default function ErrorPage({
       </nav>
 
       <section className="tb-final">
-        <div className="tb-eyebrow" style={{ marginBottom: "1.5rem" }}>
+        <div className="tb-eyebrow tb-system-eyebrow">
           <span className="tb-eyebrow-dot" aria-hidden="true" />
           Something went wrong
         </div>
@@ -53,26 +53,16 @@ export default function ErrorPage({
           The signal <br />
           <span className="tb-red">dropped.</span>
         </h1>
-        <p
-          className="tb-hero-sub"
-          style={{ marginTop: "2rem", marginBottom: "1.5rem", textAlign: "center", maxWidth: "32rem" }}
-        >
+        <p className="tb-hero-sub tb-system-sub">
           A transient failure broke this page mid-render. Try again, and if it
           keeps happening, head home and reopen the route fresh.
         </p>
         {error.digest && (
-          <p
-            style={{
-              marginBottom: "1.5rem",
-              fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-              fontSize: "0.78rem",
-              color: "rgba(255, 255, 255, 0.4)",
-            }}
-          >
+          <p className="tb-system-ref">
             ref · {error.digest}
           </p>
         )}
-        <div className="tb-hero-actions" style={{ justifyContent: "center" }}>
+        <div className="tb-hero-actions tb-system-actions">
           <button type="button" onClick={() => reset()} className="tb-final-btn">
             Try again
           </button>

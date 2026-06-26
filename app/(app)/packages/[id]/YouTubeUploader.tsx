@@ -14,6 +14,7 @@ export default function YouTubeUploader({
   initialStatus,
   initialVideoId,
   initialError,
+  onStatusChange,
 }: {
   packageId: string;
   configured: boolean;
@@ -24,6 +25,7 @@ export default function YouTubeUploader({
   initialStatus: string;
   initialVideoId: string;
   initialError: string;
+  onStatusChange?: (next: { status: string; videoId: string; error: string }) => void;
 }) {
   const [status, setStatus] = useState(initialStatus);
   const [videoId, setVideoId] = useState(initialVideoId);
@@ -38,6 +40,7 @@ export default function YouTubeUploader({
         setStatus(s.status);
         setVideoId(s.videoId);
         setError(s.error);
+        onStatusChange?.({ status: s.status, videoId: s.videoId, error: s.error });
       } catch {
         // keep polling
       }
@@ -45,15 +48,18 @@ export default function YouTubeUploader({
     return () => {
       if (pollRef.current) clearInterval(pollRef.current);
     };
-  }, [status, packageId]);
+  }, [status, packageId, onStatusChange]);
 
   const start = async () => {
     setStatus("uploading");
     setError("");
+    onStatusChange?.({ status: "uploading", videoId, error: "" });
     await uploadToYouTube(packageId);
     const s = await getYouTubeUploadStatus(packageId);
     setStatus(s.status);
     setError(s.error);
+    setVideoId(s.videoId);
+    onStatusChange?.({ status: s.status, videoId: s.videoId, error: s.error });
   };
 
   return (
@@ -62,17 +68,17 @@ export default function YouTubeUploader({
 
       {status === "uploaded" && videoId ? (
         <>
-          <p className="tb-accent" style={{ fontWeight: 600, marginBottom: 12 }}>
-            ✓ Uploaded{scheduledLabel ? ` — publishes ${scheduledLabel}` : " as private"}
+          <p className="tb-accent tb-strong helper-block">
+            Uploaded{scheduledLabel ? ` - publishes ${scheduledLabel}` : " as private"}
           </p>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <div className="cluster">
             <a
               href={`https://studio.youtube.com/video/${videoId}/edit`}
               target="_blank"
               rel="noreferrer"
               className="btn btn-ghost btn-sm"
             >
-              Open in YouTube Studio ↗
+              Open in YouTube Studio
             </a>
             <a
               href={`https://youtu.be/${videoId}`}
@@ -80,33 +86,31 @@ export default function YouTubeUploader({
               rel="noreferrer"
               className="btn btn-ghost btn-sm"
             >
-              Watch link ↗
+              Watch link
             </a>
           </div>
         </>
       ) : status === "uploading" ? (
-        <p className="tb-accent" style={{ fontWeight: 600 }}>
-          ⏳ Uploading to YouTube… this runs in the background.
+        <p className="tb-accent tb-strong">
+          Uploading in background.
         </p>
       ) : !configured ? (
-        <p className="tb-helper" style={{ fontSize: "0.9rem" }}>
-          Direct upload needs Google API credentials — see the YouTube card in your{" "}
-          <Link href="/profile">profile</Link> for setup.
+        <p className="tb-helper">
+          YouTube upload is unavailable here.
         </p>
       ) : !connected ? (
-        <p className="tb-helper" style={{ fontSize: "0.9rem" }}>
-          <Link href="/profile">Connect your YouTube channel</Link> to upload this package
-          directly.
+        <p className="tb-helper">
+          <Link href="/profile">Connect YouTube</Link> to upload.
         </p>
       ) : (
         <>
           {error && <div className="form-error">{error}</div>}
-          <p className="tb-helper" style={{ marginBottom: 14, fontSize: "0.9rem" }}>
+          <p className="tb-helper helper-block">
             {hasVideo
               ? scheduledLabel
-                ? `Uploads to ${channelTitle} as private, set to publish ${scheduledLabel}.`
-                : `Uploads to ${channelTitle} as private — set a schedule first to auto-publish.`
-              : "Render the video first — it's the file that gets uploaded."}
+                ? `Private upload to ${channelTitle}. Publishes ${scheduledLabel}.`
+                : `Private upload to ${channelTitle}. Add a schedule to auto-publish.`
+              : "Render video first."}
           </p>
           <button
             type="button"
@@ -114,7 +118,7 @@ export default function YouTubeUploader({
             disabled={!hasVideo}
             onClick={start}
           >
-            ▶ Upload to YouTube
+            Upload to YouTube
           </button>
         </>
       )}

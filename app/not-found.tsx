@@ -26,7 +26,7 @@ export default function NotFound() {
       </nav>
 
       <section className="tb-final">
-        <div className="tb-eyebrow" style={{ marginBottom: "1.5rem" }}>
+        <div className="tb-eyebrow tb-system-eyebrow">
           <span className="tb-eyebrow-dot" aria-hidden="true" />
           Error 404
         </div>
@@ -34,14 +34,11 @@ export default function NotFound() {
           Track <br />
           <span className="tb-red">not found.</span>
         </h1>
-        <p
-          className="tb-hero-sub"
-          style={{ marginTop: "2rem", marginBottom: "1.5rem", textAlign: "center", maxWidth: "32rem" }}
-        >
+        <p className="tb-hero-sub tb-system-sub">
           This page isn&apos;t in the catalog. Head back to the dashboard or open
           the waitlist — everything else is exactly where you left it.
         </p>
-        <div className="tb-hero-actions" style={{ justifyContent: "center" }}>
+        <div className="tb-hero-actions tb-system-actions">
           <Link href="/" className="tb-final-btn">Back home</Link>
           <Link href="/waitlist" className="tb-cta-ghost">Open waitlist</Link>
         </div>

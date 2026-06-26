@@ -4,7 +4,7 @@ import { login } from "@/lib/actions/auth";
 import "../marketing.css";
 
 export const metadata: Metadata = {
-  title: "Log in — TypeBeatOS",
+  title: "Log in - TypeBeatOS",
 };
 
 export default async function LoginPage({
@@ -41,17 +41,10 @@ export default async function LoginPage({
           <h1 className="tb-auth-heading">
             Welcome <span className="tb-red">back.</span>
           </h1>
-          <p className="tb-auth-sub">Pick up where you left off.</p>
+          <p className="tb-auth-sub">Log in to continue your upload queue.</p>
 
           {reset && (
-            <div
-              className="tb-auth-error"
-              style={{
-                borderColor: "rgba(110, 231, 161, 0.4)",
-                background: "rgba(110, 231, 161, 0.08)",
-                color: "#6ee7a1",
-              }}
-            >
+            <div className="tb-auth-notice tb-auth-notice-success">
               Password updated. Log in with your new password.
             </div>
           )}
@@ -84,12 +77,14 @@ export default async function LoginPage({
             <button type="submit" className="tb-auth-submit">Log in</button>
           </form>
 
-          <p className="tb-auth-alt" style={{ marginBottom: "0.4rem" }}>
-            Forgot your password? <Link href="/forgot">Reset it</Link>
-          </p>
-          <p className="tb-auth-alt" style={{ marginTop: 0 }}>
-            New here? <Link href="/signup">Create a free account</Link>
-          </p>
+          <div className="tb-auth-links">
+            <p className="tb-auth-alt">
+              Forgot your password? <Link href="/forgot">Reset it</Link>
+            </p>
+            <p className="tb-auth-alt">
+              New here? <Link href="/signup">Create account</Link>
+            </p>
+          </div>
         </div>
       </main>
     </div>

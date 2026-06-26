@@ -3,67 +3,69 @@ import { getUser } from "@/lib/auth";
 import TbPageEffects from "./TbPageEffects";
 import "./marketing.css";
 
-const PROBLEMS = [
-  "Export the beat",
-  "Render a video file",
-  "Write a searchable title",
-  "Write the description",
-  "Paste BeatStars links",
-  "Tags + hashtags",
-  "Design a thumbnail",
-  "Pinned comment",
-  "Schedule the post",
-];
-
 const STEPS = [
   {
-    n: "1",
-    t: "Drop in your beats",
-    b: "Upload finished files. BPM and key auto-detect. Tag the target artist, genre, and mood once.",
+    n: "01",
+    t: "Upload the beat",
+    b: "Drop the WAV or MP3 and choose the artist lane.",
   },
   {
-    n: "2",
-    t: "Generate the upload pack",
-    b: "Titles, description, tags, hashtags, pinned comment, thumbnail, rendered MP4 — produced in a single pass.",
+    n: "02",
+    t: "Review the draft",
+    b: "Check the title, tags, description, visuals, and video.",
   },
   {
-    n: "3",
-    t: "Schedule the month",
-    b: "Pick a posting rhythm. Beats auto-spread across the calendar and publish to your channel.",
+    n: "03",
+    t: "Schedule it",
+    b: "Send it to YouTube as a private draft or scheduled upload.",
   },
 ];
 
-const FEATURES = [
-  {
-    eyebrow: "SEO",
-    title: "Type-beat titles that rank",
-    body: "Title structures tuned to ranking artists — artist keywords, beat name, genre tag — built to get found in search.",
-  },
-  {
-    eyebrow: "Description",
-    title: "Your links, auto-filled",
-    body: "BeatStars / Airbit links, license info, contact email, socials, and CTA — pulled from your producer profile.",
-  },
-  {
-    eyebrow: "Discovery",
-    title: "Tags + hashtags",
-    body: "Searchable tags from artist, genre, mood, BPM, key, related artists, and the right “type beat” variations.",
-  },
-  {
-    eyebrow: "Visuals",
-    title: "Thumbnail builder",
-    body: "Pick a background, drop your text and producer name — on-brand thumbnails for every upload.",
-  },
-  {
-    eyebrow: "Engagement",
-    title: "Pinned comments",
-    body: "The purchase-link pinned comment written and ready the moment the video goes live.",
-  },
-  {
-    eyebrow: "Cadence",
-    title: "Upload calendar",
-    body: "Batch a month of beats and auto-spread them across a posting schedule. One session = a month of content.",
-  },
+const OLD_WORKFLOW = [
+  "Thumbnail",
+  "Visualizer",
+  "Key + BPM",
+  "Tags",
+  "YouTube upload",
+];
+
+const NEW_WORKFLOW = [
+  "Upload beat",
+  "Review output",
+  "Schedule upload",
+];
+
+const OUTPUTS = [
+  ["Key + BPM", "F minor / 142 BPM", "Detected from the beat before the copy is written."],
+  ["Title", "search-ready", "[FREE] Future Type Beat - \"No Mercy\" | Dark Trap Instrumental 2026"],
+  ["Tags", "editable", "metro boomin type beat, dark trap beat, 142 bpm, f minor"],
+  ["Description", "profile links", "BeatStars, license notes, BPM, key, email, and socials included."],
+  ["Visuals", "thumbnail + MP4", "Cover image and video render stay with the same upload."],
+  ["YouTube", "draft", "Private draft waits for your approval before publish."],
+];
+
+const RECEIPT_LINES = [
+  ["Title", "[FREE] Future Type Beat - \"No Mercy\" | Dark Trap Instrumental 2026"],
+  ["Key / BPM", "F minor · 142 BPM"],
+  [
+    "Description",
+    [
+      "Purchase / lease: BeatStars link from producer profile",
+      "BPM: 142 | Key: F minor",
+      "Contact: email and socials from profile",
+    ],
+  ],
+  [
+    "Tags",
+    "future type beat, metro boomin type beat, dark trap beat, trap instrumental, 142 bpm, f minor beat, melodic trap type beat",
+  ],
+  ["Schedule", "Tuesday · 7:00 PM · YouTube draft"],
+];
+
+const PACK_PROOF = [
+  "approve before posting",
+  "links included",
+  "private YouTube draft",
 ];
 
 const PLANS = [
@@ -71,28 +73,28 @@ const PLANS = [
     name: "Free",
     price: "$0",
     cycle: "/mo",
-    perks: ["3 upload packs / mo", "Titles + descriptions", "Manual export"],
+    perks: ["3 packs / mo", "Titles + descriptions", "Manual export"],
     featured: false,
   },
   {
     name: "Starter",
     price: "$9",
     cycle: "/mo",
-    perks: ["20 upload packs / mo", "SEO titles + tags", "Thumbnail builder", "Upload calendar"],
+    perks: ["20 packs / mo", "Titles + tags", "Thumbnail builder", "Calendar"],
     featured: false,
   },
   {
     name: "Pro",
     price: "$19",
     cycle: "/mo",
-    perks: ["60 upload packs / mo", "Batch upload queue", "Direct YouTube publish", "Custom templates"],
+    perks: ["60 packs / mo", "Batch queue", "YouTube publish", "Templates"],
     featured: true,
   },
   {
     name: "Serious",
     price: "$29",
     cycle: "/mo",
-    perks: ["150 upload packs / mo", "Multiple channels", "Analytics + keyword insights", "Advanced templates"],
+    perks: ["150 packs / mo", "Multiple channels", "Analytics", "Advanced templates"],
     featured: false,
   },
 ];
@@ -100,7 +102,7 @@ const PLANS = [
 export default async function Landing() {
   const user = await getUser();
   const ctaHref = user ? "/dashboard" : "/signup";
-  const ctaLabel = user ? "Open dashboard" : "Get started free";
+  const ctaLabel = user ? "Open dashboard" : "Start free";
 
   return (
     <div className="tb-page" data-testid="landing-page">
@@ -111,7 +113,6 @@ export default async function Landing() {
       </div>
       <div className="tb-grain" aria-hidden="true" />
 
-      {/* NAV — floating glass pill */}
       <nav className="tb-nav" data-testid="landing-nav">
         <Link href="/" className="tb-brand" aria-label="TypeBeatOS home">
           <span className="tb-badge" aria-hidden="true" />
@@ -120,8 +121,8 @@ export default async function Landing() {
           </span>
         </Link>
         <div className="tb-nav-links">
-          <a href="#workflow" className="tb-nav-link">How it works</a>
-          <a href="#features" className="tb-nav-link">Features</a>
+          <a href="#outputs" className="tb-nav-link">Outputs</a>
+          <a href="#workflow" className="tb-nav-link">Flow</a>
           <a href="#pricing" className="tb-nav-link">Pricing</a>
         </div>
         {user ? (
@@ -131,87 +132,154 @@ export default async function Landing() {
         )}
       </nav>
 
-      {/* HERO */}
-      <section className="tb-hero tb-hero-center">
-        <div className="tb-eyebrow">
-          <span className="tb-eyebrow-dot" aria-hidden="true" />
-          Upload ops for type-beat producers
-        </div>
+      <section className="tb-hero tb-hero-product">
+        <div className="tb-hero-copy">
+          <h1 className="tb-h1" aria-label="Beats in. Uploads out.">
+            <span className="tb-line"><span>Beats in. </span></span>
+            <span className="tb-line">
+              <span className="tb-red">Uploads out.</span>
+            </span>
+          </h1>
 
-        <h1 className="tb-h1">
-          <span className="tb-line"><span>Scale your YouTube channel</span></span>
-          <span className="tb-line"><span className="tb-red">without the busywork.</span></span>
-        </h1>
-
-        <div className="tb-hero-grid">
           <p className="tb-hero-sub">
-            From finished beat to SEO-optimised upload in seconds. TypeBeatOS
-            automates your thumbnails, metadata, and scheduling so you can
-            focus on the music.
+            One beat becomes a thumbnail, MP4, SEO pack, and scheduled YouTube draft.
           </p>
+
+          <div className="tb-transport" data-transport aria-label="Upload flow controls">
+            <button
+              type="button"
+              className="tb-transport-btn"
+              data-transport-toggle
+              aria-label="Pause upload flow"
+              aria-pressed="false"
+            >
+              <span className="tb-transport-pause" aria-hidden="true" />
+              <span className="tb-transport-play" aria-hidden="true" />
+            </button>
+            <span className="tb-record-dot" aria-hidden="true" />
+            <span className="tb-transport-label">beat to YouTube</span>
+            <span className="tb-transport-track" aria-hidden="true">
+              <span className="tb-transport-progress" />
+            </span>
+            <span className="tb-transport-time">00:42</span>
+          </div>
 
           <div className="tb-hero-actions">
             <Link href={ctaHref} className="tb-final-btn">{ctaLabel}</Link>
-            <a href="#workflow" className="tb-cta-ghost">See the workflow</a>
-          </div>
-        </div>
-
-        <div className="tb-stats tb-reveal">
-          <div className="tb-stat">
-            <div className="tb-stat-num">10x</div>
-            <div className="tb-stat-label">Faster uploads</div>
-          </div>
-          <div className="tb-stat">
-            <div className="tb-stat-num">1-click</div>
-            <div className="tb-stat-label">SEO pack</div>
-          </div>
-          <div className="tb-stat">
-            <div className="tb-stat-num">Auto</div>
-            <div className="tb-stat-label">BPM + key</div>
-          </div>
-          <div className="tb-stat">
-            <div className="tb-stat-num">Direct</div>
-            <div className="tb-stat-label">YouTube publish</div>
+            <a href="#outputs" className="tb-cta-ghost">See outputs</a>
           </div>
         </div>
       </section>
 
-      {/* PROBLEM */}
-      <section className="tb-section">
-        <div className="tb-section-head tb-reveal">
-          <h2 className="tb-h2">
-            Consistency wins. <br />
-            The <span className="tb-red">upload admin</span> is what kills it.
+      <section id="outputs" className="tb-section tb-proof">
+        <div className="tb-proof-copy tb-reveal">
+          <p className="tb-kicker">Output preview</p>
+          <h2 className="tb-proof-title">
+            Your upload draft.
           </h2>
           <p className="tb-section-sub">
-            Every upload means doing all of this — again. Then doing it three more
-            times next week. Channels stall here.
+            Title, tags, description, key, BPM, visuals, and schedule in one place.
           </p>
         </div>
 
-        <div className="tb-problem-grid tb-reveal" data-delay="1">
-          {PROBLEMS.map((p) => (
-            <span key={p} className="tb-chip">{p}</span>
-          ))}
-          <span className="tb-chip tb-chip-repeat">…then repeat 3× a week</span>
+        <div className="tb-receipt tb-reveal" data-receipt data-delay="1" aria-label="Generated upload draft">
+          <div className="tb-receipt-top">
+            <span>TYPEBEATOS / OUTPUT</span>
+            <span data-generating-status>waiting</span>
+          </div>
+
+          <div className="tb-receipt-list">
+            {RECEIPT_LINES.map(([label, value]) => (
+              <div key={label} className="tb-receipt-row" data-receipt-row>
+                <span>{label}</span>
+                {Array.isArray(value) ? (
+                  <div className="tb-receipt-stack">
+                    {value.map((line) => (
+                      <p key={line}>
+                        <span data-type-target data-type-text={line}>{line}</span>
+                      </p>
+                    ))}
+                  </div>
+                ) : (
+                  <p>
+                    <span data-type-target data-type-text={value}>{value}</span>
+                  </p>
+                )}
+              </div>
+            ))}
+            <div className="tb-receipt-row tb-receipt-muted" data-receipt-row>
+              <span>Visuals</span>
+              <p>
+                <span
+                  data-type-target
+                  data-type-text="Cover image and MP4 render ready to review."
+                >
+                  Cover image and MP4 render ready to review.
+                </span>
+              </p>
+            </div>
+          </div>
         </div>
 
-        <p className="tb-problem-punch tb-reveal" data-delay="2">
-          Most producers would rather make music than do upload admin. So uploads
-          slip — and the channel stalls.
-        </p>
+        <div className="tb-proof-strip tb-reveal" data-delay="2">
+          {PACK_PROOF.map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
       </section>
 
-      {/* HOW IT WORKS */}
+      <section className="tb-section tb-shift">
+        <div className="tb-section-head tb-reveal">
+          <h2 className="tb-h2 tb-h2-tight">
+            Five jobs. One flow.
+          </h2>
+          <p className="tb-section-sub">
+            Thumbnail, visualizer, key, tags, and YouTube upload stay together.
+          </p>
+        </div>
+
+        <div className="tb-shift-grid tb-reveal" data-delay="1">
+          <div className="tb-shift-list">
+            <span>Before</span>
+            {OLD_WORKFLOW.map((item) => (
+              <p key={item}>{item}</p>
+            ))}
+          </div>
+          <div className="tb-shift-list tb-shift-list-active">
+            <span>TypeBeatOS</span>
+            {NEW_WORKFLOW.map((item) => (
+              <p key={item}>{item}</p>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="tb-section">
+        <div className="tb-section-head tb-reveal">
+          <h2 className="tb-h2 tb-h2-quiet">
+            Everything you need to post.
+          </h2>
+          <p className="tb-section-sub">
+            The useful parts stay visible, editable, and ready to approve.
+          </p>
+        </div>
+
+        <div className="tb-output-grid">
+          {OUTPUTS.map(([file, status, body], i) => (
+            <div key={file} className="tb-output-item tb-reveal" data-delay={String((i % 4) + 1)}>
+              <span>{file}</span>
+              <strong>{status}</strong>
+              <p>{body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <section id="workflow" className="tb-section">
         <div className="tb-section-head tb-reveal">
           <h2 className="tb-h2">
-            From raw beat to <br />
-            <span className="tb-red">scheduled upload.</span>
+            The upload path.
           </h2>
-          <p className="tb-section-sub">
-            Three steps. Under three minutes. No editor. No spreadsheet. No copy-paste.
-          </p>
         </div>
 
         <div className="tb-steps">
@@ -231,31 +299,6 @@ export default async function Landing() {
         </div>
       </section>
 
-      {/* FEATURES */}
-      <section id="features" className="tb-section">
-        <div className="tb-section-head tb-reveal">
-          <h2 className="tb-h2">
-            Built for the <br />
-            <span className="tb-red">type-beat workflow.</span>
-          </h2>
-          <p className="tb-section-sub">
-            Not generic scheduling. Every piece is tuned to how type-beat channels
-            actually grow.
-          </p>
-        </div>
-
-        <div className="tb-features">
-          {FEATURES.map((f, i) => (
-            <div key={f.title} className="tb-feature tb-reveal" data-delay={String((i % 3) + 1)}>
-              <div className="tb-feature-eyebrow">{f.eyebrow}</div>
-              <h3 className="tb-feature-title">{f.title}</h3>
-              <p className="tb-feature-body">{f.body}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* PRICING */}
       <section id="pricing" className="tb-section">
         <div className="tb-section-head tb-reveal">
           <h2 className="tb-h2">
@@ -263,7 +306,7 @@ export default async function Landing() {
             <span className="tb-red">pricing.</span>
           </h2>
           <p className="tb-section-sub">
-            Start free. Upgrade when the uploads start stacking.
+            Start free. Upgrade when uploads start stacking.
           </p>
         </div>
 
@@ -293,11 +336,10 @@ export default async function Landing() {
         </div>
       </section>
 
-      {/* FINAL CTA */}
       <section className="tb-final tb-reveal">
         <h2 className="tb-final-h2">
-          Make the beats. <br />
-          <span className="tb-red">We handle YouTube.</span>
+          Ship the next <br />
+          <span className="tb-red">upload.</span>
         </h2>
         <Link href={ctaHref} className="tb-final-btn">{ctaLabel}</Link>
       </section>
@@ -315,7 +357,7 @@ export default async function Landing() {
             <Link href="/terms">Terms</Link>
           </span>
           <span className="tb-footer-copy">
-            © 2026 TypeBeatOS. Not affiliated with YouTube, BeatStars, or any artist
+            &copy; 2026 TypeBeatOS. Not affiliated with YouTube, BeatStars, or any artist
             mentioned.
           </span>
         </div>

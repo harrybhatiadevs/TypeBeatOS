@@ -4,7 +4,7 @@ import { requestPasswordReset } from "@/lib/actions/password-reset";
 import "../marketing.css";
 
 export const metadata: Metadata = {
-  title: "Forgot your password — TypeBeatOS",
+  title: "Forgot your password - TypeBeatOS",
 };
 
 export default async function ForgotPage({
@@ -39,25 +39,23 @@ export default async function ForgotPage({
             Password reset
           </div>
           <h1 className="tb-auth-heading">
-            Forgot it? <br />
-            <span className="tb-red">no stress.</span>
+            Reset your <br />
+            <span className="tb-red">password.</span>
           </h1>
 
           {sent ? (
             <>
               <p className="tb-auth-sub">
-                If an account exists for that email, we&apos;ve sent a reset
-                link. It expires in one hour.
+                If an account exists, a reset link is on the way.
               </p>
-              <p className="tb-auth-alt" style={{ textAlign: "left" }}>
+              <p className="tb-auth-alt tb-auth-alt-left">
                 <Link href="/login">Back to log in</Link>
               </p>
             </>
           ) : (
             <>
               <p className="tb-auth-sub">
-                Drop in the email you signed up with. We&apos;ll send you a link
-                to set a new password.
+                Enter your email. We&apos;ll send a link to set a new password.
               </p>
 
               {error && <div className="tb-auth-error">{error}</div>}

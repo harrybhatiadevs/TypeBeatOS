@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Check } from "lucide-react";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { youtubeConfigured } from "@/lib/youtube";
@@ -43,13 +44,15 @@ export default async function OnboardingPage({
       </p>
       <h1 className="page-title">Let&apos;s set you up</h1>
       <p className="page-sub">
-        Three quick steps — everything here feeds your generated descriptions and schedules.
+        Three quick steps for your descriptions and schedule.
       </p>
 
       <div className="onb-steps">
         {STEPS.map((label, i) => (
           <div key={label} className={`onb-step${i + 1 === step ? " active" : ""}${i + 1 < step ? " done" : ""}`}>
-            <span className="onb-step-num">{i + 1 < step ? "✓" : i + 1}</span>
+            <span className="onb-step-num">
+              {i + 1 < step ? <Check size={13} strokeWidth={2.5} aria-hidden="true" /> : i + 1}
+            </span>
             <span className="onb-step-label">{label}</span>
           </div>
         ))}
@@ -71,7 +74,7 @@ export default async function OnboardingPage({
                 />
               </div>
               <div className="form-field">
-                <label htmlFor="contactEmail">Contact email (shown in descriptions)</label>
+                <label htmlFor="contactEmail">Contact email</label>
                 <input
                   id="contactEmail"
                   name="contactEmail"
@@ -80,7 +83,7 @@ export default async function OnboardingPage({
                 />
               </div>
               <div className="form-field full">
-                <label htmlFor="storeUrl">Beat store URL — where buyers purchase your beats</label>
+                <label htmlFor="storeUrl">Beat store URL</label>
                 <input
                   id="storeUrl"
                   name="storeUrl"
@@ -92,7 +95,7 @@ export default async function OnboardingPage({
             </div>
             <div className="form-actions">
               <button type="submit" className="btn btn-primary">
-                Continue →
+                Continue
               </button>
               <Link href="/onboarding?step=2" className="nav-link">
                 Skip
@@ -106,9 +109,8 @@ export default async function OnboardingPage({
         <form action={saveOnboardingSchedule}>
           <div className="card">
             <h3>When should your beats go live?</h3>
-            <p className="tb-helper" style={{ marginBottom: 18 }}>
-              The calendar auto-spreads your upload queue across these slots. Consistency &gt;
-              volume — pick days you can actually keep.
+            <p className="tb-helper helper-block">
+              Choose the upload slots you can keep every week.
             </p>
             <div className="form-grid">
               <div className="form-field full">
@@ -139,7 +141,7 @@ export default async function OnboardingPage({
             </div>
             <div className="form-actions">
               <button type="submit" className="btn btn-primary">
-                Continue →
+                Continue
               </button>
               <Link href="/onboarding?step=3" className="nav-link">
                 Skip
@@ -154,31 +156,31 @@ export default async function OnboardingPage({
           <h3>Connect your YouTube channel</h3>
           {yt_error && <div className="form-error">{yt_error}</div>}
           {youtube ? (
-            <p style={{ marginBottom: 18 }}>
-              ✓ Connected as <strong>{youtube.channelTitle}</strong>
-              {yt_connected ? " — you're all set." : "."} Rendered packages can now upload straight
+            <p className="tb-accent tb-strong helper-block">
+              Connected as <strong>{youtube.channelTitle}</strong>
+              {yt_connected ? " - you're all set." : "."} Rendered packages can now upload straight
               to your channel on schedule.
             </p>
           ) : configured ? (
-            <p className="tb-helper" style={{ marginBottom: 18 }}>
+            <p className="tb-helper helper-block">
               This is what lets TypeBeatOS publish scheduled uploads for you. You can also do this
               later from your profile.
             </p>
           ) : (
-            <p className="tb-helper" style={{ marginBottom: 18 }}>
-              YouTube upload isn&apos;t configured on this server yet — you can connect later from
+            <p className="tb-helper helper-block">
+              YouTube upload isn&apos;t configured on this server yet - you can connect later from
               your profile once it is.
             </p>
           )}
-          <div className="form-actions" style={{ marginTop: 0 }}>
+          <div className="form-actions form-actions-tight">
             {!youtube && configured && (
               <a href="/api/youtube/connect?return=/onboarding%3Fstep%3D3" className="btn btn-primary">
-                ▶ Connect YouTube
+                Connect YouTube
               </a>
             )}
-            <form action={finishOnboarding} style={{ display: "inline" }}>
+            <form action={finishOnboarding} className="inline-form">
               <button type="submit" className={youtube ? "btn btn-primary" : "btn btn-ghost"}>
-                {youtube ? "Finish setup →" : "Skip & finish →"}
+                {youtube ? "Finish setup" : "Skip and finish"}
               </button>
             </form>
           </div>

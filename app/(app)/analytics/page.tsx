@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BarChart3, CalendarDays, Eye, Heart, MessageCircle, RefreshCw, Target, Trophy } from "lucide-react";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { aggregateByArtist, aggregateByDay } from "@/lib/analytics";
@@ -28,6 +29,10 @@ export default async function AnalyticsPage({
   const avgViews = uploaded.length ? Math.round(totalViews / uploaded.length) : 0;
   const byArtist = aggregateByArtist(uploaded);
   const byDay = aggregateByDay(uploaded);
+  const topUpload = uploaded[0];
+  const topArtist = byArtist[0];
+  const bestDay = byDay[0];
+  const totalComments = uploaded.reduce((s, p) => s + p.commentCount, 0);
   const lastUpdated = uploaded
     .map((p) => p.statsUpdatedAt)
     .filter(Boolean)
@@ -40,10 +45,7 @@ export default async function AnalyticsPage({
         Channel performance
       </p>
       <h1 className="page-title">Analytics</h1>
-      <p className="page-sub">
-        How your uploaded packages are performing on YouTube — and which artist keywords earn
-        their slots.
-      </p>
+      <p className="page-sub">What is working, and what to publish next.</p>
 
       {error && <div className="form-error">{error}</div>}
 
@@ -63,34 +65,76 @@ export default async function AnalyticsPage({
         </div>
       ) : (
         <>
+          <div className="insight-grid">
+            <div className="card insight-card">
+              <div className="insight-icon" aria-hidden="true">
+                <Trophy size={21} strokeWidth={2.2} />
+              </div>
+              <span>Top upload</span>
+              <h3>{topUpload?.beat.name || "No winner yet"}</h3>
+              <p>{topUpload ? `${fmt(topUpload.viewCount)} views from ${topUpload.beat.targetArtist}` : "Refresh stats after publishing."}</p>
+              {topUpload && (
+                <Link href={`/packages/${topUpload.id}`} className="copy-btn">
+                  Open pack
+                </Link>
+              )}
+            </div>
+
+            <div className="card insight-card">
+              <div className="insight-icon" aria-hidden="true">
+                <Target size={21} strokeWidth={2.2} />
+              </div>
+              <span>Best keyword</span>
+              <h3>{topArtist?.artist || "No keyword yet"}</h3>
+              <p>{topArtist ? `${fmt(topArtist.avgViews)} avg views per upload.` : "Upload more videos to compare."}</p>
+            </div>
+
+            <div className="card insight-card">
+              <div className="insight-icon" aria-hidden="true">
+                <CalendarDays size={21} strokeWidth={2.2} />
+              </div>
+              <span>Best day</span>
+              <h3>{bestDay?.day || "Not enough data"}</h3>
+              <p>{bestDay ? `${fmt(bestDay.avgViews)} avg views from ${bestDay.uploads} uploads.` : "Scheduled uploads unlock day insights."}</p>
+            </div>
+          </div>
+
           <div className="stats-grid">
             <div className="stat">
+              <Eye size={18} strokeWidth={2.2} aria-hidden="true" />
               <div className="stat-num">{fmt(totalViews)}</div>
               <div className="stat-label">Total views</div>
             </div>
             <div className="stat">
+              <BarChart3 size={18} strokeWidth={2.2} aria-hidden="true" />
               <div className="stat-num">{fmt(avgViews)}</div>
               <div className="stat-label">Avg views / upload</div>
             </div>
             <div className="stat">
+              <Heart size={18} strokeWidth={2.2} aria-hidden="true" />
               <div className="stat-num">{fmt(totalLikes)}</div>
               <div className="stat-label">Likes</div>
             </div>
             <div className="stat">
-              <div className="stat-num">{fmt(uploaded.length)}</div>
-              <div className="stat-label">Videos live</div>
+              <MessageCircle size={18} strokeWidth={2.2} aria-hidden="true" />
+              <div className="stat-num">{fmt(totalComments)}</div>
+              <div className="stat-label">Comments</div>
             </div>
           </div>
 
-          <div className="card">
-            <div className="field-head">
-              <h3>Uploads</h3>
+          <details className="card analytics-detail" open>
+            <summary>
+              <span>
+                <strong>Upload details</strong>
+                <small>{lastUpdated ? `Last refreshed ${lastUpdated.toLocaleString()}` : "Stats not pulled yet."}</small>
+              </span>
               <form action={refreshAnalytics}>
                 <button type="submit" className="copy-btn">
-                  ↻ Refresh stats
+                  <RefreshCw size={14} strokeWidth={2.2} aria-hidden="true" />
+                  Refresh
                 </button>
               </form>
-            </div>
+            </summary>
             <table className="table">
               <thead>
                 <tr>
@@ -119,24 +163,24 @@ export default async function AnalyticsPage({
                         rel="noreferrer"
                         className="copy-btn"
                       >
-                        Watch ↗
+                        Watch
                       </a>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            <p className="tb-helper" style={{ marginTop: 12, fontSize: "0.82rem" }}>
-              {lastUpdated
-                ? `Last refreshed ${lastUpdated.toLocaleString()}`
-                : "Stats not pulled yet — hit refresh."}{" "}
-              Scheduled videos show 0 views until they publish.
-            </p>
-          </div>
+          </details>
 
           <div className="editor-grid">
-            <div className="card">
-              <h3>Best performing artists</h3>
+            <details className="card analytics-detail">
+              <summary>
+                <span>
+                  <strong>Artist keywords</strong>
+                  <small>Compare repeated target artists.</small>
+                </span>
+                <Target size={18} strokeWidth={2.2} aria-hidden="true" />
+              </summary>
               <table className="table">
                 <thead>
                   <tr>
@@ -149,7 +193,7 @@ export default async function AnalyticsPage({
                 <tbody>
                   {byArtist.map((a) => (
                     <tr key={a.artist}>
-                      <td style={{ fontWeight: 600 }}>{a.artist}</td>
+                      <td className="tb-strong">{a.artist}</td>
                       <td>{fmt(a.uploads)}</td>
                       <td>{fmt(a.views)}</td>
                       <td>{fmt(a.avgViews)}</td>
@@ -157,13 +201,19 @@ export default async function AnalyticsPage({
                   ))}
                 </tbody>
               </table>
-            </div>
+            </details>
 
-            <div className="card">
-              <h3>Best upload days</h3>
+            <details className="card analytics-detail">
+              <summary>
+                <span>
+                  <strong>Upload days</strong>
+                  <small>Compare publishing rhythm.</small>
+                </span>
+                <CalendarDays size={18} strokeWidth={2.2} aria-hidden="true" />
+              </summary>
               {byDay.length === 0 ? (
-                <p className="tb-helper">
-                  Schedule uploads to see which days perform.
+                <p className="tb-helper analytics-detail-empty">
+                  Schedule uploads to compare days.
                 </p>
               ) : (
                 <table className="table">
@@ -177,7 +227,7 @@ export default async function AnalyticsPage({
                   <tbody>
                     {byDay.map((d) => (
                       <tr key={d.day}>
-                        <td style={{ fontWeight: 600 }}>{d.day}</td>
+                        <td className="tb-strong">{d.day}</td>
                         <td>{fmt(d.uploads)}</td>
                         <td>{fmt(d.avgViews)}</td>
                       </tr>
@@ -185,13 +235,8 @@ export default async function AnalyticsPage({
                   </tbody>
                 </table>
               )}
-            </div>
+            </details>
           </div>
-
-          <p className="tb-helper">
-            CTR and impressions need the YouTube Analytics API scope — on the roadmap. Views,
-            likes, and comments come from the YouTube Data API and refresh on demand.
-          </p>
         </>
       )}
     </>

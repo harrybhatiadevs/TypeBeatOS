@@ -25,7 +25,7 @@ export default async function BeatsPage() {
           <div className="empty-state">
             <p>No beats yet.</p>
             <Link href="/beats/new" className="btn btn-primary">
-              + Add your first beat
+              Add beat
             </Link>
           </div>
         ) : (
@@ -54,7 +54,7 @@ export default async function BeatsPage() {
                     {b.secondaryArtist ? ` x ${b.secondaryArtist}` : ""}
                   </td>
                   <td className="tb-muted">
-                    {[b.bpm ? `${b.bpm} BPM` : "", b.key].filter(Boolean).join(" · ") || "—"}
+                    {[b.bpm ? `${b.bpm} BPM` : "", b.key].filter(Boolean).join(" / ") || "-"}
                   </td>
                   <td>
                     {b.package ? (
@@ -64,10 +64,10 @@ export default async function BeatsPage() {
                     )}
                   </td>
                   <td className="tb-row-end">
-                    <Link href={`/beats/${b.id}/edit`} className="copy-btn" style={{ marginRight: 8 }}>
+                    <Link href={`/beats/${b.id}/edit`} className="copy-btn copy-btn-spaced">
                       Edit
                     </Link>
-                    <form action={deleteBeat} style={{ display: "inline" }}>
+                    <form action={deleteBeat} className="inline-form">
                       <input type="hidden" name="id" value={b.id} />
                       <button type="submit" className="copy-btn">
                         Delete

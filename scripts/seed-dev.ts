@@ -3,7 +3,7 @@
  * profile, sessions, beats, packages, YouTubeAccount) and creates a
  * predictable fixture so every dev session starts ready:
  *
- *   - 1 test user — test@typebeatos.local / review123!
+ *   - 1 test user - test@typebeatos.local / review123!
  *   - Producer profile (Drake / Travis Scott focus)
  *   - 3 beats in three different states (raw, draft package, scheduled
  *     package) so every UI screen has something to render
@@ -66,13 +66,12 @@ function fixtureTitles(beatName: string, artist: string): string[] {
 
 function fixtureDescription(beatName: string, artist: string): string {
   return [
-    `🎵 "${beatName}" — ${artist} type beat`,
+    `"${beatName}" - ${artist} type beat`,
     "",
-    "📩 Buy / lease: https://beatstars.com/typebeatos",
-    "💬 For exclusive: beats@typebeatos.local",
+    "License this beat: https://beatstars.com/typebeatos",
+    "Exclusive rights: beats@typebeatos.local",
     "",
-    "🎧 New beats every Mon / Wed / Fri",
-    "👉 Subscribe so you don't miss the next one",
+    "New beats every Monday, Wednesday, and Friday.",
     "",
     "Tags: " + ["type beat", artist.toLowerCase(), "trap", "free beat"].join(", "),
   ].join("\n");
@@ -92,12 +91,12 @@ async function main() {
     process.exit(2);
   }
 
-  // Wipe first — cascade deletes session, profile, beats, packages, YT account.
+  // Wipe first - cascade deletes session, profile, beats, packages, YT account.
   await db.user.deleteMany({ where: { email: TEST_EMAIL } });
 
   // Create the user + credential Account via Better-Auth so the password
   // hashes match what production sign-in expects. signUpEmail also issues
-  // a session, but we throw that away — the seed isn't a logged-in caller.
+  // a session, but we throw that away - the seed isn't a logged-in caller.
   const signupRes = await auth.api.signUpEmail({
     body: { email: TEST_EMAIL, password: TEST_PASSWORD, name: "prod. test" },
     asResponse: false,
@@ -106,7 +105,7 @@ async function main() {
   const userId = signupRes.user.id;
 
   // Mark onboarding done and attach the producer profile. Better-Auth
-  // doesn't know about either — they're our application data.
+  // doesn't know about either - they're our application data.
   await db.user.update({
     where: { id: userId },
     data: { onboardedAt: new Date() },
@@ -123,7 +122,7 @@ async function main() {
       licenseText:
         "Free downloads are for non-profit use only. Must credit (prod. test). For monetised use, purchase a lease.",
       descriptionFooter:
-        "New beats every Mon / Wed / Fri. Subscribe so you don't miss the next one.",
+        "New beats every Monday, Wednesday, and Friday.",
       scheduleDays: "1,3,5",
       scheduleTime: "18:00",
     },
@@ -163,14 +162,14 @@ async function main() {
           "free beat",
         ].join(", "),
         hashtags: `#typebeat #${beat.targetArtist.toLowerCase().replace(/\s+/g, "")}typebeat #freebeat`,
-        pinnedComment: `🎵 Buy / lease: https://beatstars.com/typebeatos\n📩 Exclusive: ${TEST_EMAIL}`,
+        pinnedComment: `License this beat: https://beatstars.com/typebeatos\nExclusive rights: ${TEST_EMAIL}`,
         status: scheduledAt ? "scheduled" : "draft",
         scheduledAt,
       },
     });
   }
 
-  console.log("✓ Seeded dev DB");
+  console.log("Seeded dev DB");
   console.log("  email:    " + TEST_EMAIL);
   console.log("  password: " + TEST_PASSWORD);
   console.log("  beats:    3 (1 raw, 1 draft package, 1 scheduled package)");

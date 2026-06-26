@@ -6,6 +6,11 @@ function dedupe(items: string[]) {
   return [...new Set(items.filter(Boolean))];
 }
 
+function joinCleanLines(lines: string[]) {
+  while (lines[lines.length - 1] === "") lines.pop();
+  return lines.join("\n");
+}
+
 export function buildTitleOptions(beat: Beat): string[] {
   const a = beat.targetArtist;
   const b = beat.secondaryArtist;
@@ -81,7 +86,7 @@ export function buildDescription(beat: Beat, profile: Profile | null, title: str
   const store = beat.storeLink || profile?.storeUrl || "";
   const lines: string[] = [title, ""];
 
-  if (store) lines.push(`💰 Purchase this beat (untagged): ${store}`);
+  if (store) lines.push(`License this beat: ${store}`);
   if (beat.licensePrice || beat.exclusivePrice) {
     const prices = [
       beat.licensePrice ? `Lease: $${beat.licensePrice}` : "",
@@ -100,31 +105,31 @@ export function buildDescription(beat: Beat, profile: Profile | null, title: str
     beat.mood || "",
   ]
     .filter(Boolean)
-    .join(" · ");
-  if (specs) lines.push(`🎹 ${specs}`, "");
+    .join(" / ");
+  if (specs) lines.push(`Details: ${specs}`, "");
 
   if (profile?.licenseText) lines.push(profile.licenseText, "");
 
   const contact: string[] = [];
-  if (profile?.contactEmail) contact.push(`📩 Contact: ${profile.contactEmail}`);
-  if (profile?.instagramUrl) contact.push(`📸 Instagram: ${profile.instagramUrl}`);
-  if (profile?.youtubeUrl) contact.push(`▶️ Subscribe: ${profile.youtubeUrl}`);
+  if (profile?.contactEmail) contact.push(`Contact: ${profile.contactEmail}`);
+  if (profile?.instagramUrl) contact.push(`Instagram: ${profile.instagramUrl}`);
+  if (profile?.youtubeUrl) contact.push(`YouTube: ${profile.youtubeUrl}`);
   if (contact.length) lines.push(...contact, "");
 
   const producer = profile?.producerName || "me";
   const credit = /^prod\.?\s/i.test(producer) ? producer : `prod. ${producer}`;
-  lines.push(`Must credit (${credit}) when using this beat.`, "");
+  lines.push(`Credit: (${credit})`, "");
 
   if (profile?.descriptionFooter) lines.push(profile.descriptionFooter, "");
 
   lines.push(buildHashtags(beat));
-  return lines.join("\n");
+  return joinCleanLines(lines);
 }
 
 export function buildPinnedComment(beat: Beat, profile: Profile | null): string {
   const store = beat.storeLink || profile?.storeUrl || "";
   const lines = [
-    `💰 Purchase this beat → ${store || "(add your store link)"}`,
+    `License this beat: ${store || "(add your store link)"}`,
   ];
   if (beat.licensePrice || beat.exclusivePrice) {
     lines.push(
@@ -136,7 +141,7 @@ export function buildPinnedComment(beat: Beat, profile: Profile | null): string 
         .join(" / ")
     );
   }
-  lines.push(`🔥 Using this beat? Drop your track in the replies — I check all of them.`);
+  lines.push("Using it? Share the finished track in the comments.");
   return lines.join("\n");
 }
 

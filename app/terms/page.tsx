@@ -5,7 +5,7 @@ import LegalShell from "../legal/LegalShell";
 export const metadata: Metadata = {
   title: "Terms of service — TypeBeatOS",
   description:
-    "Terms of service for TypeBeatOS — what producers can do with the service, what we provide, and the rules around YouTube and AI-generated assets.",
+    "Terms of service for TypeBeatOS — what producers can do with the service, what we provide, and the rules around YouTube and automated creative assets.",
 };
 
 const UPDATED = "2026-06-20";
@@ -92,7 +92,7 @@ export default function TermsPage() {
         affiliated with or endorsed by YouTube or Google.
       </p>
 
-      <h2>6. AI-generated assets</h2>
+      <h2>6. Generated assets</h2>
       <p>
         Generated titles, descriptions, tags, pinned comments, and thumbnail
         backgrounds come from third-party AI models (Anthropic Claude,{" "}

@@ -31,7 +31,7 @@ export async function uploadToYouTube(packageId: string) {
   if (!pkg.videoPath) {
     await db.package.update({
       where: { id: packageId },
-      data: { uploadStatus: "failed", uploadError: "Render the video first — it's the file that gets uploaded." },
+      data: { uploadStatus: "failed", uploadError: "Render the video first." },
     });
     return;
   }

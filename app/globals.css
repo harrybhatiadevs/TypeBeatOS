@@ -9,7 +9,9 @@
    .tb-accent utilities. Nothing reads them anymore.
    ============================================================ */
 
-* {
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -17,6 +19,10 @@
 
 html {
   scroll-behavior: smooth;
+  max-width: 100%;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -25,6 +31,26 @@ body {
   color: #faf7f7;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
 }
 
 @media (prefers-reduced-motion: reduce) {

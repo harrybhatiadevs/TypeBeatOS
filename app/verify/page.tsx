@@ -3,7 +3,7 @@ import Link from "next/link";
 import "../marketing.css";
 
 export const metadata: Metadata = {
-  title: "Email verified — TypeBeatOS",
+  title: "Email verified - TypeBeatOS",
 };
 
 /**
@@ -50,11 +50,10 @@ export default async function VerifyPage({
                 <span className="tb-red">expired.</span>
               </h1>
               <p className="tb-auth-sub">
-                That verification link is no longer valid — they expire after a
-                few hours and after a single use. Sign in and request a fresh
-                one from the dashboard banner.
+                That verification link is no longer valid. Sign in and request
+                a fresh one from the dashboard banner.
               </p>
-              <p className="tb-auth-alt" style={{ textAlign: "left" }}>
+              <p className="tb-auth-alt tb-auth-alt-left">
                 <Link href="/login">Log in</Link>
               </p>
             </>
@@ -65,10 +64,9 @@ export default async function VerifyPage({
                 <span className="tb-red">verified.</span>
               </h1>
               <p className="tb-auth-sub">
-                Your email is confirmed. Future password resets, weekly digests,
-                and upload-failure alerts will land in your inbox.
+                Your email is confirmed. Account email will now reach your inbox.
               </p>
-              <p className="tb-auth-alt" style={{ textAlign: "left" }}>
+              <p className="tb-auth-alt tb-auth-alt-left">
                 <Link href="/dashboard">Open the dashboard</Link>
               </p>
             </>

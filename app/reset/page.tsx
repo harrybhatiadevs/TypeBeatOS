@@ -4,7 +4,7 @@ import { completePasswordReset } from "@/lib/actions/password-reset";
 import "../marketing.css";
 
 export const metadata: Metadata = {
-  title: "Reset your password — TypeBeatOS",
+  title: "Reset your password - TypeBeatOS",
 };
 
 export default async function ResetPage({
@@ -46,17 +46,16 @@ export default async function ResetPage({
           {!token ? (
             <>
               <p className="tb-auth-sub">
-                This link is missing its token. Request a fresh reset email and
-                use the new link.
+                This reset link is incomplete. Request a new one.
               </p>
-              <p className="tb-auth-alt" style={{ textAlign: "left" }}>
+              <p className="tb-auth-alt tb-auth-alt-left">
                 <Link href="/forgot">Send a new reset link</Link>
               </p>
             </>
           ) : (
             <>
               <p className="tb-auth-sub">
-                Pick something you&apos;ll remember. Minimum 8 characters.
+                Choose a password with at least 8 characters.
               </p>
 
               {error && <div className="tb-auth-error">{error}</div>}

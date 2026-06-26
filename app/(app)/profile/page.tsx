@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
+import { logout } from "@/lib/actions/auth";
 import { saveProfile } from "@/lib/actions/profile";
 import { disconnectYouTube } from "@/lib/actions/youtube";
 import { youtubeConfigured } from "@/lib/youtube";
@@ -35,17 +36,17 @@ export default async function ProfilePage({
       </p>
       <h1 className="page-title">Producer profile</h1>
       <p className="page-sub">
-        Set this once — every generated description, pinned comment, and schedule uses it.
+        Defaults for descriptions, comments, and publishing.
       </p>
 
       <div className="card">
         <h3>YouTube channel</h3>
         {yt_error && <div className="form-error">{yt_error}</div>}
-        {yt_connected && <p className="form-saved" style={{ marginBottom: 14 }}>✓ Channel connected</p>}
+        {yt_connected && <p className="form-saved form-note">Channel connected</p>}
         {youtube ? (
-          <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
-            <p style={{ flex: 1, minWidth: 220 }}>
-              Connected as <strong>{youtube.channelTitle || youtube.channelId}</strong> — uploads
+          <div className="settings-row">
+            <p className="settings-copy">
+              Connected as <strong>{youtube.channelTitle || youtube.channelId}</strong> - uploads
               publish straight to this channel on their scheduled time.
             </p>
             <form action={disconnectYouTube}>
@@ -55,20 +56,17 @@ export default async function ProfilePage({
             </form>
           </div>
         ) : configured ? (
-          <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
-            <p className="tb-muted" style={{ flex: 1, minWidth: 220 }}>
+          <div className="settings-row">
+            <p className="tb-muted settings-copy">
               Connect your channel to upload scheduled videos directly from each package.
             </p>
             <a href="/api/youtube/connect" className="btn btn-primary btn-sm">
-              ▶ Connect YouTube
+              Connect YouTube
             </a>
           </div>
         ) : (
           <p className="tb-helper">
-            Direct upload needs Google API credentials. Create an OAuth client in Google Cloud
-            (YouTube Data API v3, redirect URI <code>{`{APP_URL}`}/api/youtube/callback</code>),
-            then set <code>GOOGLE_CLIENT_ID</code> and <code>GOOGLE_CLIENT_SECRET</code> in{" "}
-            <code>.env</code> and restart.
+            YouTube upload is not available in this environment.
           </p>
         )}
       </div>
@@ -104,12 +102,12 @@ export default async function ProfilePage({
           <h3>Description defaults</h3>
           <div className="form-grid">
             <div className="form-field full">
-              <label htmlFor="licenseText">License info (appears in every description)</label>
+              <label htmlFor="licenseText">License info</label>
               <textarea
                 id="licenseText"
                 name="licenseText"
                 defaultValue={p?.licenseText || ""}
-                placeholder={"This beat is licensed, not sold. Free downloads are for non-profit use only — must credit (prod. yourname)."}
+                placeholder={"Free downloads are for non-profit use only. Credit (prod. yourname)."}
               />
             </div>
             <div className="form-field full">
@@ -118,7 +116,7 @@ export default async function ProfilePage({
                 id="descriptionFooter"
                 name="descriptionFooter"
                 defaultValue={p?.descriptionFooter || ""}
-                placeholder={"New beats every Mon / Wed / Fri. Subscribe so you don't miss the next one."}
+                placeholder={"New beats every Monday, Wednesday, and Friday."}
               />
             </div>
           </div>
@@ -154,9 +152,23 @@ export default async function ProfilePage({
           <button type="submit" className="btn btn-primary">
             Save profile
           </button>
-          {saved && <span className="form-saved">✓ Saved</span>}
+          {saved && <span className="form-saved">Saved</span>}
         </div>
       </form>
+
+      <div className="card">
+        <h3>Account</h3>
+        <div className="settings-row">
+          <p className="tb-muted settings-copy">
+            Signed in as <strong>{user.email}</strong>.
+          </p>
+          <form action={logout}>
+            <button type="submit" className="btn btn-ghost btn-sm">
+              Log out
+            </button>
+          </form>
+        </div>
+      </div>
     </>
   );
 }

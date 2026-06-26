@@ -4,7 +4,7 @@ import { signup } from "@/lib/actions/auth";
 import "../marketing.css";
 
 export const metadata: Metadata = {
-  title: "Sign up — TypeBeatOS",
+  title: "Sign up - TypeBeatOS",
 };
 
 export default async function SignupPage({
@@ -39,11 +39,9 @@ export default async function SignupPage({
             Free account
           </div>
           <h1 className="tb-auth-heading">
-            Join <span className="tb-red">TypeBeatOS.</span>
+            Create your <span className="tb-red">workspace.</span>
           </h1>
-          <p className="tb-auth-sub">
-            First upload package in minutes. No card required.
-          </p>
+          <p className="tb-auth-sub">Start free. No card required.</p>
 
           {error && <div className="tb-auth-error">{error}</div>}
 

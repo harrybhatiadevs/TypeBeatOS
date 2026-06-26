@@ -23,7 +23,7 @@ export async function generateVideo(packageId: string, style: VideoStyle) {
   if (!pkg.thumbnailPath) {
     await db.package.update({
       where: { id: packageId },
-      data: { videoStatus: "failed", videoError: "Save a thumbnail first — it becomes the video visual." },
+      data: { videoStatus: "failed", videoError: "Save a thumbnail first." },
     });
     return;
   }

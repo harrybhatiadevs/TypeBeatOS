@@ -26,7 +26,7 @@ export default async function AppLayout({
             <NavLinks />
           </div>
           <Link href="/beats/new" className="btn btn-primary btn-sm">
-            + New beat
+            New beat
           </Link>
           <form action={logout}>
             <button type="submit" className="nav-link nav-logout">
@@ -39,6 +39,9 @@ export default async function AppLayout({
         <VerifyEmailBanner email={user.email} />
       )}
       <main className="app-main">{children}</main>
+      <nav className="mobile-bottom-nav" aria-label="Primary">
+        <NavLinks variant="bottom" />
+      </nav>
     </div>
   );
 }

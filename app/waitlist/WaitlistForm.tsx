@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Check } from "lucide-react";
 import { joinWaitlist, type WaitlistResult } from "@/lib/actions/waitlist";
 
 export default function WaitlistForm({
@@ -30,7 +31,9 @@ export default function WaitlistForm({
   if (state === "done") {
     return (
       <div id={id} className="tb-form tb-form-done" role="status">
-        <span className="tb-form-check" aria-hidden="true">✓</span>
+        <span className="tb-form-check" aria-hidden="true">
+          <Check size={14} strokeWidth={2.4} />
+        </span>
         <span className="tb-form-done-text">{message}</span>
       </div>
     );
@@ -50,7 +53,7 @@ export default function WaitlistForm({
           disabled={state === "loading"}
         />
         <button type="submit" className="tb-form-btn" disabled={state === "loading"}>
-          {state === "loading" ? "Joining…" : cta}
+          {state === "loading" ? "Joining..." : cta}
         </button>
       </form>
       {state === "error" && (

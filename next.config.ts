@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   output: "standalone",
   // Keep ffmpeg-static out of the webpack bundle so its binary path resolves
   serverExternalPackages: ["ffmpeg-static"],
+  devIndicators: false,
   experimental: {
     serverActions: {
       // Beat audio files can be large

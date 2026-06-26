@@ -9,11 +9,16 @@
   z-index: 2;
   max-width: 46rem;
   margin: 0 auto;
-  padding: 8rem 1.5rem 6rem;
+  padding: 8rem clamp(1rem, 4vw, 1.5rem) 6rem;
+  overflow-wrap: break-word;
 }
 
 .tb-legal-header {
   margin-bottom: 3rem;
+}
+
+.tb-legal-title {
+  margin-top: 1rem;
 }
 
 .tb-legal-meta {
@@ -25,9 +30,10 @@
 }
 
 .tb-legal h2 {
-  font-family: "Bebas Neue", Impact, sans-serif;
+  font-family: "Space Grotesk", "Inter", system-ui, sans-serif;
+  font-weight: 700;
   font-size: clamp(1.5rem, 2.4vw, 1.85rem);
-  line-height: 1;
+  line-height: 1.08;
   letter-spacing: 0;
   text-transform: uppercase;
   color: #fff;
@@ -42,6 +48,7 @@
   line-height: 1.7;
   color: rgba(255, 255, 255, 0.78);
   margin-bottom: 1.25rem;
+  text-wrap: pretty;
 }
 
 .tb-legal ul {
@@ -66,7 +73,7 @@
   width: 0.35rem;
   height: 0.35rem;
   border-radius: 9999px;
-  background: #ed072c;
+  background: #f0042f;
 }
 
 .tb-legal a {
@@ -85,19 +92,20 @@
   display: inline-block;
   padding: 0.05rem 0.45rem;
   margin: 0 0.15rem;
-  border: 1px dashed rgba(237, 7, 44, 0.55);
-  background: rgba(237, 7, 44, 0.08);
+  border: 1px dashed rgba(240, 4, 47, 0.52);
+  background: rgba(240, 4, 47, 0.1);
   color: #ff8d94;
   border-radius: 0.35rem;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.88em;
+  overflow-wrap: anywhere;
 }
 
 .tb-legal-callout {
   margin-bottom: 2rem;
   padding: 1rem 1.25rem;
-  border-left: 3px solid #ed072c;
-  background: rgba(237, 7, 44, 0.06);
+  border-left: 3px solid #f0042f;
+  background: rgba(240, 4, 47, 0.08);
   border-radius: 0 0.6rem 0.6rem 0;
   font-size: 0.92rem;
   line-height: 1.55;
@@ -105,3 +113,40 @@
 }
 
 .tb-legal-callout strong { color: #ff8d94; }
+
+@media (max-width: 640px) {
+  .tb-legal {
+    padding-top: 6.5rem;
+    padding-bottom: 4rem;
+  }
+
+  .tb-legal-header {
+    margin-bottom: 2.25rem;
+  }
+
+  .tb-legal-meta {
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    line-height: 1.45;
+  }
+
+  .tb-legal h2 {
+    margin-top: 2.35rem;
+    font-size: clamp(1.45rem, 7vw, 1.75rem);
+  }
+
+  .tb-legal p,
+  .tb-legal li {
+    font-size: 0.95rem;
+    line-height: 1.65;
+  }
+
+  .tb-legal ul {
+    margin-left: 0;
+  }
+
+  .tb-legal-callout {
+    padding: 0.9rem 1rem;
+    border-radius: 0 0.5rem 0.5rem 0;
+  }
+}
