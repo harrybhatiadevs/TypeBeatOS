@@ -104,6 +104,7 @@
   display: flex;
   align-items: center;
   gap: 1.25rem;
+  max-width: calc(100vw - 1.5rem);
   padding: 0.5rem 0.55rem 0.5rem 1.25rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(10, 10, 10, 0.55);
@@ -129,6 +130,7 @@
 }
 
 .tb-brand { display: inline-flex; align-items: center; gap: 0.7rem; }
+.tb-brand { min-width: 0; }
 .tb-badge {
   display: block;
   width: 2rem;
@@ -143,6 +145,7 @@
   font-size: 1.05rem;
   font-weight: 600;
   letter-spacing: 0.14em;
+  white-space: nowrap;
 }
 .tb-wordmark span { color: #ed072c; }
 
@@ -174,12 +177,15 @@
 .tb-nav-cta {
   position: relative;
   overflow: hidden;
+  flex-shrink: 0;
   font-size: 0.82rem;
   font-weight: 600;
   color: #fff;
   background: linear-gradient(135deg, #ed072c, #b30420);
   padding: 0.55rem 1.1rem;
   border-radius: 9999px;
+  line-height: 1;
+  white-space: nowrap;
   box-shadow: 0 0 24px rgba(237, 7, 44, 0.45);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
@@ -209,6 +215,7 @@
 .tb-eyebrow {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   margin-bottom: 2rem;
   padding: 0.4rem 1rem;
@@ -404,6 +411,7 @@
   to   { transform: scale(1); }
 }
 .tb-form-done-text { color: rgba(255, 255, 255, 0.85); }
+.tb-form-done-text { min-width: 0; overflow-wrap: anywhere; }
 .tb-form-error {
   margin-top: 0.6rem;
   padding-left: 0.75rem;
@@ -525,6 +533,7 @@
   font-size: 1.125rem;
   line-height: 1.55;
   color: rgba(255, 255, 255, 0.62);
+  overflow-wrap: anywhere;
 }
 
 /* Steps stack vertically as rows: large red digit on the left,
@@ -830,6 +839,7 @@
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 .tb-plan-name {
   font-size: 0.72rem;
@@ -955,6 +965,7 @@
 }
 .tb-auth-input {
   width: 100%;
+  min-width: 0;
   padding: 0.85rem 1rem;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(0, 0, 0, 0.4);
@@ -1019,6 +1030,7 @@
   color: #ff8d94;
   font-weight: 600;
   text-decoration: none;
+  overflow-wrap: anywhere;
   transition: color 0.2s ease;
 }
 .tb-auth-alt a:hover { color: #fff; }
@@ -1077,20 +1089,225 @@
      reads under the heading — see the brief. */
   .tb-step { gap: 3rem; padding: 1.5rem 0; }
   .tb-section-head { margin-bottom: 2rem; }
-  .tb-features { grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
-  .tb-pricing { grid-template-columns: repeat(4, 1fr); gap: 1.25rem; }
+  .tb-features { grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+  .tb-pricing { grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
   .tb-problem-grid { max-width: 56rem; }
   .tb-beta-grid { grid-template-columns: repeat(2, 1fr); align-items: center; }
   .tb-footer-inner { flex-direction: row; }
   .tb-marquee-text { font-size: 2rem; }
 }
 
+@media (min-width: 1024px) {
+  .tb-features { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 1120px) {
+  .tb-pricing { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (max-width: 767px) {
+  .tb-hero,
+  .tb-section,
+  .tb-final {
+    min-height: auto;
+  }
+
+  .tb-hero {
+    padding: 7.25rem 1.25rem 3.25rem;
+  }
+
+  .tb-hero-center {
+    min-height: auto;
+    padding: 7.25rem 1.25rem 3.25rem;
+  }
+
+  .tb-section {
+    padding: 3.25rem 1.25rem;
+  }
+
+  .tb-section-head {
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .tb-h1 {
+    font-size: clamp(2.15rem, 11vw, 3.1rem);
+    line-height: 0.9;
+  }
+
+  .tb-hero-center .tb-h1 {
+    font-size: clamp(2.15rem, 10.5vw, 3rem);
+  }
+
+  .tb-h2 {
+    font-size: clamp(2.4rem, 12vw, 4.2rem);
+    line-height: 0.92;
+  }
+
+  .tb-final {
+    padding: 4rem 1.25rem;
+  }
+
+  .tb-page .tb-final-h2 {
+    font-size: clamp(2.8rem, 15vw, 5rem);
+    line-height: 0.9;
+  }
+
+  .tb-step {
+    grid-template-columns: minmax(2.5rem, auto) 1fr;
+    gap: 1rem;
+    align-items: start;
+  }
+
+  .tb-step-num {
+    font-size: clamp(3rem, 14vw, 4.25rem);
+  }
+
+  .tb-step-title {
+    font-size: clamp(1.65rem, 8vw, 2.4rem);
+  }
+
+  .tb-feature,
+  .tb-plan,
+  .tb-auth-card {
+    border-radius: 1rem;
+  }
+
+  .tb-footer-inner {
+    align-items: flex-start;
+  }
+
+  .tb-footer-copy {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 560px) {
+  .tb-nav {
+    top: 0.75rem;
+    gap: 0.55rem;
+    max-width: calc(100vw - 1rem);
+    padding: 0.42rem 0.45rem 0.42rem 0.75rem;
+  }
+
+  .tb-nav.is-scrolled {
+    top: 0.45rem;
+    padding: 0.36rem 0.4rem 0.36rem 0.7rem;
+  }
+
+  .tb-badge {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  .tb-wordmark {
+    font-size: 0.86rem;
+    letter-spacing: 0.1em;
+  }
+
+  .tb-nav-cta {
+    padding: 0.62rem 0.8rem;
+    font-size: 0.76rem;
+    line-height: 1.05;
+  }
+
+  .tb-eyebrow {
+    width: 100%;
+    max-width: 100%;
+    padding: 0.45rem 0.8rem;
+    font-size: 0.66rem;
+    letter-spacing: 0.16em;
+    line-height: 1.35;
+    text-align: center;
+  }
+
+  .tb-hero-grid {
+    gap: 1.5rem;
+  }
+
+  .tb-hero-sub,
+  .tb-section-sub,
+  .tb-problem-punch {
+    font-size: 1rem;
+  }
+
+  .tb-hero-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .tb-hero-actions .tb-final-btn,
+  .tb-hero-actions .tb-cta-ghost {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .tb-stats {
+    gap: 1rem;
+  }
+
+  .tb-stat-label {
+    letter-spacing: 0.14em;
+  }
+
+  .tb-chip {
+    font-size: 0.82rem;
+    padding: 0.5rem 0.85rem;
+  }
+
+  .tb-feature,
+  .tb-plan,
+  .tb-auth-card {
+    padding: 1.35rem;
+  }
+
+  .tb-auth-wrap {
+    align-items: flex-start;
+    padding: 6rem 1rem 2.5rem;
+  }
+
+  .tb-auth-card .tb-eyebrow {
+    width: auto;
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  .tb-auth-heading {
+    font-size: clamp(2.1rem, 12vw, 2.75rem);
+  }
+
+  .tb-footer {
+    padding: 2rem 0;
+  }
+
+  .tb-footer-inner {
+    padding: 0 1.25rem;
+  }
+}
+
 @media (max-width: 460px) {
-  .tb-nav { gap: 0.6rem; padding: 0.45rem 0.5rem 0.45rem 0.9rem; }
-  .tb-wordmark { font-size: 0.95rem; letter-spacing: 0.12em; }
+  .tb-nav { gap: 0.45rem; }
+  .tb-brand { gap: 0.45rem; }
+  .tb-wordmark { font-size: 0.78rem; letter-spacing: 0.08em; }
   .tb-form { flex-wrap: wrap; border-radius: 18px; }
-  .tb-form-input { flex-basis: 100%; text-align: center; }
+  .tb-form .tb-form-input { flex-basis: 100%; text-align: center; }
   .tb-form-btn { width: 100%; }
+  .tb-form-done {
+    align-items: flex-start;
+    border-radius: 1rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .tb-wordmark {
+    max-width: 6.3rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .tb-nav-cta {
+    padding-inline: 0.68rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

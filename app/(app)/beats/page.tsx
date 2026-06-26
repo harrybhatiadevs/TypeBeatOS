@@ -29,55 +29,57 @@ export default async function BeatsPage() {
             </Link>
           </div>
         ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Beat</th>
-                <th>Target artist</th>
-                <th>BPM / Key</th>
-                <th>Package</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {beats.map((b) => (
-                <tr key={b.id}>
-                  <td>
-                    {b.package ? (
-                      <Link href={`/packages/${b.package.id}`}>{b.name}</Link>
-                    ) : (
-                      b.name
-                    )}
-                  </td>
-                  <td>
-                    {b.targetArtist}
-                    {b.secondaryArtist ? ` x ${b.secondaryArtist}` : ""}
-                  </td>
-                  <td className="tb-muted">
-                    {[b.bpm ? `${b.bpm} BPM` : "", b.key].filter(Boolean).join(" · ") || "—"}
-                  </td>
-                  <td>
-                    {b.package ? (
-                      <span className={`badge badge-${b.package.status}`}>{b.package.status}</span>
-                    ) : (
-                      <span className="badge badge-draft">none</span>
-                    )}
-                  </td>
-                  <td className="tb-row-end">
-                    <Link href={`/beats/${b.id}/edit`} className="copy-btn" style={{ marginRight: 8 }}>
-                      Edit
-                    </Link>
-                    <form action={deleteBeat} style={{ display: "inline" }}>
-                      <input type="hidden" name="id" value={b.id} />
-                      <button type="submit" className="copy-btn">
-                        Delete
-                      </button>
-                    </form>
-                  </td>
+          <div className="table-scroll">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Beat</th>
+                  <th>Target artist</th>
+                  <th>BPM / Key</th>
+                  <th>Package</th>
+                  <th></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {beats.map((b) => (
+                  <tr key={b.id}>
+                    <td>
+                      {b.package ? (
+                        <Link href={`/packages/${b.package.id}`}>{b.name}</Link>
+                      ) : (
+                        b.name
+                      )}
+                    </td>
+                    <td>
+                      {b.targetArtist}
+                      {b.secondaryArtist ? ` x ${b.secondaryArtist}` : ""}
+                    </td>
+                    <td className="tb-muted">
+                      {[b.bpm ? `${b.bpm} BPM` : "", b.key].filter(Boolean).join(" · ") || "—"}
+                    </td>
+                    <td>
+                      {b.package ? (
+                        <span className={`badge badge-${b.package.status}`}>{b.package.status}</span>
+                      ) : (
+                        <span className="badge badge-draft">none</span>
+                      )}
+                    </td>
+                    <td className="tb-row-end">
+                      <Link href={`/beats/${b.id}/edit`} className="copy-btn" style={{ marginRight: 8 }}>
+                        Edit
+                      </Link>
+                      <form action={deleteBeat} style={{ display: "inline" }}>
+                        <input type="hidden" name="id" value={b.id} />
+                        <button type="submit" className="copy-btn">
+                          Delete
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </>

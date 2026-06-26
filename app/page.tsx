@@ -75,13 +75,6 @@ const PLANS = [
     featured: false,
   },
   {
-    name: "Starter",
-    price: "$9",
-    cycle: "/mo",
-    perks: ["20 upload packs / mo", "SEO titles + tags", "Thumbnail builder", "Upload calendar"],
-    featured: false,
-  },
-  {
     name: "Pro",
     price: "$19",
     cycle: "/mo",

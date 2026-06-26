@@ -54,7 +54,7 @@
   transform: translateX(-50%);
   display: flex;
   width: auto;
-  max-width: calc(100% - 2rem);
+  max-width: calc(100vw - 1.5rem);
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(10, 10, 10, 0.62);
   backdrop-filter: blur(18px) saturate(140%);
@@ -70,6 +70,8 @@
   align-items: center;
   gap: 1rem;
   padding: 0.45rem 0.5rem 0.45rem 1.1rem;
+  width: 100%;
+  min-width: 0;
   max-width: none;
   margin: 0;
 }
@@ -85,6 +87,7 @@
   letter-spacing: 0.14em;
   font-size: 1rem;
   text-transform: uppercase;
+  min-width: 0;
 }
 .app-page .logo-mark {
   display: block;
@@ -97,6 +100,7 @@
   font-size: 0;
 }
 .app-page .logo-word { color: #fff; letter-spacing: 0.14em; }
+.app-page .logo-word { white-space: nowrap; }
 .app-page .logo-word span { color: #ed072c; }
 
 .app-page .nav-links {
@@ -104,6 +108,7 @@
   align-items: center;
   gap: 0.15rem;
   flex-wrap: nowrap;
+  min-width: 0;
 }
 .app-page .nav-link {
   position: relative;
@@ -148,6 +153,7 @@
   white-space: nowrap;
   cursor: pointer;
   text-decoration: none;
+  max-width: 100%;
   transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease,
     border-color 0.22s ease, filter 0.22s ease;
 }
@@ -193,6 +199,7 @@
   max-width: 1120px;
   margin: 0 auto;
   padding: 7rem 1.5rem 6rem;
+  width: 100%;
 }
 
 /* ---------- Eyebrow + page header ---------- */
@@ -228,6 +235,7 @@
   font-weight: 400;
   text-transform: uppercase;
   margin-bottom: 0.5rem;
+  overflow-wrap: anywhere;
 }
 .app-page .page-sub {
   font-size: 1.05rem;
@@ -250,6 +258,7 @@
   padding: 1.75rem;
   margin-bottom: 1.25rem;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  min-width: 0;
 }
 .app-page .card > h3,
 .app-page .card .field-head > h3 {
@@ -265,6 +274,7 @@
 /* ---------- Forms ---------- */
 .app-page .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.25rem; }
 .app-page .form-field { display: flex; flex-direction: column; gap: 0.4rem; }
+.app-page .form-field { min-width: 0; }
 .app-page .form-field.full { grid-column: 1 / -1; }
 .app-page .form-field label {
   font-size: 0.78rem;
@@ -318,6 +328,11 @@
   font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
+}
+
+.app-page input[type="file"] {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .app-page .form-actions { margin-top: 1.5rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
 .app-page .form-error {
@@ -394,6 +409,17 @@
 
 /* ---------- Tables ---------- */
 .app-page .table { width: 100%; border-collapse: collapse; }
+.app-page .table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.app-page .table-scroll .table {
+  min-width: 560px;
+}
+.app-page .card:has(.table) {
+  overflow-x: auto;
+}
 .app-page .table th {
   text-align: left;
   font-size: 0.7rem;
@@ -416,6 +442,10 @@
 .app-page .table tbody tr:hover { background: rgba(237, 7, 44, 0.05); }
 .app-page .table a { color: #fff; font-weight: 600; text-decoration: none; }
 .app-page .table a:hover { color: #ff8d94; }
+.app-page .table td,
+.app-page .table th {
+  overflow-wrap: anywhere;
+}
 
 /* ---------- Badges ---------- */
 .app-page .badge {
@@ -431,6 +461,7 @@
   background: rgba(255, 255, 255, 0.08);
   color: rgba(255, 255, 255, 0.68);
   box-shadow: none;
+  white-space: nowrap;
 }
 .app-page .badge-draft { background: rgba(255, 255, 255, 0.05); color: rgba(255, 255, 255, 0.55); }
 .app-page .badge-ready { background: rgba(255, 209, 102, 0.12); color: #ffd166; }
@@ -468,12 +499,16 @@
   margin-bottom: 0.5rem;
   transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
 }
+.app-page .cal-item > * {
+  min-width: 0;
+}
 .app-page .cal-item:hover {
   border-color: rgba(237, 7, 44, 0.4);
   background: rgba(237, 7, 44, 0.04);
   transform: translateX(3px);
 }
 .app-page .cal-item a { color: #fff; font-weight: 600; text-decoration: none; }
+.app-page .cal-item a { overflow-wrap: anywhere; }
 .app-page .cal-item a:hover { color: #ff8d94; }
 .app-page .cal-time { color: rgba(255, 255, 255, 0.5); font-size: 0.88rem; white-space: nowrap; }
 
@@ -489,6 +524,9 @@
   color: #fff;
   text-decoration: none;
   transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+}
+.app-page .checklist-item {
+  min-width: 0;
 }
 .app-page a.checklist-item:hover {
   border-color: rgba(237, 7, 44, 0.5);
@@ -516,6 +554,8 @@
   margin-left: auto;
   color: rgba(255, 255, 255, 0.45);
   font-size: 0.82rem;
+  text-align: right;
+  white-space: nowrap;
 }
 
 /* ---------- Onboarding ---------- */
@@ -533,6 +573,7 @@
   color: rgba(255, 255, 255, 0.55);
   font-size: 0.82rem;
   font-weight: 500;
+  min-width: 0;
 }
 .app-page .onb-step.active {
   border-color: rgba(237, 7, 44, 0.55);
@@ -556,11 +597,13 @@
 
 /* ---------- Package editor ---------- */
 .app-page .editor-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 1.25rem; align-items: start; }
+.app-page .editor-grid > * { min-width: 0; }
 .app-page .editor-field { margin-bottom: 1.25rem; }
 .app-page .field-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 0.75rem;
   margin-bottom: 0.55rem;
 }
 .app-page .field-head label {
@@ -590,6 +633,7 @@
 }
 .app-page .title-option input { width: auto; margin-top: 0.3rem; accent-color: #ed072c; }
 .app-page .title-option span { font-size: 0.93rem; font-weight: 600; line-height: 1.45; }
+.app-page .title-option span { min-width: 0; overflow-wrap: anywhere; }
 
 .app-page .copy-btn {
   background: transparent;
@@ -605,7 +649,9 @@
   text-decoration: none;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.3rem;
+  white-space: nowrap;
   transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease;
 }
 .app-page .copy-btn:hover {
@@ -628,6 +674,10 @@
   margin-top: 1rem;
 }
 .app-page .thumb-controls .full { grid-column: 1 / -1; }
+.app-page .thumb-actions {
+  flex-direction: row;
+  gap: 0.65rem;
+}
 .app-page .swatch-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
 .app-page .swatch {
   width: 2.1rem;
@@ -698,6 +748,7 @@
   font-size: 0.85rem;
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.55);
+  overflow-wrap: anywhere;
 }
 .app-page .tb-row-end { text-align: right; }
 
@@ -716,13 +767,135 @@
   .app-page .nav-inner { gap: 0.4rem; padding: 0.4rem 0.4rem 0.4rem 0.75rem; }
   .app-page .logo-word { font-size: 0.85rem; letter-spacing: 0.1em; }
   .app-page .nav-link { padding: 0.35rem 0.6rem; font-size: 0.78rem; }
+  .app-page .card { padding: 1.4rem; border-radius: 1rem; }
+  .app-page .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 620px) {
   /* Nav collapses to logo + primary CTA + log out only */
+  .app-page .nav {
+    top: 0.75rem;
+    max-width: calc(100vw - 1rem);
+  }
   .app-page .nav-links { display: none; }
   .app-page .nav-inner > .btn-primary,
   .app-page .nav-inner > form { margin-left: auto; }
+  .app-page .nav-inner > form {
+    margin-left: 0;
+  }
+  .app-page .nav-inner > .btn-primary {
+    padding-inline: 0.8rem;
+  }
+  .app-page .app-main {
+    padding: 5.75rem 0.9rem 3.25rem;
+  }
+  .app-page .page-title {
+    font-size: clamp(2rem, 12vw, 2.8rem);
+  }
+  .app-page .page-sub {
+    font-size: 0.98rem;
+    margin-bottom: 1.75rem;
+  }
+  .app-page .eyebrow {
+    max-width: 100%;
+    font-size: 0.66rem;
+    letter-spacing: 0.16em;
+    line-height: 1.35;
+  }
+  .app-page .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  .app-page .stat {
+    padding: 1.25rem;
+  }
+  .app-page .form-actions,
+  .app-page .field-head {
+    align-items: stretch;
+  }
+  .app-page .field-head {
+    flex-direction: column;
+  }
+  .app-page .field-head .copy-btn,
+  .app-page .form-actions .btn,
+  .app-page .form-actions button,
+  .app-page .form-actions a {
+    width: 100%;
+  }
+  .app-page .cal-item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .app-page .cal-time {
+    white-space: normal;
+  }
+  .app-page .checklist-item {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .app-page .checklist-item .checklist-hint {
+    width: 100%;
+    margin-left: 2.5rem;
+    text-align: left;
+    white-space: normal;
+  }
+  .app-page .onb-steps {
+    flex-wrap: wrap;
+  }
+  .app-page .onb-step {
+    flex: 1 1 calc(50% - 0.5rem);
+  }
+  .app-page .thumb-controls {
+    grid-template-columns: 1fr;
+  }
+  .app-page .thumb-controls .full {
+    grid-column: auto;
+  }
+  .app-page .thumb-actions {
+    flex-direction: column;
+  }
+  .app-page .thumb-actions .btn {
+    width: 100%;
+  }
+  .app-page .btn {
+    white-space: normal;
+    text-align: center;
+  }
+  .app-page .copy-btn {
+    white-space: normal;
+  }
+}
+
+@media (max-width: 430px) {
+  .app-page .logo-word {
+    display: none;
+  }
+  .app-page .logo-mark {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+  .app-page .nav-inner {
+    padding-left: 0.45rem;
+  }
+  .app-page .nav-inner > .btn-primary {
+    font-size: 0.76rem;
+    padding: 0.43rem 0.7rem;
+  }
+  .app-page .nav-logout {
+    font-size: 0.74rem;
+    padding-inline: 0.5rem;
+  }
+  .app-page .card {
+    padding: 1.1rem;
+  }
+  .app-page .empty-state {
+    padding: 2rem 0.25rem 1rem;
+  }
+  .app-page .onb-step {
+    flex-basis: 100%;
+  }
+  .app-page .checkbox-pill span {
+    padding: 0.42rem 0.8rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
