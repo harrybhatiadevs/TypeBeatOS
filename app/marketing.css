@@ -806,7 +806,10 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
-  margin-top: 2.5rem;
+  /* Capped + auto-centred so the 3 plans sit centred in the section
+     rather than stretching edge-to-edge or leaving an empty column. */
+  max-width: 62rem;
+  margin: 2.5rem auto 0;
 }
 .tb-plan {
   position: relative;
@@ -1090,7 +1093,7 @@
   .tb-step { gap: 3rem; padding: 1.5rem 0; }
   .tb-section-head { margin-bottom: 2rem; }
   .tb-features { grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
-  .tb-pricing { grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+  .tb-pricing { grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
   .tb-problem-grid { max-width: 56rem; }
   .tb-beta-grid { grid-template-columns: repeat(2, 1fr); align-items: center; }
   .tb-footer-inner { flex-direction: row; }
@@ -1101,9 +1104,7 @@
   .tb-features { grid-template-columns: repeat(3, 1fr); }
 }
 
-@media (min-width: 1120px) {
-  .tb-pricing { grid-template-columns: repeat(4, 1fr); }
-}
+/* 3 plans → 3 columns from the tablet breakpoint up; no 4-column rule. */
 
 @media (max-width: 767px) {
   .tb-hero,
