@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
+import LocalDateTime from "../LocalDateTime";
 
 export default async function Dashboard() {
   const user = await requireUser();
@@ -122,15 +123,10 @@ export default async function Dashboard() {
                       <span className={`badge badge-${p.status}`}>{p.status}</span>
                     </td>
                     <td className="tb-muted">
-                      {p.scheduledAt
-                        ? p.scheduledAt.toLocaleString(undefined, {
-                            weekday: "short",
-                            month: "short",
-                            day: "numeric",
-                            hour: "numeric",
-                            minute: "2-digit",
-                          })
-                        : "—"}
+                      <LocalDateTime
+                        iso={p.scheduledAt ? p.scheduledAt.toISOString() : null}
+                        mode="datetime"
+                      />
                     </td>
                   </tr>
                 ))}

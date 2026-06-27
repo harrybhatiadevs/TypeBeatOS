@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { aggregateByArtist, aggregateByDay } from "@/lib/analytics";
 import { refreshAnalytics } from "@/lib/actions/analytics";
+import LocalDateTime from "../LocalDateTime";
 
 const fmt = (n: number) => n.toLocaleString();
 
@@ -129,9 +130,14 @@ export default async function AnalyticsPage({
               </table>
             </div>
             <p className="tb-helper" style={{ marginTop: 12, fontSize: "0.82rem" }}>
-              {lastUpdated
-                ? `Last refreshed ${lastUpdated.toLocaleString()}`
-                : "Stats not pulled yet — hit refresh."}{" "}
+              {lastUpdated ? (
+                <>
+                  Last refreshed{" "}
+                  <LocalDateTime iso={lastUpdated.toISOString()} mode="datetime" />
+                </>
+              ) : (
+                "Stats not pulled yet — hit refresh."
+              )}{" "}
               Scheduled videos show 0 views until they publish.
             </p>
           </div>

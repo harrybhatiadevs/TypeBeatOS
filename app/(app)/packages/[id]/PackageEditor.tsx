@@ -82,6 +82,10 @@ export default function PackageEditor({
   const save = (nextStatus?: string) => {
     const s = nextStatus ?? status;
     if (nextStatus) setStatus(nextStatus);
+    // Convert the naive datetime-local value to an absolute UTC instant HERE,
+    // in the browser, where the timezone is the user's. Sending the naive
+    // string would let the (UTC) server misread it as UTC. "" stays "".
+    const scheduledAtIso = scheduledAt ? new Date(scheduledAt).toISOString() : "";
     startTransition(async () => {
       await updatePackage({
         id: pkg.id,
@@ -90,7 +94,7 @@ export default function PackageEditor({
         tags,
         hashtags,
         pinnedComment,
-        scheduledAt,
+        scheduledAt: scheduledAtIso,
         status: s,
       });
       // Marking a package ready is a "done with this one" action — send the

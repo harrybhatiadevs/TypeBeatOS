@@ -21,7 +21,7 @@ export async function updatePackage(input: {
   tags: string;
   hashtags: string;
   pinnedComment: string;
-  scheduledAt: string; // datetime-local value or ""
+  scheduledAt: string; // absolute UTC ISO string (converted client-side) or ""
   status: string;
 }) {
   const user = await requireUser();
@@ -102,9 +102,12 @@ export async function saveThumbnail(formData: FormData) {
   return thumbnailPath;
 }
 
-export async function autoScheduleQueue() {
+export async function autoScheduleQueue(formData?: FormData) {
   const user = await requireUser();
   const profile = user.profile;
+  // The browser sends its IANA zone so posting times land in the producer's
+  // local time, not the server's UTC. Falls back to UTC if absent (no JS).
+  const timeZone = String(formData?.get("timeZone") || "") || "UTC";
 
   const unscheduled = await db.package.findMany({
     where: { beat: { userId: user.id }, scheduledAt: null },
@@ -119,7 +122,7 @@ export async function autoScheduleQueue() {
   const taken = new Set(existing.map((p) => p.scheduledAt!.getTime()));
 
   const days = parseScheduleDays(profile?.scheduleDays || "1,3,5");
-  const slots = nextSlots(days.length ? days : [1, 3, 5], profile?.scheduleTime || "18:00", unscheduled.length, taken);
+  const slots = nextSlots(days.length ? days : [1, 3, 5], profile?.scheduleTime || "18:00", unscheduled.length, taken, timeZone);
 
   await Promise.all(
     unscheduled.map((pkg, i) =>

@@ -2,6 +2,8 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { autoScheduleQueue } from "@/lib/actions/packages";
+import AutoScheduleButton from "./AutoScheduleButton";
+import UpcomingList from "./UpcomingList";
 
 export default async function CalendarPage() {
   const user = await requireUser();
@@ -14,18 +16,6 @@ export default async function CalendarPage() {
 
   const unscheduled = packages.filter((p) => !p.scheduledAt);
   const upcoming = packages.filter((p) => p.scheduledAt && p.scheduledAt >= new Date());
-
-  // Group upcoming by date
-  const byDate = new Map<string, typeof upcoming>();
-  for (const p of upcoming) {
-    const key = p.scheduledAt!.toLocaleDateString(undefined, {
-      weekday: "long",
-      month: "long",
-      day: "numeric",
-    });
-    if (!byDate.has(key)) byDate.set(key, []);
-    byDate.get(key)!.push(p);
-  }
 
   return (
     <>
@@ -48,11 +38,7 @@ export default async function CalendarPage() {
               <span className={`badge badge-${p.status}`}>{p.status}</span>
             </div>
           ))}
-          <form action={autoScheduleQueue} style={{ marginTop: 16 }}>
-            <button type="submit" className="btn btn-primary btn-sm">
-              ⚡ Auto-schedule the queue
-            </button>
-          </form>
+          <AutoScheduleButton action={autoScheduleQueue} />
         </div>
       )}
 
@@ -66,19 +52,13 @@ export default async function CalendarPage() {
             </Link>
           </div>
         ) : (
-          [...byDate.entries()].map(([date, items]) => (
-            <div key={date} className="cal-day">
-              <div className="cal-day-head">{date}</div>
-              {items.map((p) => (
-                <div key={p.id} className="cal-item">
-                  <Link href={`/packages/${p.id}`}>{p.selectedTitle}</Link>
-                  <span className="cal-time">
-                    {p.scheduledAt!.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
-                  </span>
-                </div>
-              ))}
-            </div>
-          ))
+          <UpcomingList
+            items={upcoming.map((p) => ({
+              id: p.id,
+              title: p.selectedTitle,
+              iso: p.scheduledAt!.toISOString(),
+            }))}
+          />
         )}
       </div>
     </>
