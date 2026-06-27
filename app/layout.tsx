@@ -43,15 +43,16 @@ export const metadata: Metadata = {
     follow: true,
   },
   icons: {
+    // ?v=2 cache-buster: browsers cache favicons in a separate, very sticky
+    // store; bumping the URL forces a fresh fetch of the opaque dark badge.
     icon: [
-      // SVG first: theme-aware (dark glyph on light tabs, white on dark tabs)
-      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.svg?v=2", type: "image/svg+xml" },
       // PNG fallbacks for Safari / older browsers — opaque dark badge
-      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-      { url: "/favicon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/favicon-32x32.png?v=2", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-192x192.png?v=2", sizes: "192x192", type: "image/png" },
     ],
-    shortcut: "/favicon-32x32.png",
-    apple: "/apple-touch-icon.png",
+    shortcut: "/favicon-32x32.png?v=2",
+    apple: "/apple-touch-icon.png?v=2",
   },
 };
 
