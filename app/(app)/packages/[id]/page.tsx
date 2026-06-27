@@ -27,6 +27,7 @@ export default async function PackagePage({ params }: { params: Promise<{ id: st
         hashtags: pkg.hashtags,
         pinnedComment: pkg.pinnedComment,
         thumbnailPath: pkg.thumbnailPath,
+        thumbnailConfig: pkg.thumbnailConfig,
         videoStatus: pkg.videoStatus,
         videoPath: pkg.videoPath,
         videoError: pkg.videoError,

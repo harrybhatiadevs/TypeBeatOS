@@ -150,6 +150,7 @@ model Package {
   hashtags       String
   pinnedComment  String
   thumbnailPath  String    @default("")
+  thumbnailConfig String    @default("")
   videoPath      String    @default("")
   videoStatus    String    @default("none")
   videoError     String    @default("")

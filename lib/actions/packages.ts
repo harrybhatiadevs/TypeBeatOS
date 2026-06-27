@@ -69,7 +69,34 @@ export async function saveThumbnail(formData: FormData) {
   await writeFile(path.join(dir, filename), Buffer.from(bytes));
 
   const thumbnailPath = `/api/files/thumbs/${filename}`;
-  await db.package.update({ where: { id: packageId }, data: { thumbnailPath } });
+
+  let config: Record<string, unknown> = {};
+  try {
+    const parsed = JSON.parse(String(formData.get("config") || "{}"));
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      config = parsed as Record<string, unknown>;
+    }
+  } catch {
+    config = {};
+  }
+
+  const bg = formData.get("bg");
+  if (bg instanceof File && bg.size > 0) {
+    if (bg.size > MAX_THUMB_BYTES) throw new Error("Background too large (max 8 MB)");
+    const bgBytes = new Uint8Array(await bg.arrayBuffer());
+    const bgExt = sniff(bgBytes.subarray(0, 16), "image");
+    if (![".png", ".jpg", ".jpeg"].includes(bgExt || "")) {
+      throw new Error("Background must be PNG or JPEG");
+    }
+    const bgName = `${packageId}-bg${bgExt === ".jpeg" ? ".jpg" : bgExt}`;
+    await writeFile(path.join(dir, bgName), Buffer.from(bgBytes));
+    config.bgPath = `/api/files/thumbs/${bgName}`;
+  }
+
+  await db.package.update({
+    where: { id: packageId },
+    data: { thumbnailPath, thumbnailConfig: JSON.stringify(config) },
+  });
 
   revalidatePath(`/packages/${packageId}`);
   return thumbnailPath;

@@ -16,6 +16,7 @@ type PkgProps = {
   hashtags: string;
   pinnedComment: string;
   thumbnailPath: string;
+  thumbnailConfig: string;
   videoStatus: string;
   videoPath: string;
   videoError: string;
@@ -223,6 +224,7 @@ export default function PackageEditor({
           <ThumbnailBuilder
             packageId={pkg.id}
             initialThumbnailPath={pkg.thumbnailPath}
+            initialConfig={pkg.thumbnailConfig}
             defaultTitle={beat.name.toUpperCase()}
             defaultSubtitle={`${beat.targetArtist.toUpperCase()} TYPE BEAT`}
           />

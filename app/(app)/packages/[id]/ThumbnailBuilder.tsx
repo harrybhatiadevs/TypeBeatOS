@@ -18,11 +18,13 @@ const FONT_OPTIONS = [
 export default function ThumbnailBuilder({
   packageId,
   initialThumbnailPath,
+  initialConfig,
   defaultTitle,
   defaultSubtitle,
 }: {
   packageId: string;
   initialThumbnailPath: string;
+  initialConfig: string;
   defaultTitle: string;
   defaultSubtitle: string;
 }) {
@@ -30,6 +32,8 @@ export default function ThumbnailBuilder({
   const [title, setTitle] = useState(defaultTitle);
   const [subtitle, setSubtitle] = useState(defaultSubtitle);
   const [bgImage, setBgImage] = useState<HTMLImageElement | null>(null);
+  const [bgPath, setBgPath] = useState("");
+  const [bgFile, setBgFile] = useState<File | null>(null);
   // Text properties are opt-in: the thumbnail starts as just the background
   // image, and the producer adds Main / Secondary text from the dropdown.
   const [mainAdded, setMainAdded] = useState(false);
@@ -42,6 +46,36 @@ export default function ThumbnailBuilder({
   const [subtitleSize, setSubtitleSize] = useState(44);
   const [saving, setSaving] = useState(false);
   const [savedPath, setSavedPath] = useState(initialThumbnailPath);
+
+  useEffect(() => {
+    if (!initialConfig) return;
+
+    let c: Record<string, unknown>;
+    try {
+      const parsed = JSON.parse(initialConfig);
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return;
+      c = parsed as Record<string, unknown>;
+    } catch {
+      return;
+    }
+
+    if (typeof c.title === "string") setTitle(c.title);
+    if (typeof c.subtitle === "string") setSubtitle(c.subtitle);
+    if (typeof c.titleFont === "string") setTitleFont(c.titleFont);
+    if (typeof c.titleColor === "string") setTitleColor(c.titleColor);
+    if (typeof c.titleSize === "number") setTitleSize(c.titleSize);
+    if (typeof c.subtitleFont === "string") setSubtitleFont(c.subtitleFont);
+    if (typeof c.subtitleColor === "string") setSubtitleColor(c.subtitleColor);
+    if (typeof c.subtitleSize === "number") setSubtitleSize(c.subtitleSize);
+    setMainAdded(!!c.mainAdded);
+    setSecondaryAdded(!!c.secondaryAdded);
+    if (typeof c.bgPath === "string" && c.bgPath) {
+      setBgPath(c.bgPath);
+      const img = new Image();
+      img.onload = () => setBgImage(img);
+      img.src = c.bgPath;
+    }
+  }, [initialConfig]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -90,6 +124,8 @@ export default function ThumbnailBuilder({
   const onImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setBgFile(file);
+    setBgPath("");
     const img = new Image();
     const url = URL.createObjectURL(file);
     img.onload = () => {
@@ -109,6 +145,23 @@ export default function ThumbnailBuilder({
         const fd = new FormData();
         fd.set("packageId", packageId);
         fd.set("file", new File([blob], "thumbnail.png", { type: "image/png" }));
+        fd.set(
+          "config",
+          JSON.stringify({
+            title,
+            subtitle,
+            titleFont,
+            titleColor,
+            titleSize,
+            subtitleFont,
+            subtitleColor,
+            subtitleSize,
+            mainAdded,
+            secondaryAdded,
+            bgPath,
+          })
+        );
+        if (bgFile) fd.set("bg", bgFile);
         const path = await saveThumbnail(fd);
         setSavedPath(path);
       } finally {
