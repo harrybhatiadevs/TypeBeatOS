@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { updatePackage } from "@/lib/actions/packages";
 import ThumbnailBuilder from "./ThumbnailBuilder";
 import VideoGenerator from "./VideoGenerator";
@@ -75,6 +76,7 @@ export default function PackageEditor({
   const [status, setStatus] = useState(pkg.status);
   const [saved, setSaved] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const save = (nextStatus?: string) => {
     const s = nextStatus ?? status;
@@ -90,6 +92,13 @@ export default function PackageEditor({
         scheduledAt,
         status: s,
       });
+      // Marking a package ready is a "done with this one" action — send the
+      // producer back to the dashboard so they see it land in the queue.
+      if (nextStatus === "ready") {
+        router.push("/dashboard");
+        router.refresh();
+        return;
+      }
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     });
@@ -225,8 +234,18 @@ export default function PackageEditor({
               <input
                 id="scheduledAt"
                 type="datetime-local"
+                className="date-field"
                 value={scheduledAt}
                 onChange={(e) => setScheduledAt(e.target.value)}
+                onClick={(e) => {
+                  // Open the native date/time popup from anywhere on the
+                  // field, not just the tiny calendar icon.
+                  try {
+                    (e.currentTarget as HTMLInputElement).showPicker?.();
+                  } catch {
+                    /* showPicker unsupported or not user-activated — ignore */
+                  }
+                }}
               />
             </div>
             <p className="tb-helper" style={{ marginTop: 10 }}>

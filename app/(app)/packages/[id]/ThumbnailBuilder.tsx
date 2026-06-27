@@ -30,7 +30,10 @@ export default function ThumbnailBuilder({
   const [title, setTitle] = useState(defaultTitle);
   const [subtitle, setSubtitle] = useState(defaultSubtitle);
   const [bgImage, setBgImage] = useState<HTMLImageElement | null>(null);
-  const [hideAllText, setHideAllText] = useState(false);
+  // Text properties are opt-in: the thumbnail starts as just the background
+  // image, and the producer adds Main / Secondary text from the dropdown.
+  const [mainAdded, setMainAdded] = useState(false);
+  const [secondaryAdded, setSecondaryAdded] = useState(false);
   const [titleFont, setTitleFont] = useState(FONT_OPTIONS[0].value);
   const [titleColor, setTitleColor] = useState("#ffffff");
   const [titleSize, setTitleSize] = useState(120);
@@ -56,20 +59,25 @@ export default function ThumbnailBuilder({
       ctx.drawImage(bgImage, (W - w) / 2, (H - h) / 2, w, h);
     }
 
-    if (!hideAllText) {
+    if (mainAdded || secondaryAdded) {
       const vignette = ctx.createRadialGradient(W / 2, H / 2, H / 3, W / 2, H / 2, H);
       vignette.addColorStop(0, "rgba(0,0,0,0)");
       vignette.addColorStop(1, "rgba(0,0,0,0.42)");
       ctx.fillStyle = vignette;
       ctx.fillRect(0, 0, W, H);
+    }
 
-      // Subtitle (artist type beat)
-      ctx.textAlign = "center";
+    ctx.textAlign = "center";
+
+    // Secondary text (e.g. artist type beat)
+    if (secondaryAdded) {
       ctx.fillStyle = subtitleColor;
       ctx.font = `700 ${subtitleSize}px ${subtitleFont}`;
       ctx.fillText(subtitle, W / 2, H / 2 - 80, W - 120);
+    }
 
-      // Title
+    // Main text
+    if (mainAdded) {
       ctx.fillStyle = titleColor;
       ctx.font = `900 ${titleSize}px ${titleFont}`;
       ctx.shadowColor = "rgba(0,0,0,0.7)";
@@ -77,7 +85,7 @@ export default function ThumbnailBuilder({
       ctx.fillText(`"${title}"`, W / 2, H / 2 + 50, W - 100);
       ctx.shadowBlur = 0;
     }
-  }, [title, subtitle, bgImage, hideAllText, titleFont, titleColor, titleSize, subtitleFont, subtitleColor, subtitleSize]);
+  }, [title, subtitle, bgImage, mainAdded, secondaryAdded, titleFont, titleColor, titleSize, subtitleFont, subtitleColor, subtitleSize]);
 
   const onImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -118,81 +126,142 @@ export default function ThumbnailBuilder({
     a.click();
   };
 
+  const available: { id: string; label: string }[] = [];
+  if (!mainAdded) available.push({ id: "main", label: "Main text" });
+  if (!secondaryAdded) available.push({ id: "secondary", label: "Secondary text" });
+
+  const onAddProperty = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (e.target.value === "main") setMainAdded(true);
+    if (e.target.value === "secondary") setSecondaryAdded(true);
+    // Controlled to "" so the dropdown snaps back to its placeholder.
+  };
+
   return (
     <div className="card">
       <h3>Thumbnail</h3>
       <canvas ref={canvasRef} width={W} height={H} className="thumb-canvas" />
       <div className="thumb-controls">
         <div className="form-field full">
-          <label>Main text</label>
-          <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
-        </div>
-        <div className="form-field">
-          <label>Main text font</label>
-          <select value={titleFont} onChange={(e) => setTitleFont(e.target.value)}>
-            {FONT_OPTIONS.map((font) => (
-              <option key={font.value} value={font.value}>
-                {font.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="form-field">
-          <label>Main text colour</label>
-          <input type="color" value={titleColor} onChange={(e) => setTitleColor(e.target.value)} />
-        </div>
-        <div className="form-field full">
-          <label>Main text size</label>
-          <input
-            type="range"
-            min="48"
-            max="180"
-            value={titleSize}
-            onChange={(e) => setTitleSize(parseInt(e.target.value, 10))}
-          />
-        </div>
-        <div className="form-field full">
-          <label>Top line</label>
-          <input type="text" value={subtitle} onChange={(e) => setSubtitle(e.target.value)} />
-        </div>
-        <div className="form-field">
-          <label>Top line font</label>
-          <select value={subtitleFont} onChange={(e) => setSubtitleFont(e.target.value)}>
-            {FONT_OPTIONS.map((font) => (
-              <option key={font.value} value={font.value}>
-                {font.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="form-field">
-          <label>Top line colour</label>
-          <input type="color" value={subtitleColor} onChange={(e) => setSubtitleColor(e.target.value)} />
-        </div>
-        <div className="form-field full">
-          <label>Top line size</label>
-          <input
-            type="range"
-            min="24"
-            max="90"
-            value={subtitleSize}
-            onChange={(e) => setSubtitleSize(parseInt(e.target.value, 10))}
-          />
-        </div>
-        <div className="form-field full">
           <label>Background image</label>
           <input type="file" accept="image/*" onChange={onImageUpload} />
         </div>
-        <div className="form-field full">
-          <label className="checkbox-pill" style={{ alignSelf: "flex-start" }}>
+
+        {mainAdded && (
+          <div className="thumb-prop">
+            <div className="thumb-field-head">
+              <label>Main text</label>
+              <button
+                type="button"
+                className="thumb-prop-remove"
+                onClick={() => setMainAdded(false)}
+              >
+                Remove
+              </button>
+            </div>
             <input
-              type="checkbox"
-              checked={hideAllText}
-              onChange={(e) => setHideAllText(e.target.checked)}
+              type="text"
+              value={title}
+              placeholder="Main text"
+              onChange={(e) => setTitle(e.target.value)}
             />
-            <span>Hide all text</span>
-          </label>
-        </div>
+            <div className="form-field">
+              <label>Font &amp; colour</label>
+              <div className="field-inline">
+                <select value={titleFont} onChange={(e) => setTitleFont(e.target.value)}>
+                  {FONT_OPTIONS.map((font) => (
+                    <option key={font.value} value={font.value}>
+                      {font.label}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="color"
+                  className="color-dot"
+                  value={titleColor}
+                  onChange={(e) => setTitleColor(e.target.value)}
+                  aria-label="Main text colour"
+                  title="Main text colour"
+                />
+              </div>
+            </div>
+            <div className="form-field">
+              <label>Size</label>
+              <input
+                type="range"
+                min="48"
+                max="180"
+                value={titleSize}
+                onChange={(e) => setTitleSize(parseInt(e.target.value, 10))}
+              />
+            </div>
+          </div>
+        )}
+
+        {secondaryAdded && (
+          <div className="thumb-prop">
+            <div className="thumb-field-head">
+              <label>Secondary text</label>
+              <button
+                type="button"
+                className="thumb-prop-remove"
+                onClick={() => setSecondaryAdded(false)}
+              >
+                Remove
+              </button>
+            </div>
+            <input
+              type="text"
+              value={subtitle}
+              placeholder="Secondary text"
+              onChange={(e) => setSubtitle(e.target.value)}
+            />
+            <div className="form-field">
+              <label>Font &amp; colour</label>
+              <div className="field-inline">
+                <select value={subtitleFont} onChange={(e) => setSubtitleFont(e.target.value)}>
+                  {FONT_OPTIONS.map((font) => (
+                    <option key={font.value} value={font.value}>
+                      {font.label}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="color"
+                  className="color-dot"
+                  value={subtitleColor}
+                  onChange={(e) => setSubtitleColor(e.target.value)}
+                  aria-label="Secondary text colour"
+                  title="Secondary text colour"
+                />
+              </div>
+            </div>
+            <div className="form-field">
+              <label>Size</label>
+              <input
+                type="range"
+                min="24"
+                max="90"
+                value={subtitleSize}
+                onChange={(e) => setSubtitleSize(parseInt(e.target.value, 10))}
+              />
+            </div>
+          </div>
+        )}
+
+        {available.length > 0 && (
+          <div className="form-field full">
+            <label>Add properties</label>
+            <select value="" onChange={onAddProperty}>
+              <option value="">+ Add a property…</option>
+              {available.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
         <div className="form-field full thumb-actions">
           <button type="button" className="btn btn-primary btn-sm" disabled={saving} onClick={onSave}>
             {saving ? "Saving…" : savedPath ? "✓ Update thumbnail" : "Save thumbnail"}
