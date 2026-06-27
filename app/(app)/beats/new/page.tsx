@@ -1,4 +1,5 @@
 import { createBeat } from "@/lib/actions/beats";
+import SubmitButton from "./SubmitButton";
 
 const GENRES = ["Trap", "R&B", "Drill", "Hip Hop", "Pop", "Afrobeats", "Boom Bap", "Hyperpop", "Lo-fi"];
 const MOODS = ["Dark", "Moody", "Hard", "Smooth", "Melodic", "Aggressive", "Chill", "Emotional", "Bouncy"];
@@ -101,9 +102,7 @@ export default async function NewBeatPage({
         </div>
 
         <div className="form-actions">
-          <button type="submit" className="btn btn-primary">
-            Generate upload package →
-          </button>
+          <SubmitButton />
         </div>
       </form>
     </>
