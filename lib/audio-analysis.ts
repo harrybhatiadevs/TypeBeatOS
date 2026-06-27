@@ -9,18 +9,35 @@ const ANALYZE_SECONDS = 75;
 /** Decode any audio file to mono float32 PCM at 44.1kHz using the bundled ffmpeg. */
 function decodePcm(filePath: string): Promise<Float32Array> {
   return new Promise((resolve, reject) => {
-    const proc = spawn(ffmpegPath as unknown as string, [
-      "-i", filePath,
-      "-t", String(ANALYZE_SECONDS),
-      "-ac", "1",
-      "-ar", String(SAMPLE_RATE),
-      "-f", "f32le",
-      "pipe:1",
-    ]);
+    // stdio: ignore stdin + stderr. We only read the PCM on stdout; ffmpeg
+    // logs verbosely to stderr, and if that pipe isn't drained its buffer
+    // fills and ffmpeg blocks forever (deadlock) — discarding it avoids that.
+    const proc = spawn(
+      ffmpegPath as unknown as string,
+      [
+        "-nostdin",
+        "-i", filePath,
+        "-t", String(ANALYZE_SECONDS),
+        "-ac", "1",
+        "-ar", String(SAMPLE_RATE),
+        "-f", "f32le",
+        "pipe:1",
+      ],
+      { stdio: ["ignore", "pipe", "ignore"] }
+    );
     const chunks: Buffer[] = [];
+    // Hard safety net: never let a stuck ffmpeg block package generation.
+    const timer = setTimeout(() => {
+      proc.kill("SIGKILL");
+      reject(new Error("ffmpeg decode timed out"));
+    }, 30000);
     proc.stdout.on("data", (d) => chunks.push(d));
-    proc.on("error", reject);
+    proc.on("error", (err) => {
+      clearTimeout(timer);
+      reject(err);
+    });
     proc.on("close", (code) => {
+      clearTimeout(timer);
       if (code !== 0) return reject(new Error(`ffmpeg decode failed (${code})`));
       const buf = Buffer.concat(chunks);
       resolve(new Float32Array(buf.buffer, buf.byteOffset, Math.floor(buf.length / 4)));
