@@ -15,6 +15,17 @@ import {
 } from "@/lib/generate";
 import { analyzeAudio } from "@/lib/audio-analysis";
 import { sniff } from "@/lib/file-magic";
+import { loggerFor } from "@/lib/logger";
+
+const log = loggerFor("beats");
+
+/** Resolve with `fallback` if `p` doesn't settle within `ms` — never blocks generation. */
+function withTimeout<T>(p: Promise<T>, ms: number, fallback: T): Promise<T> {
+  return Promise.race([
+    p,
+    new Promise<T>((resolve) => setTimeout(() => resolve(fallback), ms)),
+  ]);
+}
 
 const MAX_AUDIO_BYTES = 50 * 1024 * 1024; // 50 MB
 
@@ -64,6 +75,7 @@ export async function createBeat(formData: FormData) {
   const bpmRaw = String(formData.get("bpm") || "").trim();
   const bpm = bpmRaw ? parseInt(bpmRaw, 10) : null;
 
+  const t0 = Date.now();
   const created = await db.beat.create({
     data: {
       userId: user.id,
@@ -79,15 +91,22 @@ export async function createBeat(formData: FormData) {
       exclusivePrice: String(formData.get("exclusivePrice") || "").trim(),
     },
   });
+  log.info({ beatId: created.id, ms: Date.now() - t0 }, "createBeat: beat created");
 
-  // Save audio and auto-detect BPM/key for blank fields before generating
-  const diskPath = await saveAudio(created.id, formData.get("audio"));
-  await fillMissingFromAudio(created.id, diskPath);
+  // Save audio + auto-detect BPM/key. Both are best-effort and time-bounded so
+  // a slow Azure Files write or stuck analysis can never block generation.
+  const diskPath = await withTimeout(saveAudio(created.id, formData.get("audio")), 30000, null);
+  log.info({ beatId: created.id, hasAudio: !!diskPath, ms: Date.now() - t0 }, "createBeat: audio saved");
+  await withTimeout(fillMissingFromAudio(created.id, diskPath), 25000, undefined);
+  log.info({ beatId: created.id, ms: Date.now() - t0 }, "createBeat: audio analyzed");
+
   const beat = (await db.beat.findUnique({ where: { id: created.id } }))!;
 
-  // Generate the upload package
+  // Generate the upload package (aiTitleOptions self-bounds at 15s + falls back to [])
   const profile = user.profile;
-  const titles = [...buildTitleOptions(beat), ...(await aiTitleOptions(beat))];
+  const ai = await aiTitleOptions(beat);
+  log.info({ beatId: created.id, aiTitles: ai.length, ms: Date.now() - t0 }, "createBeat: titles ready");
+  const titles = [...buildTitleOptions(beat), ...ai];
   const selectedTitle = titles[0];
 
   const pkg = await db.package.create({
@@ -101,6 +120,7 @@ export async function createBeat(formData: FormData) {
       pinnedComment: buildPinnedComment(beat, profile),
     },
   });
+  log.info({ beatId: created.id, packageId: pkg.id, totalMs: Date.now() - t0 }, "createBeat: done, redirecting");
 
   redirect(`/packages/${pkg.id}`);
 }
