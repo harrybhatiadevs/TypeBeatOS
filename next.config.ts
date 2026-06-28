@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
       // Beat audio files can be large
       bodySizeLimit: "60mb",
     },
+    // Routes run through middleware (headers/request-id), which otherwise caps
+    // the request body at 10MB and truncates large audio uploads → the
+    // multipart body fails to parse and createBeat 500s. Match the action limit.
+    middlewareClientMaxBodySize: "60mb",
   },
 };
 
