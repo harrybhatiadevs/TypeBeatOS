@@ -2,6 +2,7 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import LocalDateTime from "../LocalDateTime";
+import { effectiveStatus } from "@/lib/package-status";
 
 export default async function Dashboard() {
   const user = await requireUser();
@@ -120,7 +121,7 @@ export default async function Dashboard() {
                     </td>
                     <td>{p.beat.targetArtist}</td>
                     <td>
-                      <span className={`badge badge-${p.status}`}>{p.status}</span>
+                      {(() => { const s = effectiveStatus(p); return <span className={`badge badge-${s}`}>{s}</span>; })()}
                     </td>
                     <td className="tb-muted">
                       <LocalDateTime

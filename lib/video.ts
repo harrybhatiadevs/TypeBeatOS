@@ -15,16 +15,31 @@ function diskPath(fileUrl: string) {
   return path.join(process.cwd(), "uploads", rel);
 }
 
+// Hard cap on a single render. A stuck ffmpeg used to hang forever and, because
+// renders share one in-process queue, wedge every later render too — leaving the
+// UI on "Rendering…" indefinitely. SIGKILL after this so the job fails cleanly.
+const RENDER_TIMEOUT_MS = 4 * 60 * 1000;
+
 function runFfmpeg(args: string[]): Promise<void> {
   return new Promise((resolve, reject) => {
     const proc = spawn(ffmpegPath as unknown as string, args);
     let stderr = "";
+    const timer = setTimeout(() => {
+      proc.kill("SIGKILL");
+      reject(
+        new Error("Render timed out. The audio may be unusually long — try the static style."),
+      );
+    }, RENDER_TIMEOUT_MS);
     proc.stderr.on("data", (d) => {
       stderr += d.toString();
       if (stderr.length > 8000) stderr = stderr.slice(-4000);
     });
-    proc.on("error", reject);
+    proc.on("error", (err) => {
+      clearTimeout(timer);
+      reject(err);
+    });
     proc.on("close", (code) => {
+      clearTimeout(timer);
       if (code === 0) resolve();
       else reject(new Error(`ffmpeg exited with code ${code}: ${stderr.slice(-600)}`));
     });
@@ -79,8 +94,28 @@ function buildArgs(imagePath: string, audioPath: string, outPath: string, style:
 
 // Simple in-process queue: renders run one at a time, status lives in the DB
 // so the UI survives dev-server reloads.
-const globalForQueue = globalThis as unknown as { videoQueue?: Promise<void> };
+const globalForQueue = globalThis as unknown as {
+  videoQueue?: Promise<void>;
+  videoRecovered?: boolean;
+};
 globalForQueue.videoQueue ??= Promise.resolve();
+
+// On a fresh process nothing can legitimately be mid-render, so any package still
+// marked "rendering" was orphaned by a previous process exiting (or a hung render
+// from before timeouts existed). Reset them once so producers can retry instead of
+// being stuck on "Rendering…" forever.
+if (!globalForQueue.videoRecovered) {
+  globalForQueue.videoRecovered = true;
+  db.package
+    .updateMany({
+      where: { videoStatus: "rendering" },
+      data: { videoStatus: "failed", videoError: "Render was interrupted — please try again." },
+    })
+    .then((r) => {
+      if (r.count > 0) log.warn({ count: r.count }, "reset orphaned renders on startup");
+    })
+    .catch(() => {});
+}
 
 export function enqueueRender(packageId: string, style: VideoStyle) {
   globalForQueue.videoQueue = globalForQueue.videoQueue!.then(() =>

@@ -541,7 +541,9 @@
 .app-page .badge-draft { background: rgba(255, 255, 255, 0.05); color: rgba(255, 255, 255, 0.55); }
 .app-page .badge-ready { background: rgba(255, 209, 102, 0.12); color: #ffd166; }
 .app-page .badge-scheduled { background: rgba(237, 7, 44, 0.16); color: #ff8d94; border-color: rgba(237, 7, 44, 0.3); }
-.app-page .badge-uploaded { background: rgba(46, 213, 115, 0.12); color: #6ee7a1; }
+.app-page .badge-uploaded { background: rgba(46, 213, 115, 0.12); color: #6ee7a1; border-color: rgba(46, 213, 115, 0.3); }
+.app-page .badge-uploading { background: rgba(255, 209, 102, 0.12); color: #ffd166; }
+.app-page .badge-failed { background: rgba(237, 7, 44, 0.16); color: #ff8d94; border-color: rgba(237, 7, 44, 0.45); }
 
 /* ---------- Empty state ---------- */
 .app-page .empty-state {

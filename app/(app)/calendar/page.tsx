@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { autoScheduleQueue } from "@/lib/actions/packages";
 import AutoScheduleButton from "./AutoScheduleButton";
 import UpcomingList from "./UpcomingList";
+import { effectiveStatus } from "@/lib/package-status";
 
 export default async function CalendarPage() {
   const user = await requireUser();
@@ -35,7 +36,7 @@ export default async function CalendarPage() {
           {unscheduled.map((p) => (
             <div key={p.id} className="cal-item">
               <Link href={`/packages/${p.id}`}>{p.selectedTitle}</Link>
-              <span className={`badge badge-${p.status}`}>{p.status}</span>
+              {(() => { const s = effectiveStatus(p); return <span className={`badge badge-${s}`}>{s}</span>; })()}
             </div>
           ))}
           <AutoScheduleButton action={autoScheduleQueue} />

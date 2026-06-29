@@ -6,6 +6,7 @@ import { updatePackage } from "@/lib/actions/packages";
 import ThumbnailBuilder from "./ThumbnailBuilder";
 import VideoGenerator from "./VideoGenerator";
 import YouTubeUploader from "./YouTubeUploader";
+import { effectiveStatus } from "@/lib/package-status";
 
 type PkgProps = {
   id: string;
@@ -146,7 +147,10 @@ export default function PackageEditor({
       <p className="page-sub">
         {beat.targetArtist}
         {beat.secondaryArtist ? ` x ${beat.secondaryArtist}` : ""}{" "}
-        <span className={`badge badge-${status}`}>{status}</span>
+        {(() => {
+          const s = effectiveStatus({ status, uploadStatus: pkg.uploadStatus });
+          return <span className={`badge badge-${s}`}>{s}</span>;
+        })()}
       </p>
 
       <div className="editor-grid">

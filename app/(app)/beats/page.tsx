@@ -2,6 +2,7 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { deleteBeat } from "@/lib/actions/beats";
+import { effectiveStatus } from "@/lib/package-status";
 
 export default async function BeatsPage() {
   const user = await requireUser();
@@ -59,7 +60,7 @@ export default async function BeatsPage() {
                     </td>
                     <td>
                       {b.package ? (
-                        <span className={`badge badge-${b.package.status}`}>{b.package.status}</span>
+                        (() => { const s = effectiveStatus(b.package); return <span className={`badge badge-${s}`}>{s}</span>; })()
                       ) : (
                         <span className="badge badge-draft">none</span>
                       )}
