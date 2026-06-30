@@ -66,6 +66,6 @@ export const config = {
   // to the handler. (Small/urlencoded actions survive the clone, which is why a
   // no-audio submit worked.)
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|beats/new|beats/[^/]+/edit).*)",
+    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|beats/new|beats/[^/]+/edit|api/beats).*)",
   ],
 };
