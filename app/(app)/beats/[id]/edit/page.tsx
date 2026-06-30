@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
-import { updateBeat } from "@/lib/actions/beats";
 
 const GENRES = ["Trap", "R&B", "Drill", "Hip Hop", "Pop", "Afrobeats", "Boom Bap", "Hyperpop", "Lo-fi"];
 const MOODS = ["Dark", "Moody", "Hard", "Smooth", "Melodic", "Aggressive", "Chill", "Emotional", "Bouncy"];
@@ -42,8 +41,9 @@ export default async function EditBeatPage({
 
       {error && <div className="form-error">{error}</div>}
 
-      <form action={updateBeat}>
-        <input type="hidden" name="id" value={beat.id} />
+      {/* Native multipart POST to a route handler — not a Server Action, which
+          fails on file uploads in this deployment (see /api/beats). */}
+      <form action={`/api/beats/${beat.id}`} method="POST" encType="multipart/form-data">
 
         <div className="card">
           <h3>Beat details</h3>

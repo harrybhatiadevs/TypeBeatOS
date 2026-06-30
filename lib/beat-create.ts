@@ -76,6 +76,57 @@ function analyzeAudioInBackground(beatId: string, diskPath: string | null) {
 type ProfileUser = { id: string; profile: unknown };
 
 export type CreateBeatResult = { packageId: string } | { error: string };
+export type UpdateBeatResult = { ok: true } | { error: string };
+
+/**
+ * Update an existing beat's metadata (and optionally replace its audio), shared
+ * by the `/api/beats/[id]` route handler. Audio goes through a route handler for
+ * the same reason as create — Server Actions fail on file uploads here.
+ */
+export async function updateBeatFromForm(
+  user: { id: string },
+  beatId: string,
+  formData: FormData,
+): Promise<UpdateBeatResult> {
+  const id = beatId.trim();
+  const name = String(formData.get("name") || "").trim();
+  const targetArtist = String(formData.get("targetArtist") || "").trim();
+  if (!id) return { error: "Missing beat id." };
+  if (!name || !targetArtist) {
+    return { error: "Beat name and target artist are required." };
+  }
+
+  const existing = await db.beat.findFirst({ where: { id, userId: user.id } });
+  if (!existing) return { error: "Beat not found." };
+
+  const bpmRaw = String(formData.get("bpm") || "").trim();
+  const bpm = bpmRaw ? parseInt(bpmRaw, 10) : null;
+
+  try {
+    await db.beat.update({
+      where: { id: existing.id },
+      data: {
+        name,
+        targetArtist,
+        secondaryArtist: String(formData.get("secondaryArtist") || "").trim(),
+        genre: String(formData.get("genre") || "").trim(),
+        mood: String(formData.get("mood") || "").trim(),
+        bpm: bpm && !isNaN(bpm) ? bpm : null,
+        key: String(formData.get("key") || "").trim(),
+        storeLink: String(formData.get("storeLink") || "").trim(),
+        licensePrice: String(formData.get("licensePrice") || "").trim(),
+        exclusivePrice: String(formData.get("exclusivePrice") || "").trim(),
+      },
+    });
+
+    const diskPath = await saveAudio(existing.id, formData.get("audio")).catch(() => null);
+    analyzeAudioInBackground(existing.id, diskPath);
+    return { ok: true };
+  } catch (err) {
+    log.error({ err: err instanceof Error ? err.message : err }, "updateBeat: failed");
+    return { error: "Could not save the beat. Try again, or use a smaller audio file." };
+  }
+}
 
 /**
  * Core beat → package generation, shared by the `/api/beats` route handler
