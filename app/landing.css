@@ -63,28 +63,32 @@
 
 .lp-wrap { max-width: 1140px; margin: 0 auto; padding-inline: 1.5rem; }
 
-/* ---------- Nav ---------- */
+/* ---------- Nav — full-width fixed bar, condenses on scroll ---------- */
 .lp-nav {
   position: fixed;
-  top: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 0; left: 0; right: 0;
   z-index: 50;
+  border-bottom: 1px solid transparent;
+  transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease,
+    backdrop-filter 0.35s ease;
+}
+.lp-nav-inner {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
   display: flex;
   align-items: center;
   gap: 1.25rem;
-  width: calc(100vw - 1.5rem);
-  max-width: 1000px;
-  padding: 0.5rem 0.6rem 0.5rem 1.2rem;
-  border: 1px solid var(--border);
-  background: rgba(10, 10, 10, 0.55);
+}
+/* Scroll state animates paint-only props (background/blur/border/shadow) —
+   no layout properties, so it stays smooth. */
+.lp-nav.is-scrolled {
+  background: rgba(6, 6, 6, 0.72);
   backdrop-filter: blur(18px) saturate(140%);
   -webkit-backdrop-filter: blur(18px) saturate(140%);
-  border-radius: 9999px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  transition: background 0.3s ease, border-color 0.3s ease;
+  border-bottom-color: var(--border);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.45);
 }
-.lp-nav.is-scrolled { background: rgba(8, 8, 8, 0.8); border-color: rgba(255, 255, 255, 0.12); }
 .lp-brand {
   display: inline-flex;
   align-items: center;
@@ -184,14 +188,16 @@
 }
 
 /* ---------- Hero ---------- */
-.lp-hero { padding-top: 8.5rem; padding-bottom: clamp(4rem, 8vh, 6rem); }
+.lp-hero { padding-top: 6rem; padding-bottom: 3rem; }
 .lp-hero-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: clamp(3rem, 6vw, 5rem);
+  gap: clamp(2.5rem, 5vw, 4.5rem);
   align-items: center;
 }
 @media (min-width: 940px) {
+  /* Fill the first screen so the whole hero is visible on open. */
+  .lp-hero { min-height: 100svh; display: grid; align-content: center; padding-top: 5rem; }
   .lp-hero-grid { grid-template-columns: 1.05fr 0.95fr; }
 }
 .lp-eyebrow {
@@ -257,15 +263,10 @@
   aspect-ratio: 16 / 9;
   border-radius: 0.85rem;
   overflow: hidden;
-  background:
-    radial-gradient(120% 90% at 78% 12%, rgba(237, 7, 44, 0.55), transparent 55%),
-    linear-gradient(160deg, #2b0308, #000 70%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 1.1rem 1.2rem;
+  background: #000;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
+.lp-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .lp-thumb-kicker { font-size: 0.62rem; letter-spacing: 0.28em; text-transform: uppercase; color: rgba(255, 255, 255, 0.7); }
 .lp-thumb-title {
   font-family: "Bebas Neue", Impact, sans-serif;

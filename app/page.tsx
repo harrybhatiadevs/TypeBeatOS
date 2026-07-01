@@ -59,28 +59,26 @@ export default async function Landing() {
 
       {/* NAV */}
       <nav className="lp-nav" data-testid="landing-nav">
-        <Link href="/" className="lp-brand" aria-label="TypeBeatOS home">
-          <span className="lp-brand-dot" aria-hidden="true" />
-          <span className="lp-wordmark">TYPEBEAT<span>OS</span></span>
-        </Link>
-        <div className="lp-nav-links">
-          <a href="#workflow" className="lp-nav-link">How it works</a>
-          <a href="#features" className="lp-nav-link">Features</a>
-          <a href="#pricing" className="lp-nav-link">Pricing</a>
+        <div className="lp-nav-inner">
+          <Link href="/" className="lp-brand" aria-label="TypeBeatOS home">
+            <span className="lp-brand-dot" aria-hidden="true" />
+            <span className="lp-wordmark">TYPEBEAT<span>OS</span></span>
+          </Link>
+          <div className="lp-nav-links">
+            <a href="#workflow" className="lp-nav-link">How it works</a>
+            <a href="#features" className="lp-nav-link">Features</a>
+            <a href="#pricing" className="lp-nav-link">Pricing</a>
+          </div>
+          <Link href={user ? "/dashboard" : "/login"} className="lp-btn lp-btn-ghost lp-btn-sm">
+            {user ? "Open app" : "Log in"}
+          </Link>
         </div>
-        <Link href={user ? "/dashboard" : "/login"} className="lp-btn lp-btn-ghost lp-btn-sm">
-          {user ? "Open app" : "Log in"}
-        </Link>
       </nav>
 
       {/* HERO */}
       <header className="lp-wrap lp-hero">
         <div className="lp-hero-grid">
           <div>
-            <div className="lp-eyebrow">
-              <span className="lp-eyebrow-dot" aria-hidden="true" />
-              Upload ops for type-beat producers
-            </div>
             <h1 className="lp-display lp-h1">
               Scale your channel
               <span className="lp-red">without the busywork.</span>
@@ -101,14 +99,9 @@ export default async function Landing() {
           <div className="lp-package" aria-hidden="true">
             <span className="lp-package-tag">Auto-generated</span>
             <div className="lp-thumb">
-              <div className="lp-thumb-kicker">Free for profit</div>
-              <div className="lp-display lp-thumb-title">Drake Type Beat<br />&ldquo;After Hours&rdquo;</div>
-              <div className="lp-thumb-prod">prod. yourname</div>
-              <span className="lp-thumb-wave" />
+              <img src="/sample-beat-thumb.webp" alt="" />
             </div>
-            <p className="lp-pkg-title">
-              [FREE] Drake Type Beat 2026 &ldquo;After Hours&rdquo; | Melodic R&amp;B Type Beat
-            </p>
+            <p className="lp-pkg-title">[FREE] Drake Type Beat 2026 &ldquo;After Hours&rdquo;</p>
             <div className="lp-pkg-tags">
               {["drake type beat", "r&b type beat", "142 bpm", "g minor", "melodic"].map((t) => (
                 <span key={t} className="lp-pill">{t}</span>
