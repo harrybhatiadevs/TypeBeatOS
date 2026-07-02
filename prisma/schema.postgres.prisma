@@ -26,11 +26,29 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  sessions Session[]
-  accounts Account[]
-  profile  Profile?
-  beats    Beat[]
-  youtube  YouTubeAccount?
+  sessions     Session[]
+  accounts     Account[]
+  profile      Profile?
+  beats        Beat[]
+  youtube      YouTubeAccount?
+  subscription Subscription?
+}
+
+// ============================================================
+// Billing (Stripe)
+// ============================================================
+model Subscription {
+  userId               String    @id
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stripeCustomerId     String?   @unique
+  stripeSubscriptionId String?   @unique
+  plan                 String    @default("free") // free | pro | serious
+  status               String    @default("inactive") // active | trialing | past_due | canceled | inactive
+  interval             String    @default("month") // month | year
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean   @default(false)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 }
 
 model Session {

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getUser } from "@/lib/auth";
 import { createBeatPackage } from "@/lib/beat-create";
+import { canGeneratePackage } from "@/lib/billing";
 
 // Beat creation runs as a normal multipart POST (not a React Server Action) so
 // the audio file is parsed by `request.formData()` — the Server Action "flight"
@@ -15,6 +16,12 @@ export async function POST(request: Request) {
 
   const user = await getUser();
   if (!user) return redirectTo("/login");
+
+  // Paywall: block generating another pack once the plan's monthly quota is hit
+  // (admins bypass). Checked before parsing the upload so we don't ingest a file
+  // we're going to reject.
+  const quota = await canGeneratePackage(user);
+  if (!quota.ok) return redirectTo("/billing?upgrade=quota");
 
   let formData: FormData;
   try {

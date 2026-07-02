@@ -71,13 +71,15 @@ const PLANS = [
     name: "Free",
     price: "$0",
     cycle: "/mo",
-    perks: ["3 upload packs / mo", "Titles + descriptions", "Manual export"],
+    annual: "",
+    perks: ["3 upload packs / mo", "Titles + descriptions", "Direct YouTube publish"],
     featured: false,
   },
   {
     name: "Pro",
     price: "$19",
     cycle: "/mo",
+    annual: "or $190/yr — 2 months free",
     perks: ["60 upload packs / mo", "Batch upload queue", "Direct YouTube publish", "Custom templates"],
     featured: true,
   },
@@ -85,6 +87,7 @@ const PLANS = [
     name: "Serious",
     price: "$29",
     cycle: "/mo",
+    annual: "or $290/yr — 2 months free",
     perks: ["150 upload packs / mo", "Multiple channels", "Analytics + keyword insights", "Advanced templates"],
     featured: false,
   },
@@ -273,6 +276,11 @@ export default async function Landing() {
                 {p.price}
                 <small>{p.cycle}</small>
               </div>
+              {p.annual && (
+                <div style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.5)", marginTop: "0.25rem" }}>
+                  {p.annual}
+                </div>
+              )}
               <ul>
                 {p.perks.map((perk) => (
                   <li key={perk}>{perk}</li>

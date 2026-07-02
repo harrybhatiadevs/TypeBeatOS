@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { AUDIO_ACCEPT, audioUploadError } from "@/lib/audio-upload";
 
@@ -11,7 +12,17 @@ const KEYS = [
   "A major", "B major", "C major", "D major", "E major", "F major", "G major",
 ];
 
-export default function NewBeatForm({ initialError }: { initialError?: string }) {
+export default function NewBeatForm({
+  initialError,
+  atLimit = false,
+  used = 0,
+  limit = 0,
+}: {
+  initialError?: string;
+  atLimit?: boolean;
+  used?: number;
+  limit?: number;
+}) {
   const [clientError, setClientError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const error = clientError || initialError;
@@ -19,6 +30,29 @@ export default function NewBeatForm({ initialError }: { initialError?: string })
   return (
     <>
       {error && <div className="form-error">{error}</div>}
+
+      {atLimit && (
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "1rem",
+            marginBottom: "1.25rem",
+            padding: "1rem 1.25rem",
+            borderRadius: "0.85rem",
+            border: "1px solid rgba(255, 209, 102, 0.35)",
+            background: "rgba(255, 209, 102, 0.08)",
+          }}
+        >
+          <div style={{ fontSize: "0.92rem", lineHeight: 1.5 }}>
+            <strong style={{ color: "#ffd166" }}>You&apos;ve used all {limit} upload packs this month.</strong>{" "}
+            <span style={{ color: "rgba(255,255,255,0.7)" }}>Resets on the 1st — or upgrade for more.</span>
+          </div>
+          <Link href="/billing?upgrade=quota" className="btn btn-primary btn-sm">Upgrade plan</Link>
+        </div>
+      )}
 
       {/*
         Native multipart POST to a route handler — NOT a React Server Action.
@@ -32,6 +66,10 @@ export default function NewBeatForm({ initialError }: { initialError?: string })
         method="POST"
         encType="multipart/form-data"
         onSubmit={(event) => {
+          if (atLimit) {
+            event.preventDefault();
+            return;
+          }
           const form = event.currentTarget;
           const input = form.elements.namedItem("audio");
           const file = input instanceof HTMLInputElement ? input.files?.[0] : null;
@@ -119,7 +157,7 @@ export default function NewBeatForm({ initialError }: { initialError?: string })
         </div>
 
         <div className="form-actions">
-          <button type="submit" className="btn btn-primary" disabled={submitting} aria-busy={submitting}>
+          <button type="submit" className="btn btn-primary" disabled={submitting || atLimit} aria-busy={submitting}>
             {submitting ? "Building package…" : "Generate upload package →"}
           </button>
         </div>

@@ -1,7 +1,10 @@
+import Link from "next/link";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
+import { getPlanState } from "@/lib/billing";
 import { saveProfile } from "@/lib/actions/profile";
 import { disconnectYouTube } from "@/lib/actions/youtube";
+import FormSubmitButton from "@/app/FormSubmitButton";
 import { youtubeConfigured } from "@/lib/youtube";
 import { parseScheduleDays } from "@/lib/schedule";
 
@@ -22,6 +25,7 @@ export default async function ProfilePage({
 }) {
   const user = await requireUser();
   const { saved, yt_connected, yt_error } = await searchParams;
+  const { plan, used, limit, isAdmin } = await getPlanState(user);
   const p = user.profile;
   const activeDays = parseScheduleDays(p?.scheduleDays || "1,3,5");
   const youtube = await db.youTubeAccount.findUnique({ where: { userId: user.id } });
@@ -39,6 +43,18 @@ export default async function ProfilePage({
       </p>
 
       <div className="card">
+        <h3>Plan</h3>
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "1rem" }}>
+          <div style={{ fontSize: "0.95rem", color: "rgba(255,255,255,0.75)" }}>
+            <strong style={{ color: "#fff" }}>{plan.label}</strong>
+            {" · "}
+            {used} / {isAdmin ? "unlimited" : limit} upload packs this month
+          </div>
+          <Link href="/billing" className="btn btn-ghost btn-sm">Manage plan</Link>
+        </div>
+      </div>
+
+      <div className="card">
         <h3>YouTube channel</h3>
         {yt_error && <div className="form-error">{yt_error}</div>}
         {yt_connected && <p className="form-saved" style={{ marginBottom: 14 }}>✓ Channel connected</p>}
@@ -49,9 +65,9 @@ export default async function ProfilePage({
               publish straight to this channel on their scheduled time.
             </p>
             <form action={disconnectYouTube}>
-              <button type="submit" className="btn btn-danger btn-sm">
+              <FormSubmitButton className="btn btn-danger btn-sm" pendingLabel="Disconnecting...">
                 Disconnect
-              </button>
+              </FormSubmitButton>
             </form>
           </div>
         ) : configured ? (
@@ -151,9 +167,9 @@ export default async function ProfilePage({
         </div>
 
         <div className="form-actions">
-          <button type="submit" className="btn btn-primary">
+          <FormSubmitButton pendingLabel="Saving...">
             Save profile
-          </button>
+          </FormSubmitButton>
           {saved && <span className="form-saved">✓ Saved</span>}
         </div>
       </form>

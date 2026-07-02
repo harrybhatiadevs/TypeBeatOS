@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/admin";
+import { PLANS } from "@/lib/plans";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +31,7 @@ export default async function AdminPage() {
     waitlist,
     signupWindow,
     recentUsers,
+    activeSubs,
   ] = await Promise.all([
     db.user.count(),
     db.user.count({ where: { createdAt: { gte: since7 } } }),
@@ -56,7 +58,20 @@ export default async function AdminPage() {
         _count: { select: { beats: true } },
       },
     }),
+    db.subscription.findMany({
+      where: { status: { in: ["active", "trialing"] } },
+      select: { plan: true, interval: true },
+    }),
   ]);
+
+  // Payments from active subscriptions (MRR = monthly-equivalent revenue).
+  const paidSubs = activeSubs.filter((s) => s.plan === "pro" || s.plan === "serious");
+  const mrr = paidSubs.reduce((sum, s) => {
+    const plan = PLANS[s.plan as "pro" | "serious"];
+    return sum + (s.interval === "year" ? plan.priceAnnual / 12 : plan.priceMonthly);
+  }, 0);
+  const proCount = paidSubs.filter((s) => s.plan === "pro").length;
+  const seriousCount = paidSubs.filter((s) => s.plan === "serious").length;
 
   // Bucket the last 14 days of signups for a simple bar chart.
   const buckets: { label: string; count: number }[] = [];
@@ -129,34 +144,29 @@ export default async function AdminPage() {
         </div>
       </div>
 
-      {/* Payments — placeholder until billing is live */}
-      <h3 style={{ margin: "2rem 0 1rem", letterSpacing: "0.02em" }}>
-        Payments{" "}
-        <span className="badge badge-draft" style={{ verticalAlign: "middle", marginLeft: 8 }}>
-          Not live yet
-        </span>
-      </h3>
+      {/* Payments — live from Stripe subscriptions */}
+      <h3 style={{ margin: "2rem 0 1rem", letterSpacing: "0.02em" }}>Payments</h3>
       <div className="stats-grid">
         <div className="stat">
-          <div className="stat-num" style={{ color: "rgba(255,255,255,0.5)" }}>$0</div>
+          <div className="stat-num">${Math.round(mrr).toLocaleString()}</div>
           <div className="stat-label">MRR</div>
         </div>
         <div className="stat">
-          <div className="stat-num" style={{ color: "rgba(255,255,255,0.5)" }}>0</div>
+          <div className="stat-num">${Math.round(mrr * 12).toLocaleString()}</div>
+          <div className="stat-label">ARR (run-rate)</div>
+        </div>
+        <div className="stat">
+          <div className="stat-num">{paidSubs.length}</div>
           <div className="stat-label">Active subscriptions</div>
         </div>
         <div className="stat">
-          <div className="stat-num" style={{ color: "rgba(255,255,255,0.5)" }}>$0</div>
-          <div className="stat-label">Lifetime revenue</div>
-        </div>
-        <div className="stat">
-          <div className="stat-num" style={{ color: "rgba(255,255,255,0.5)" }}>—</div>
-          <div className="stat-label">Churn</div>
+          <div className="stat-num">
+            {proCount}<span style={{ fontSize: "1rem", color: "rgba(255,255,255,0.4)" }}> pro</span> /{" "}
+            {seriousCount}<span style={{ fontSize: "1rem", color: "rgba(255,255,255,0.4)" }}> serious</span>
+          </div>
+          <div className="stat-label">Plan mix</div>
         </div>
       </div>
-      <p className="page-sub" style={{ marginTop: "1rem", fontSize: "0.9rem" }}>
-        Billing isn&apos;t connected yet. Wire up Stripe and these will populate — the layout is ready.
-      </p>
 
       {/* Product usage */}
       <h3 style={{ margin: "2rem 0 1rem", letterSpacing: "0.02em" }}>Product usage</h3>
