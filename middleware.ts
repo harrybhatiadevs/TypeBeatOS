@@ -14,12 +14,16 @@ function newRequestId(): string {
 // tighten after we move to nonced server-rendered scripts post-launch.
 const CSP = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  // js.stripe.com: Stripe.js for embedded checkout.
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com data:",
   "img-src 'self' data: blob: https:",
   "media-src 'self' blob: https:",
-  "connect-src 'self' https://api.anthropic.com https://oauth2.googleapis.com https://www.googleapis.com",
+  // Stripe.js talks to api.stripe.com; embedded checkout to checkout.stripe.com.
+  "connect-src 'self' https://api.anthropic.com https://oauth2.googleapis.com https://www.googleapis.com https://api.stripe.com https://checkout.stripe.com",
+  // Embedded Stripe checkout + 3DS render inside Stripe-hosted iframes.
+  "frame-src https://js.stripe.com https://hooks.stripe.com https://checkout.stripe.com",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self' https://accounts.google.com",
