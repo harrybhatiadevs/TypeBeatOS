@@ -153,7 +153,6 @@ export default async function Landing() {
       {/* PROBLEM */}
       <section className="lp-wrap lp-section">
         <div className="lp-reveal">
-          <div className="lp-kicker">The bottleneck</div>
           <h2 className="lp-display lp-h2">Consistency wins. The upload admin kills it.</h2>
         </div>
         <div className="lp-chips lp-reveal">
@@ -171,7 +170,6 @@ export default async function Landing() {
       {/* HOW IT WORKS */}
       <section id="workflow" className="lp-wrap lp-section">
         <div className="lp-reveal">
-          <div className="lp-kicker">How it works</div>
           <h2 className="lp-display lp-h2">Raw beat to scheduled upload.</h2>
           <p className="lp-lead">Three steps, under three minutes. No editor, no spreadsheet, no copy-paste.</p>
         </div>
@@ -189,7 +187,6 @@ export default async function Landing() {
       {/* FEATURES */}
       <section id="features" className="lp-wrap lp-section">
         <div className="lp-reveal">
-          <div className="lp-kicker">Built for type beats</div>
           <h2 className="lp-display lp-h2">Not generic scheduling.</h2>
           <p className="lp-lead">Every piece is tuned to how type-beat channels actually get found and grow.</p>
         </div>
@@ -214,7 +211,6 @@ export default async function Landing() {
       {/* PRICING */}
       <section id="pricing" className="lp-wrap lp-section">
         <div className="lp-reveal">
-          <div className="lp-kicker">Pricing</div>
           <h2 className="lp-display lp-h2">Start free. Upgrade when uploads stack.</h2>
         </div>
         <div className="lp-plans lp-reveal">
