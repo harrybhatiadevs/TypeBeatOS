@@ -58,12 +58,19 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" data-scroll-behavior="smooth">
+    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
+        {/* Set the theme before first paint so there's no flash of the wrong
+            theme. Dark is the brand default; an explicit user choice wins. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var t=localStorage.getItem("tb-theme");if(t==="light")document.documentElement.setAttribute("data-theme","light")}catch(e){}`,
+          }}
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&display=swap"
           rel="stylesheet"
         />
       </head>

@@ -10,9 +10,9 @@
 .app-page {
   position: relative;
   min-height: 100vh;
-  background: #000;
-  color: #fff;
-  font-family: "Inter", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Schibsted Grotesk", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
@@ -34,14 +34,14 @@
   left: -18rem;
   width: 520px;
   height: 520px;
-  opacity: 0.18;
+  opacity: var(--glow-a);
 }
 .app-page::after {
   top: 40%;
   right: -20rem;
   width: 620px;
   height: 620px;
-  opacity: 0.1;
+  opacity: var(--glow-b);
 }
 
 .app-page > *:not(.nav-floater) { position: relative; z-index: 1; }
@@ -55,14 +55,12 @@
   display: flex;
   width: auto;
   max-width: calc(100vw - 1.5rem);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(10, 10, 10, 0.62);
+  border: 1px solid var(--border);
+  background: var(--nav-glass);
   backdrop-filter: blur(18px) saturate(140%);
   -webkit-backdrop-filter: blur(18px) saturate(140%);
   border-radius: 9999px;
-  box-shadow:
-    0 12px 40px rgba(0, 0, 0, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  box-shadow: var(--float-shadow);
   z-index: 50;
 }
 .app-page .nav-inner {
@@ -81,7 +79,7 @@
   align-items: center;
   gap: 0.6rem;
   text-decoration: none;
-  color: #fff;
+  color: var(--ink);
   font-weight: 600;
   font-family: "Bebas Neue", Impact, sans-serif;
   letter-spacing: 0.14em;
@@ -99,9 +97,9 @@
   background-size: contain;
   font-size: 0;
 }
-.app-page .logo-word { color: #fff; letter-spacing: 0.14em; }
+.app-page .logo-word { color: var(--ink); letter-spacing: 0.14em; }
 .app-page .logo-word { white-space: nowrap; }
-.app-page .logo-word span { color: #ed072c; }
+.app-page .logo-word span { color: var(--accent); }
 
 .app-page .nav-links {
   display: flex;
@@ -116,7 +114,7 @@
   border-radius: 9999px;
   font-size: 0.82rem;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.65);
+  color: var(--muted);
   background: transparent;
   border: none;
   cursor: pointer;
@@ -126,16 +124,16 @@
   transition: color 0.22s ease, background 0.22s ease;
 }
 .app-page .nav-link:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.05);
+  color: var(--ink);
+  background: var(--surface-2);
   text-decoration: none;
 }
 .app-page .nav-link.active {
-  color: #fff;
-  background: rgba(237, 7, 44, 0.16);
+  color: var(--ink);
+  background: var(--accent-tint);
 }
-.app-page .nav-logout { color: rgba(255, 255, 255, 0.55); }
-.app-page .nav-logout:hover { color: #ff8d94; }
+.app-page .nav-logout { color: var(--soft); }
+.app-page .nav-logout:hover { color: var(--accent-ink); }
 
 /* ---------- Buttons ---------- */
 .app-page .btn {
@@ -158,7 +156,7 @@
     border-color 0.22s ease, filter 0.22s ease;
 }
 .app-page .btn-primary {
-  background: linear-gradient(135deg, #ed072c, #b30420);
+  background: linear-gradient(135deg, var(--accent), var(--accent-deep));
   color: #fff;
   box-shadow: 0 0 24px rgba(237, 7, 44, 0.4);
 }
@@ -169,23 +167,23 @@
 }
 .app-page .btn-primary:disabled { opacity: 0.65; cursor: wait; transform: none; filter: none; }
 .app-page .btn-ghost {
-  background: rgba(255, 255, 255, 0.025);
-  border-color: rgba(255, 255, 255, 0.14);
-  color: rgba(255, 255, 255, 0.86);
+  background: var(--surface);
+  border-color: var(--border-2);
+  color: var(--text);
 }
 .app-page .btn-ghost:hover {
   transform: translateY(-1px);
   border-color: rgba(237, 7, 44, 0.55);
   background: rgba(237, 7, 44, 0.06);
-  color: #fff;
+  color: var(--ink);
 }
 .app-page .btn-sm { padding: 0.45rem 0.95rem; font-size: 0.8rem; }
 .app-page .btn-danger {
   background: transparent;
-  border-color: rgba(255, 91, 102, 0.45);
-  color: #ff8d94;
+  border-color: var(--danger-border);
+  color: var(--accent-ink);
 }
-.app-page .btn-danger:hover { border-color: #ff5b66; color: #fff; background: rgba(255, 91, 102, 0.08); }
+.app-page .btn-danger:hover { border-color: var(--accent-ink); color: var(--ink); background: var(--danger-bg); }
 
 /* The primary CTA used to sit on the right of the nav. Match the look
    of the public surface's tb-nav-cta so the two systems feel related. */
@@ -209,20 +207,20 @@
   gap: 0.5rem;
   margin-bottom: 1.5rem;
   padding: 0.35rem 0.9rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  background: var(--surface);
   border-radius: 9999px;
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.22em;
-  color: rgba(255, 255, 255, 0.78);
+  color: var(--text);
 }
 .app-page .eyebrow-dot {
   width: 0.4rem;
   height: 0.4rem;
   border-radius: 9999px;
-  background: #ed072c;
-  box-shadow: 0 0 12px #ed072c;
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
   animation: tb-pulse 1.6s ease-in-out infinite;
 }
 
@@ -231,7 +229,7 @@
   font-size: clamp(2.25rem, 4vw, 3.25rem);
   line-height: 0.95;
   letter-spacing: -0.01em;
-  color: #fff;
+  color: var(--ink);
   font-weight: 400;
   text-transform: uppercase;
   margin-bottom: 0.5rem;
@@ -240,24 +238,24 @@
 .app-page .page-sub {
   font-size: 1.05rem;
   line-height: 1.55;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--muted);
   margin-bottom: 2.5rem;
   max-width: 44rem;
 }
 .app-page .page-sub a {
-  color: #ff8d94;
+  color: var(--accent-ink);
   text-decoration: none;
 }
-.app-page .page-sub a:hover { color: #fff; }
+.app-page .page-sub a:hover { color: var(--ink); }
 
 /* ---------- Cards ---------- */
 .app-page .card {
-  background: rgba(255, 255, 255, 0.025);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 1.25rem;
   padding: 1.75rem;
   margin-bottom: 1.25rem;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  box-shadow: var(--card-shadow);
   min-width: 0;
 }
 .app-page .card > h3,
@@ -267,7 +265,7 @@
   font-weight: 700;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--soft);
   margin: 0 0 1.1rem;
 }
 
@@ -280,7 +278,7 @@
   font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.04em;
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--muted);
 }
 .app-page input[type="text"],
 .app-page input[type="email"],
@@ -296,26 +294,26 @@
   width: 100%;
   padding: 0.75rem 0.9rem;
   border-radius: 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.35);
-  color: #fff;
+  border: 1px solid var(--border);
+  background: var(--field-bg);
+  color: var(--ink);
   font-family: inherit;
   font-size: 0.92rem;
   outline: none;
   transition: border-color 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
 }
 .app-page input::placeholder,
-.app-page textarea::placeholder { color: rgba(255, 255, 255, 0.35); }
+.app-page textarea::placeholder { color: var(--placeholder); }
 .app-page input:focus,
 .app-page select:focus,
 .app-page textarea:focus {
   border-color: rgba(237, 7, 44, 0.7);
   box-shadow: 0 0 0 4px rgba(237, 7, 44, 0.14);
-  background: rgba(0, 0, 0, 0.45);
+  background: var(--field-bg-focus);
 }
 .app-page textarea { resize: vertical; min-height: 6rem; line-height: 1.55; }
-.app-page select option { background: #131316; color: #fff; }
-.app-page input[type="range"] { accent-color: #ed072c; }
+.app-page select option { background: var(--bg); color: var(--ink); }
+.app-page input[type="range"] { accent-color: var(--accent); }
 .app-page input[type="color"] { min-height: 2.75rem; padding: 0.3rem; }
 
 /* Date/time field opens its native picker on click anywhere (see showPicker
@@ -325,8 +323,8 @@
   cursor: pointer;
   /* Retheme the native popup to match the app: dark surface (color-scheme)
      + brand-red selection highlight (accent-color) instead of white/blue. */
-  color-scheme: dark;
-  accent-color: #ed072c;
+  /* native popup follows the active theme via :root color-scheme */
+  accent-color: var(--accent);
 }
 .app-page input[type="datetime-local"].date-field::-webkit-calendar-picker-indicator {
   cursor: pointer;
@@ -359,7 +357,7 @@
   flex: 0 0 auto;
   padding: 0;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.22);
+  border: 2px solid var(--border-2);
   background: transparent;
   cursor: pointer;
   overflow: hidden;
@@ -376,29 +374,29 @@
   flex-direction: column;
   gap: 0.85rem;
   padding: 1rem 1rem 1.1rem;
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  border: 1px solid var(--border);
   border-radius: 0.85rem;
-  background: rgba(255, 255, 255, 0.022);
+  background: var(--surface);
 }
 .app-page .thumb-prop-remove {
   background: none;
   border: none;
   padding: 0.2rem 0.3rem;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--faint);
   font: inherit;
   font-size: 0.76rem;
   font-weight: 600;
   cursor: pointer;
   transition: color 0.18s ease;
 }
-.app-page .thumb-prop-remove:hover { color: #ff8d94; }
+.app-page .thumb-prop-remove:hover { color: var(--accent-ink); }
 .app-page input[type="file"]::file-selector-button {
   margin-right: 0.75rem;
   padding: 0.4rem 0.85rem;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--border-2);
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.04);
-  color: #fff;
+  background: var(--surface-2);
+  color: var(--ink);
   font-family: inherit;
   font-size: 0.82rem;
   font-weight: 600;
@@ -413,13 +411,13 @@
 .app-page .form-error {
   background: rgba(237, 7, 44, 0.1);
   border: 1px solid rgba(237, 7, 44, 0.4);
-  color: #ff8d94;
+  color: var(--accent-ink);
   border-radius: 0.85rem;
   padding: 0.8rem 1rem;
   font-size: 0.88rem;
   margin-bottom: 1.25rem;
 }
-.app-page .form-saved { color: #ff8d94; font-weight: 600; font-size: 0.88rem; }
+.app-page .form-saved { color: var(--accent-ink); font-weight: 600; font-size: 0.88rem; }
 
 /* Checkbox pills — used in onboarding + profile schedules */
 .app-page .checkbox-row { display: flex; flex-wrap: wrap; gap: 0.4rem; }
@@ -431,9 +429,9 @@
   display: inline-block;
   padding: 0.45rem 1rem;
   border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.025);
-  color: rgba(255, 255, 255, 0.68);
+  border: 1px solid var(--border-2);
+  background: var(--surface);
+  color: var(--muted);
   font-size: 0.84rem;
   font-weight: 500;
   pointer-events: none;
@@ -442,7 +440,7 @@
 .app-page .checkbox-pill input:checked + span {
   border-color: rgba(237, 7, 44, 0.55);
   background: rgba(237, 7, 44, 0.12);
-  color: #fff;
+  color: var(--ink);
   font-weight: 600;
 }
 
@@ -454,11 +452,11 @@
   margin-bottom: 2rem;
 }
 .app-page .stat {
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--border);
+  background: var(--surface);
   border-radius: 1.25rem;
   padding: 1.5rem 1.5rem 1.25rem;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  box-shadow: var(--card-shadow);
   transition: border-color 0.25s ease, transform 0.25s ease, background 0.25s ease;
 }
 .app-page .stat:hover {
@@ -471,7 +469,7 @@
   font-size: clamp(2.25rem, 3vw, 2.85rem);
   line-height: 0.9;
   letter-spacing: -0.01em;
-  color: #fff;
+  color: var(--ink);
   margin-bottom: 0.4rem;
 }
 .app-page .stat-label {
@@ -479,7 +477,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.22em;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--soft);
 }
 
 /* ---------- Tables ---------- */
@@ -500,23 +498,23 @@
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.18em;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--faint);
   font-weight: 700;
   padding: 0.7rem 0.9rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--border);
 }
 .app-page .table td {
   padding: 0.95rem 0.9rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--surface-2);
   font-size: 0.9rem;
   vertical-align: middle;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--text);
 }
 .app-page .table tr:last-child td { border-bottom: none; }
 .app-page .table tbody tr { transition: background 0.18s ease; }
 .app-page .table tbody tr:hover { background: rgba(237, 7, 44, 0.05); }
-.app-page .table a { color: #fff; font-weight: 600; text-decoration: none; }
-.app-page .table a:hover { color: #ff8d94; }
+.app-page .table a { color: var(--ink); font-weight: 600; text-decoration: none; }
+.app-page .table a:hover { color: var(--accent-ink); }
 .app-page .table td,
 .app-page .table th {
   overflow-wrap: anywhere;
@@ -533,23 +531,23 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
   border: 1px solid transparent;
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.68);
+  background: var(--border);
+  color: var(--muted);
   box-shadow: none;
   white-space: nowrap;
 }
-.app-page .badge-draft { background: rgba(255, 255, 255, 0.05); color: rgba(255, 255, 255, 0.55); }
-.app-page .badge-ready { background: rgba(255, 209, 102, 0.12); color: #ffd166; }
-.app-page .badge-scheduled { background: rgba(237, 7, 44, 0.16); color: #ff8d94; border-color: rgba(237, 7, 44, 0.3); }
-.app-page .badge-uploaded { background: rgba(46, 213, 115, 0.12); color: #6ee7a1; border-color: rgba(46, 213, 115, 0.3); }
-.app-page .badge-uploading { background: rgba(255, 209, 102, 0.12); color: #ffd166; }
-.app-page .badge-failed { background: rgba(237, 7, 44, 0.16); color: #ff8d94; border-color: rgba(237, 7, 44, 0.45); }
+.app-page .badge-draft { background: var(--surface-2); color: var(--soft); }
+.app-page .badge-ready { background: var(--warn-bg); color: var(--warn-ink); }
+.app-page .badge-scheduled { background: var(--accent-tint); color: var(--accent-ink); border-color: rgba(237, 7, 44, 0.3); }
+.app-page .badge-uploaded { background: var(--ok-bg); color: var(--ok-ink); border-color: var(--ok-border); }
+.app-page .badge-uploading { background: var(--warn-bg); color: var(--warn-ink); }
+.app-page .badge-failed { background: var(--accent-tint); color: var(--accent-ink); border-color: rgba(237, 7, 44, 0.45); }
 
 /* ---------- Empty state ---------- */
 .app-page .empty-state {
   text-align: center;
   padding: 3rem 1.5rem 2rem;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--soft);
 }
 .app-page .empty-state p { max-width: 28rem; margin: 0 auto; line-height: 1.55; }
 .app-page .empty-state .btn { margin-top: 1.25rem; }
@@ -561,7 +559,7 @@
   font-size: 1rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #ed072c;
+  color: var(--accent);
   margin-bottom: 0.6rem;
 }
 .app-page .cal-item {
@@ -569,8 +567,8 @@
   justify-content: space-between;
   align-items: center;
   gap: 0.75rem;
-  background: rgba(255, 255, 255, 0.025);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 0.85rem;
   padding: 0.85rem 1.1rem;
   margin-bottom: 0.5rem;
@@ -584,10 +582,10 @@
   background: rgba(237, 7, 44, 0.04);
   transform: translateX(3px);
 }
-.app-page .cal-item a { color: #fff; font-weight: 600; text-decoration: none; }
+.app-page .cal-item a { color: var(--ink); font-weight: 600; text-decoration: none; }
 .app-page .cal-item a { overflow-wrap: anywhere; }
-.app-page .cal-item a:hover { color: #ff8d94; }
-.app-page .cal-time { color: rgba(255, 255, 255, 0.5); font-size: 0.88rem; white-space: nowrap; }
+.app-page .cal-item a:hover { color: var(--accent-ink); }
+.app-page .cal-time { color: var(--soft); font-size: 0.88rem; white-space: nowrap; }
 
 /* ---------- Checklist items (dashboard setup) ---------- */
 .app-page .checklist-item {
@@ -595,10 +593,10 @@
   align-items: center;
   gap: 0.85rem;
   padding: 0.85rem 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
   border-radius: 0.85rem;
   margin-bottom: 0.5rem;
-  color: #fff;
+  color: var(--ink);
   text-decoration: none;
   transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
 }
@@ -618,18 +616,18 @@
   border-radius: 9999px;
   font-size: 0.85rem;
   font-weight: 700;
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.55);
+  background: var(--surface-2);
+  color: var(--soft);
   flex-shrink: 0;
 }
-.app-page .checklist-item.done { color: rgba(255, 255, 255, 0.5); }
+.app-page .checklist-item.done { color: var(--soft); }
 .app-page .checklist-item.done .check {
-  background: rgba(237, 7, 44, 0.16);
-  color: #ff8d94;
+  background: var(--accent-tint);
+  color: var(--accent-ink);
 }
 .app-page .checklist-item .checklist-hint {
   margin-left: auto;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--faint);
   font-size: 0.82rem;
   text-align: right;
   white-space: nowrap;
@@ -644,10 +642,10 @@
   gap: 0.5rem;
   flex: 1;
   padding: 0.55rem 0.9rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border);
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.02);
-  color: rgba(255, 255, 255, 0.55);
+  background: var(--surface);
+  color: var(--soft);
   font-size: 0.82rem;
   font-weight: 500;
   min-width: 0;
@@ -655,22 +653,22 @@
 .app-page .onb-step.active {
   border-color: rgba(237, 7, 44, 0.55);
   background: rgba(237, 7, 44, 0.1);
-  color: #fff;
+  color: var(--ink);
 }
-.app-page .onb-step.done { color: #ff8d94; }
+.app-page .onb-step.done { color: var(--accent-ink); }
 .app-page .onb-step-num {
   display: inline-grid;
   place-items: center;
   width: 1.4rem;
   height: 1.4rem;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--surface-2);
   font-size: 0.7rem;
   font-weight: 800;
   flex-shrink: 0;
 }
-.app-page .onb-step.active .onb-step-num { background: #ed072c; color: #fff; }
-.app-page .onb-step.done .onb-step-num { background: rgba(237, 7, 44, 0.18); color: #ff8d94; }
+.app-page .onb-step.active .onb-step-num { background: var(--accent); color: #fff; }
+.app-page .onb-step.done .onb-step-num { background: rgba(237, 7, 44, 0.18); color: var(--accent-ink); }
 
 /* ---------- Package editor ---------- */
 .app-page .editor-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 1.25rem; align-items: start; }
@@ -688,7 +686,7 @@
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--soft);
 }
 .app-page .title-option {
   display: flex;
@@ -696,8 +694,8 @@
   align-items: flex-start;
   padding: 0.85rem 1rem;
   border-radius: 0.85rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  background: var(--surface);
   margin-bottom: 0.5rem;
   cursor: pointer;
   transition: border-color 0.18s ease, background 0.18s ease;
@@ -708,14 +706,14 @@
   background: rgba(237, 7, 44, 0.08);
   box-shadow: 0 12px 32px rgba(237, 7, 44, 0.12);
 }
-.app-page .title-option input { width: auto; margin-top: 0.3rem; accent-color: #ed072c; }
+.app-page .title-option input { width: auto; margin-top: 0.3rem; accent-color: var(--accent); }
 .app-page .title-option span { font-size: 0.93rem; font-weight: 600; line-height: 1.45; }
 .app-page .title-option span { min-width: 0; overflow-wrap: anywhere; }
 
 .app-page .copy-btn {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--border-2);
+  color: var(--muted);
   font-size: 0.74rem;
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -733,7 +731,7 @@
 }
 .app-page .copy-btn:hover {
   border-color: rgba(237, 7, 44, 0.55);
-  color: #fff;
+  color: var(--ink);
   background: rgba(237, 7, 44, 0.08);
 }
 
@@ -741,7 +739,7 @@
 .app-page .thumb-canvas {
   width: 100%;
   border-radius: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border);
   display: block;
 }
 .app-page .thumb-controls {
@@ -766,7 +764,7 @@
   transition: transform 0.15s ease, border-color 0.15s ease;
 }
 .app-page .swatch:hover { transform: scale(1.08); }
-.app-page .swatch.selected { border-color: #fff; box-shadow: 0 0 0 2px rgba(237, 7, 44, 0.5); }
+.app-page .swatch.selected { border-color: var(--ink); box-shadow: 0 0 0 2px rgba(237, 7, 44, 0.5); }
 
 /* ---------- Audio player ---------- */
 .app-page audio { width: 100%; border-radius: 9999px; }
@@ -786,24 +784,24 @@
   border-radius: 0.85rem;
   font-size: 0.9rem;
   line-height: 1.45;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--text);
 }
 .app-page .tb-verify-banner code {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.85em;
   padding: 0.05rem 0.4rem;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--surface-2);
   border-radius: 0.3rem;
-  color: #ff8d94;
+  color: var(--accent-ink);
 }
-.app-page .tb-verify-banner strong { color: #fff; }
+.app-page .tb-verify-banner strong { color: var(--ink); }
 .app-page .tb-verify-dot {
   flex-shrink: 0;
   width: 0.55rem;
   height: 0.55rem;
   border-radius: 9999px;
-  background: #ed072c;
-  box-shadow: 0 0 12px #ed072c;
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
   animation: tb-pulse 1.6s ease-in-out infinite;
 }
 .app-page .tb-verify-copy { flex: 1; }
@@ -818,13 +816,13 @@
 }
 
 /* ---------- Utilities (retire inline style={{ color: var(--..) }}) ---------- */
-.app-page .tb-muted { color: rgba(255, 255, 255, 0.55); }
-.app-page .tb-muted-strong { color: rgba(255, 255, 255, 0.7); }
-.app-page .tb-accent { color: #ff8d94; }
+.app-page .tb-muted { color: var(--soft); }
+.app-page .tb-muted-strong { color: var(--muted); }
+.app-page .tb-accent { color: var(--accent-ink); }
 .app-page .tb-helper {
   font-size: 0.85rem;
   line-height: 1.5;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--soft);
   overflow-wrap: anywhere;
 }
 .app-page .tb-row-end { text-align: right; }

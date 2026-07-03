@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-font",
+        "value": "schibsted grotesk",
+        "reason": "User confirmed Schibsted Grotesk as the new body font (replacing Inter)",
+        "createdAt": "2026-07-03T01:34:16.772Z"
+      }
+    ]
+  }
+}

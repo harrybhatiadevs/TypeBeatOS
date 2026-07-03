@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getUser } from "@/lib/auth";
 import LpEffects from "./LpEffects";
+import ThemeToggle from "./ThemeToggle";
 import "./landing.css";
 
 const PROBLEMS = [
@@ -90,6 +91,7 @@ export default async function Landing() {
             <a href="#features" className="lp-nav-link">Features</a>
             <a href="#pricing" className="lp-nav-link">Pricing</a>
           </div>
+          <ThemeToggle />
           <Link href={user ? "/dashboard" : "/login"} className="lp-btn lp-btn-ghost lp-btn-sm">
             {user ? "Open app" : "Log in"}
           </Link>

@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/auth";
 import { logout } from "@/lib/actions/auth";
 import NavLinks from "./NavLinks";
 import VerifyEmailBanner from "./VerifyEmailBanner";
+import ThemeToggle from "@/app/ThemeToggle";
 import "./app-chrome.css";
 
 export default async function AppLayout({
@@ -28,6 +29,7 @@ export default async function AppLayout({
           <Link href="/beats/new" className="btn btn-primary btn-sm">
             + New beat
           </Link>
+          <ThemeToggle />
           <form action={logout}>
             <button type="submit" className="nav-link nav-logout">
               Log out

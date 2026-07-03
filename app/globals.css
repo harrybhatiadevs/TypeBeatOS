@@ -1,13 +1,110 @@
 /* ============================================================
-   Global resets + body styling only. All surface design lives in:
-   - app/marketing.css        → tb-* design system (landing, waitlist,
-                                login, signup, 404, error)
-   - app/(app)/app-chrome.css → app-page chrome (everything under (app))
+   Global resets, theme tokens, and body styling.
 
-   The :root tokens that used to live here (--bg, --text-dim, etc) were
-   retired in the same pass that promoted .tb-muted / .tb-helper /
-   .tb-accent utilities. Nothing reads them anymore.
+   THEME SYSTEM — every surface color reads a semantic token below.
+   :root carries the dark "After-Hours Studio" theme (brand default);
+   [data-theme="light"] overrides with the "Daylight Studio" theme.
+   The attribute is set pre-paint by the inline script in app/layout.tsx
+   and toggled by app/ThemeToggle.tsx (persisted in localStorage).
+
+   Surface design lives in:
+   - app/landing.css           → lp-* landing page
+   - app/marketing.css         → tb-* auth/waitlist/error surfaces
+   - app/(app)/app-chrome.css  → app chrome (everything under (app))
    ============================================================ */
+
+:root {
+  color-scheme: dark;
+
+  /* Surfaces */
+  --bg: #000000;
+  --surface: rgba(255, 255, 255, 0.025);
+  --surface-2: rgba(255, 255, 255, 0.05);
+  --surface-3: rgba(255, 255, 255, 0.08);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-2: rgba(255, 255, 255, 0.14);
+
+  /* Text */
+  --ink: #ffffff;
+  --text: rgba(255, 255, 255, 0.85);
+  --muted: rgba(255, 255, 255, 0.62);
+  --soft: rgba(255, 255, 255, 0.5);
+  --faint: rgba(255, 255, 255, 0.4);
+
+  /* Brand */
+  --accent: #ed072c;
+  --accent-deep: #b30420;
+  /* Red that is readable as TEXT on this theme's background */
+  --accent-ink: #ff8d94;
+
+  /* Fields */
+  --field-bg: rgba(0, 0, 0, 0.35);
+  --field-bg-focus: rgba(0, 0, 0, 0.45);
+  --placeholder: rgba(255, 255, 255, 0.45);
+
+  /* Chrome */
+  --nav-glass: rgba(10, 10, 10, 0.62);
+  --nav-glass-strong: rgba(8, 8, 8, 0.8);
+  --card-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --float-shadow: 0 12px 40px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --glow-a: 0.18; /* ambient red radial, top-left */
+  --glow-b: 0.1;  /* ambient red radial, mid-right */
+
+  /* Status */
+  --ok-ink: #6ee7a1;
+  --ok-bg: rgba(46, 213, 115, 0.12);
+  --ok-border: rgba(46, 213, 115, 0.3);
+  --warn-ink: #ffd166;
+  --warn-bg: rgba(255, 209, 102, 0.12);
+  --warn-border: rgba(255, 209, 102, 0.35);
+  --danger-ink: #ff8d94;
+  --danger-bg: rgba(237, 7, 44, 0.1);
+  --danger-border: rgba(237, 7, 44, 0.4);
+  --accent-tint: rgba(237, 7, 44, 0.16);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #f6f4f4;
+  --surface: #ffffff;
+  --surface-2: #efeced;
+  --surface-3: #e7e3e4;
+  --border: rgba(20, 17, 20, 0.1);
+  --border-2: rgba(20, 17, 20, 0.18);
+
+  --ink: #141114;
+  --text: rgba(20, 17, 20, 0.85);
+  --muted: rgba(20, 17, 20, 0.63);
+  --soft: rgba(20, 17, 20, 0.52);
+  --faint: rgba(20, 17, 20, 0.42);
+
+  --accent: #ed072c;
+  --accent-deep: #b30420;
+  --accent-ink: #b30420;
+
+  --field-bg: #ffffff;
+  --field-bg-focus: #ffffff;
+  --placeholder: rgba(20, 17, 20, 0.45);
+
+  --nav-glass: rgba(255, 255, 255, 0.72);
+  --nav-glass-strong: rgba(255, 255, 255, 0.86);
+  --card-shadow: 0 1px 2px rgba(20, 17, 20, 0.05), 0 8px 24px rgba(20, 17, 20, 0.05);
+  --float-shadow: 0 12px 40px rgba(20, 17, 20, 0.12);
+  --glow-a: 0.09;
+  --glow-b: 0.05;
+
+  --ok-ink: #0c7a42;
+  --ok-bg: rgba(20, 160, 90, 0.12);
+  --ok-border: rgba(20, 160, 90, 0.35);
+  --warn-ink: #7a5800;
+  --warn-bg: rgba(255, 193, 61, 0.2);
+  --warn-border: rgba(179, 132, 0, 0.35);
+  --danger-ink: #b30420;
+  --danger-bg: rgba(237, 7, 44, 0.07);
+  --danger-border: rgba(237, 7, 44, 0.3);
+  --accent-tint: rgba(237, 7, 44, 0.1);
+}
 
 * {
   margin: 0;
@@ -21,9 +118,9 @@ html {
 }
 
 body {
-  font-family: "Inter", system-ui, -apple-system, sans-serif;
-  background: #000;
-  color: #faf7f7;
+  font-family: "Schibsted Grotesk", system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
@@ -35,6 +132,30 @@ video,
 canvas {
   max-width: 100%;
 }
+
+/* ---------- Theme toggle (shared chrome, lives in both navs) ---------- */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  flex: 0 0 auto;
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.theme-toggle:hover {
+  color: var(--ink);
+  border-color: var(--border-2);
+  background: var(--surface-2);
+}
+.theme-toggle .theme-toggle-sun { display: none; }
+[data-theme="light"] .theme-toggle .theme-toggle-sun { display: block; }
+[data-theme="light"] .theme-toggle .theme-toggle-moon { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
   *,
