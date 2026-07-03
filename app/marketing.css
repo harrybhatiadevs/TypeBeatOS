@@ -1269,3 +1269,10 @@
   }
   .tb-reveal { opacity: 1; transform: none; }
 }
+
+/* Light theme: the logo glyph is white — give it a dark app-icon chip */
+[data-theme="light"] .tb-badge {
+  background-color: #141114;
+  background-size: 76%;
+  border-radius: 0.5rem;
+}

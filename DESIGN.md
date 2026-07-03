@@ -28,19 +28,22 @@ typography:
     lineHeight: 0.9
     letterSpacing: "-0.01em"
   body:
-    fontFamily: "Inter, system-ui, sans-serif"
+    fontFamily: "Schibsted Grotesk, system-ui, sans-serif"
     fontSize: "1.05rem"
     fontWeight: 400
     lineHeight: 1.6
   label:
-    fontFamily: "Inter, system-ui, sans-serif"
+    fontFamily: "Schibsted Grotesk, system-ui, sans-serif"
     fontSize: "0.7rem"
     fontWeight: 700
     lineHeight: 1.2
     letterSpacing: "0.22em"
 rounded:
+  xs: "0.3rem"
+  sm: "0.6rem"
   field: "0.75rem"
   panel: "0.85rem"
+  lg: "1rem"
   card: "1.25rem"
   pill: "9999px"
 spacing:
@@ -104,7 +107,7 @@ This is a **product**, not a poster. Design serves the workflow (beat → packag
 of metadata, so the system leans on space, hairline structure, and a strict
 accent budget to keep density reading as *control*, not clutter. The voice is
 studio-grade and refined: condensed display type for headings and big numbers,
-quiet Inter for everything you actually read, restrained motion. Identity comes
+quiet Schibsted Grotesk for everything you actually read, restrained motion. Identity comes
 from the black-and-red contrast and the typography — not from decoration.
 
 It explicitly rejects the **cluttered, busy dashboard**: no wall of panels, no
@@ -113,7 +116,7 @@ competing accents, no chart-junk. One primary action per screen.
 **Key Characteristics:**
 - True-black canvas (`#000`) with translucent white surfaces layered on top
 - A single brand red (`#ed072c`) used as *signal*, on a tight budget
-- Condensed display type (Bebas Neue) for headings + metrics; Inter for body
+- Condensed display type (Bebas Neue) for headings + metrics; Schibsted Grotesk for body
 - Flat surfaces lit from within (inset highlight) + ambient red glow — not drop shadows
 - Refined, restrained motion: subtle hover lift, crisp focus, nothing bouncy
 
@@ -122,8 +125,19 @@ competing accents, no chart-junk. One primary action per screen.
 A monochrome black-and-white field with one decisive red. Status hues (green,
 amber) appear only inside badges, never as general UI color.
 
+**Two themes, one system.** Every surface color reads a semantic token from
+`app/globals.css`. `:root` carries the dark **After-Hours Studio** theme (brand
+default, documented below); `[data-theme="light"]` carries the **Daylight
+Studio** counterpart — true off-white `#f6f4f4` at the brand's hue, near-black
+ink `#141114`, white cards with soft shadows instead of translucent glass, the
+same Signal Red. The readable-red role (`--accent-ink`) is Blush `#ff8d94` on
+dark and Signal Red Deep `#b30420` on light; status inks darken to stay ≥4.5:1.
+The choice persists per device (`localStorage("tb-theme")`, applied pre-paint).
+**Never hardcode a surface or text color — read the token.** Only true
+white-on-red (primary buttons, red flags) stays literal `#fff` in both themes.
+
 ### Primary
-- **Signal Red** (`#ed072c`): The brand. The primary button (a `#ed072c → #b30420` gradient), active nav state, focus rings, the pulsing eyebrow dot, and the live page glow. It means *active / live / ship*. Spend it sparingly.
+- **Signal Red** (`#ed072c`): The brand. The primary button (a `#ed072c → #b30420` gradient), active nav state, focus rings, and the live page glow. It means *active / live / ship*. Spend it sparingly.
 - **Signal Red Deep** (`#b30420`): The darker end of the primary gradient and pressed states. Never used alone as text.
 
 ### Secondary
@@ -149,19 +163,19 @@ amber) appear only inside badges, never as general UI color.
 ## 3. Typography
 
 **Display Font:** Bebas Neue (with Impact, sans-serif fallback)
-**Body Font:** Inter (with system-ui, sans-serif fallback)
+**Body Font:** Schibsted Grotesk (with system-ui, sans-serif fallback)
 **Label/Mono Font:** ui-monospace / SFMono-Regular / Menlo for raw values (IDs, code)
 
-**Character:** A high-contrast pairing — tall, tight, all-caps condensed display against calm, legible Inter. The contrast axis (condensed grotesque vs. humanist sans) is the point; the two never blur together. Display shouts the section; Inter does the talking.
+**Character:** A high-contrast pairing — tall, tight, all-caps condensed display against calm, characterful Schibsted Grotesk. The contrast axis (condensed grotesque vs. humanist sans) is the point; the two never blur together. Display shouts the section; Schibsted does the talking.
 
 ### Hierarchy
 - **Display** (400, `clamp(2.25rem, 4vw, 3.25rem)`, line-height 0.95, uppercase, tracking -0.01em): Page titles only. `text-wrap: balance` recommended.
 - **Metric** (400, `clamp(2.25rem, 2.85rem)`, line-height 0.9): Big dashboard stat numbers. Same Bebas voice as Display, used for quantities.
 - **Body** (400, 0.95–1.05rem, line-height 1.6, Ink/Muted): All readable prose and field values. Cap measure at 65–75ch (page-sub already caps ~44rem).
-- **Label** (700, 0.7rem, tracking 0.22em, uppercase, Faint): Card headers, stat labels, eyebrows, badges. The system's connective tissue.
+- **Label** (700, 0.7rem, tracking 0.22em, uppercase, Faint): Card headers, stat labels, badges. The system's connective tissue.
 
 ### Named Rules
-**The Two-Voice Rule.** Bebas for titles and numbers; Inter for everything else. Never set body copy in Bebas, never set a page title in Inter.
+**The Two-Voice Rule.** Bebas for titles and numbers; Schibsted Grotesk for everything else. Never set body copy in Bebas, never set a page title in the body face.
 
 **The Caps-Are-Labels Rule.** All-caps + wide tracking is reserved for small labels (≤0.8rem) and the display headings. Never use tracked uppercase for a sentence the user has to read.
 

@@ -130,11 +130,11 @@ export default async function AdminPage() {
                   height: `${Math.round((b.count / peak) * 96)}px`,
                   minHeight: b.count > 0 ? 4 : 2,
                   borderRadius: 6,
-                  background: b.count > 0 ? "linear-gradient(180deg, #ed072c, #b30420)" : "rgba(255,255,255,0.06)",
+                  background: b.count > 0 ? "linear-gradient(180deg, var(--accent), var(--accent-deep))" : "var(--surface-3)",
                   boxShadow: b.count > 0 ? "0 0 14px rgba(237,7,44,0.35)" : "none",
                 }}
               />
-              <span style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.4)", whiteSpace: "nowrap" }}>{b.label}</span>
+              <span style={{ fontSize: "0.62rem", color: "var(--faint)", whiteSpace: "nowrap" }}>{b.label}</span>
             </div>
           ))}
         </div>
@@ -157,8 +157,8 @@ export default async function AdminPage() {
         </div>
         <div className="stat">
           <div className="stat-num">
-            {proCount}<span style={{ fontSize: "1rem", color: "rgba(255,255,255,0.4)" }}> pro</span> /{" "}
-            {seriousCount}<span style={{ fontSize: "1rem", color: "rgba(255,255,255,0.4)" }}> serious</span>
+            {proCount}<span style={{ fontSize: "1rem", color: "var(--faint)" }}> pro</span> /{" "}
+            {seriousCount}<span style={{ fontSize: "1rem", color: "var(--faint)" }}> serious</span>
           </div>
           <div className="stat-label">Plan mix</div>
         </div>

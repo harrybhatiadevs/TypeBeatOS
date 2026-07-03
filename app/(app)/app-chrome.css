@@ -954,3 +954,10 @@
 @media (prefers-reduced-motion: reduce) {
   .app-page * { animation: none !important; transition: none !important; }
 }
+
+/* Light theme: the logo glyph is white — give it a dark app-icon chip */
+[data-theme="light"] .app-page .logo-mark {
+  background-color: #141114;
+  background-size: 76%;
+  border-radius: 0.5rem;
+}
