@@ -28,6 +28,7 @@ export default function YouTubeUploader({
   const [status, setStatus] = useState(initialStatus);
   const [videoId, setVideoId] = useState(initialVideoId);
   const [error, setError] = useState(initialError);
+  const [starting, setStarting] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -48,12 +49,22 @@ export default function YouTubeUploader({
   }, [status, packageId]);
 
   const start = async () => {
+    if (starting) return;
+    setStarting(true);
     setStatus("uploading");
     setError("");
-    await uploadToYouTube(packageId);
-    const s = await getYouTubeUploadStatus(packageId);
-    setStatus(s.status);
-    setError(s.error);
+    try {
+      await uploadToYouTube(packageId);
+      const s = await getYouTubeUploadStatus(packageId);
+      setStatus(s.status);
+      setVideoId(s.videoId);
+      setError(s.error);
+    } catch (err) {
+      setStatus("failed");
+      setError(err instanceof Error && err.message ? err.message : "Could not start YouTube upload.");
+    } finally {
+      setStarting(false);
+    }
   };
 
   return (
@@ -111,10 +122,10 @@ export default function YouTubeUploader({
           <button
             type="button"
             className="btn btn-primary btn-sm"
-            disabled={!hasVideo}
+            disabled={!hasVideo || starting}
             onClick={start}
           >
-            ▶ Upload to YouTube
+            {starting ? "Starting..." : "▶ Upload to YouTube"}
           </button>
         </>
       )}

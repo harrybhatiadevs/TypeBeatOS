@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { completePasswordReset } from "@/lib/actions/password-reset";
+import FormSubmitButton from "../FormSubmitButton";
 import "../marketing.css";
 
 export const metadata: Metadata = {
@@ -76,9 +77,9 @@ export default async function ResetPage({
                     className="tb-auth-input"
                   />
                 </div>
-                <button type="submit" className="tb-auth-submit">
+                <FormSubmitButton className="tb-auth-submit" pendingLabel="Resetting...">
                   Reset password
-                </button>
+                </FormSubmitButton>
               </form>
 
               <p className="tb-auth-alt">

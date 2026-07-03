@@ -43,19 +43,31 @@ function toLocalInputValue(iso: string) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
+function errorMessage(err: unknown, fallback: string) {
+  return err instanceof Error && err.message ? err.message : fallback;
+}
+
 function CopyButton({ value, label = "Copy" }: { value: string; label?: string }) {
   const [copied, setCopied] = useState(false);
+  const [failed, setFailed] = useState(false);
   return (
     <button
       type="button"
       className="copy-btn"
       onClick={async () => {
-        await navigator.clipboard.writeText(value);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 1500);
+        try {
+          await navigator.clipboard.writeText(value);
+          setFailed(false);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1500);
+        } catch {
+          setCopied(false);
+          setFailed(true);
+          setTimeout(() => setFailed(false), 2000);
+        }
       }}
     >
-      {copied ? "✓ Copied" : label}
+      {failed ? "Copy failed" : copied ? "✓ Copied" : label}
     </button>
   );
 }
@@ -77,36 +89,43 @@ export default function PackageEditor({
   const [scheduledAt, setScheduledAt] = useState(toLocalInputValue(pkg.scheduledAt));
   const [status, setStatus] = useState(pkg.status);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState("");
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
   const save = (nextStatus?: string) => {
     const s = nextStatus ?? status;
+    const previousStatus = status;
     if (nextStatus) setStatus(nextStatus);
-    // Convert the naive datetime-local value to an absolute UTC instant HERE,
-    // in the browser, where the timezone is the user's. Sending the naive
-    // string would let the (UTC) server misread it as UTC. "" stays "".
-    const scheduledAtIso = scheduledAt ? new Date(scheduledAt).toISOString() : "";
+    setSaveError("");
+    setSaved(false);
     startTransition(async () => {
-      await updatePackage({
-        id: pkg.id,
-        selectedTitle,
-        description,
-        tags,
-        hashtags,
-        pinnedComment,
-        scheduledAt: scheduledAtIso,
-        status: s,
-      });
-      // Marking a package ready is a "done with this one" action — send the
-      // producer back to the dashboard so they see it land in the queue.
-      if (nextStatus === "ready") {
-        router.push("/dashboard");
-        router.refresh();
-        return;
+      try {
+        // Convert the naive datetime-local value to an absolute UTC instant HERE,
+        // in the browser, where the timezone is the user's. Sending the naive
+        // string would let the (UTC) server misread it as UTC. "" stays "".
+        const scheduledAtIso = scheduledAt ? new Date(scheduledAt).toISOString() : "";
+        await updatePackage({
+          id: pkg.id,
+          selectedTitle,
+          description,
+          tags,
+          hashtags,
+          pinnedComment,
+          scheduledAt: scheduledAtIso,
+          status: s,
+        });
+        if (nextStatus === "ready") {
+          router.push("/dashboard");
+          router.refresh();
+          return;
+        }
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
+      } catch (err) {
+        if (nextStatus) setStatus(previousStatus);
+        setSaveError(errorMessage(err, "Could not save this package. Try again."));
       }
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
     });
   };
 
@@ -314,6 +333,7 @@ export default function PackageEditor({
               <button type="button" className="btn btn-ghost" disabled={isPending} onClick={() => save()}>
                 Save changes
               </button>
+              {saveError && <div className="form-error">{saveError}</div>}
               {saved && <span className="form-saved">✓ Saved</span>}
             </div>
           </div>

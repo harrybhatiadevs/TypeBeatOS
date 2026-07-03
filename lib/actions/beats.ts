@@ -14,6 +14,7 @@ import {
   buildTitleOptions,
 } from "@/lib/generate";
 import { analyzeAudio } from "@/lib/audio-analysis";
+import { MAX_AUDIO_BYTES } from "@/lib/audio-upload";
 import { sniff } from "@/lib/file-magic";
 import { loggerFor } from "@/lib/logger";
 
@@ -21,13 +22,16 @@ const log = loggerFor("beats");
 
 /** Resolve with `fallback` if `p` doesn't settle within `ms` — never blocks generation. */
 function withTimeout<T>(p: Promise<T>, ms: number, fallback: T): Promise<T> {
+  const safe = p.catch(() => fallback);
   return Promise.race([
-    p,
+    safe,
     new Promise<T>((resolve) => setTimeout(() => resolve(fallback), ms)),
   ]);
 }
 
-const MAX_AUDIO_BYTES = 50 * 1024 * 1024; // 50 MB
+export type CreateBeatState = {
+  error?: string;
+};
 
 /** Save the uploaded audio for a beat; returns the saved path on disk, or null. */
 async function saveAudio(beatId: string, file: FormDataEntryValue | null) {
@@ -65,64 +69,114 @@ async function fillMissingFromAudio(beatId: string, diskPath: string | null) {
   }
 }
 
-export async function createBeat(formData: FormData) {
+function analyzeAudioInBackground(beatId: string, diskPath: string | null) {
+  if (!diskPath) return;
+
+  fillMissingFromAudio(beatId, diskPath)
+    .then(() => {
+      log.info({ beatId }, "createBeat: background audio analysis done");
+    })
+    .catch((err) => {
+      log.warn(
+        { beatId, err: err instanceof Error ? err.message : err },
+        "createBeat: background audio analysis failed",
+      );
+    });
+}
+
+export async function createBeat(
+  stateOrFormData: CreateBeatState | FormData,
+  maybeFormData?: FormData,
+): Promise<CreateBeatState> {
   const user = await requireUser();
+  const formData = maybeFormData ?? (stateOrFormData instanceof FormData ? stateOrFormData : null);
+  if (!formData) {
+    return { error: "Could not read the beat details. Reload the page and try again." };
+  }
 
   const name = String(formData.get("name") || "").trim();
   const targetArtist = String(formData.get("targetArtist") || "").trim();
-  if (!name || !targetArtist) redirect("/beats/new?error=Beat+name+and+target+artist+are+required");
+  if (!name || !targetArtist) {
+    return { error: "Beat name and target artist are required." };
+  }
 
   const bpmRaw = String(formData.get("bpm") || "").trim();
   const bpm = bpmRaw ? parseInt(bpmRaw, 10) : null;
 
   const t0 = Date.now();
-  const created = await db.beat.create({
-    data: {
-      userId: user.id,
-      name,
-      targetArtist,
-      secondaryArtist: String(formData.get("secondaryArtist") || "").trim(),
-      genre: String(formData.get("genre") || "").trim(),
-      mood: String(formData.get("mood") || "").trim(),
-      bpm: bpm && !isNaN(bpm) ? bpm : null,
-      key: String(formData.get("key") || "").trim(),
-      storeLink: String(formData.get("storeLink") || "").trim(),
-      licensePrice: String(formData.get("licensePrice") || "").trim(),
-      exclusivePrice: String(formData.get("exclusivePrice") || "").trim(),
-    },
-  });
-  log.info({ beatId: created.id, ms: Date.now() - t0 }, "createBeat: beat created");
+  let packageId: string | null = null;
 
-  // Save audio + auto-detect BPM/key. Both are best-effort and time-bounded so
-  // a slow Azure Files write or stuck analysis can never block generation.
-  const diskPath = await withTimeout(saveAudio(created.id, formData.get("audio")), 30000, null);
-  log.info({ beatId: created.id, hasAudio: !!diskPath, ms: Date.now() - t0 }, "createBeat: audio saved");
-  await withTimeout(fillMissingFromAudio(created.id, diskPath), 25000, undefined);
-  log.info({ beatId: created.id, ms: Date.now() - t0 }, "createBeat: audio analyzed");
+  try {
+    const created = await db.beat.create({
+      data: {
+        userId: user.id,
+        name,
+        targetArtist,
+        secondaryArtist: String(formData.get("secondaryArtist") || "").trim(),
+        genre: String(formData.get("genre") || "").trim(),
+        mood: String(formData.get("mood") || "").trim(),
+        bpm: bpm && !isNaN(bpm) ? bpm : null,
+        key: String(formData.get("key") || "").trim(),
+        storeLink: String(formData.get("storeLink") || "").trim(),
+        licensePrice: String(formData.get("licensePrice") || "").trim(),
+        exclusivePrice: String(formData.get("exclusivePrice") || "").trim(),
+      },
+    });
+    log.info({ beatId: created.id, ms: Date.now() - t0 }, "createBeat: beat created");
 
-  const beat = (await db.beat.findUnique({ where: { id: created.id } }))!;
+    // Save audio + auto-detect BPM/key. Both are best-effort and time-bounded so
+    // a slow Azure Files write or stuck analysis can never block generation. Audio
+    // analysis runs after redirect; the package itself should land quickly.
+    const audioPromise = saveAudio(created.id, formData.get("audio"))
+      .then((diskPath) => {
+        analyzeAudioInBackground(created.id, diskPath);
+        return diskPath;
+      })
+      .catch((err) => {
+        log.warn(
+          { beatId: created.id, err: err instanceof Error ? err.message : err },
+          "createBeat: audio save failed",
+        );
+        return null;
+      });
+    const diskPath = await withTimeout(audioPromise, 10000, null);
+    log.info({ beatId: created.id, hasAudio: !!diskPath, ms: Date.now() - t0 }, "createBeat: audio saved");
 
-  // Generate the upload package (aiTitleOptions self-bounds at 15s + falls back to [])
-  const profile = user.profile;
-  const ai = await aiTitleOptions(beat);
-  log.info({ beatId: created.id, aiTitles: ai.length, ms: Date.now() - t0 }, "createBeat: titles ready");
-  const titles = [...buildTitleOptions(beat), ...ai];
-  const selectedTitle = titles[0];
+    const beat = (await db.beat.findUnique({ where: { id: created.id } }))!;
 
-  const pkg = await db.package.create({
-    data: {
-      beatId: beat.id,
-      titleOptions: JSON.stringify(titles),
-      selectedTitle,
-      description: buildDescription(beat, profile, selectedTitle),
-      tags: buildTags(beat),
-      hashtags: buildHashtags(beat),
-      pinnedComment: buildPinnedComment(beat, profile),
-    },
-  });
-  log.info({ beatId: created.id, packageId: pkg.id, totalMs: Date.now() - t0 }, "createBeat: done, redirecting");
+    // AI titles are optional and must never make the producer wait long.
+    const profile = user.profile;
+    const ai = await withTimeout(aiTitleOptions(beat), 3000, []);
+    log.info({ beatId: created.id, aiTitles: ai.length, ms: Date.now() - t0 }, "createBeat: titles ready");
+    const titles = [...buildTitleOptions(beat), ...ai];
+    const selectedTitle = titles[0];
 
-  redirect(`/packages/${pkg.id}`);
+    const pkg = await db.package.create({
+      data: {
+        beatId: beat.id,
+        titleOptions: JSON.stringify(titles),
+        selectedTitle,
+        description: buildDescription(beat, profile, selectedTitle),
+        tags: buildTags(beat),
+        hashtags: buildHashtags(beat),
+        pinnedComment: buildPinnedComment(beat, profile),
+      },
+    });
+    packageId = pkg.id;
+    log.info({ beatId: created.id, packageId, totalMs: Date.now() - t0 }, "createBeat: done, redirecting");
+  } catch (err) {
+    log.error(
+      { err: err instanceof Error ? err.message : err },
+      "createBeat: package generation failed",
+    );
+    return { error: "Could not generate the upload package. Try again, or use a smaller audio file." };
+  }
+
+  if (!packageId) {
+    return { error: "Could not generate the upload package. Try again." };
+  }
+
+  redirect(`/packages/${packageId}`);
 }
 
 export async function deleteBeat(formData: FormData) {

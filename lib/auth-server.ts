@@ -27,6 +27,7 @@ const DATABASE_PROVIDER = process.env.DATABASE_URL?.startsWith("postgres")
 export const auth = betterAuth({
   baseURL: APP_URL,
   appName: "TypeBeatOS",
+  secret: process.env.BETTER_AUTH_SECRET,
   database: prismaAdapter(db, { provider: DATABASE_PROVIDER }),
 
   // Email + password — the only flow we expose today. Magic links + OAuth

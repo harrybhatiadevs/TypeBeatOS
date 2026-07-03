@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { login } from "@/lib/actions/auth";
+import FormSubmitButton from "../FormSubmitButton";
 import "../marketing.css";
 
 export const metadata: Metadata = {
@@ -81,7 +82,9 @@ export default async function LoginPage({
                 className="tb-auth-input"
               />
             </div>
-            <button type="submit" className="tb-auth-submit">Log in</button>
+            <FormSubmitButton className="tb-auth-submit" pendingLabel="Logging in...">
+              Log in
+            </FormSubmitButton>
           </form>
 
           <p className="tb-auth-alt" style={{ marginBottom: "0.4rem" }}>

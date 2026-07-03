@@ -22,6 +22,7 @@ export default function VideoGenerator({
   const [videoPath, setVideoPath] = useState(initialVideoPath);
   const [error, setError] = useState(initialError);
   const [style, setStyle] = useState<"static" | "waveform">("static");
+  const [starting, setStarting] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -42,12 +43,22 @@ export default function VideoGenerator({
   }, [status, packageId]);
 
   const start = async () => {
+    if (starting) return;
+    setStarting(true);
     setStatus("rendering");
     setError("");
-    await generateVideo(packageId, style);
-    const s = await getVideoStatus(packageId);
-    setStatus(s.status);
-    setError(s.error);
+    try {
+      await generateVideo(packageId, style);
+      const s = await getVideoStatus(packageId);
+      setStatus(s.status);
+      setVideoPath(s.videoPath);
+      setError(s.error);
+    } catch (err) {
+      setStatus("failed");
+      setError(err instanceof Error && err.message ? err.message : "Could not start video render.");
+    } finally {
+      setStarting(false);
+    }
   };
 
   const ready = hasAudio && hasThumbnail;
@@ -89,8 +100,8 @@ export default function VideoGenerator({
               <option value="waveform">Image + waveform visualizer</option>
             </select>
           </div>
-          <button type="button" className="btn btn-primary btn-sm" disabled={!ready} onClick={start}>
-            🎬 Generate video
+          <button type="button" className="btn btn-primary btn-sm" disabled={!ready || starting} onClick={start}>
+            {starting ? "Starting..." : "🎬 Generate video"}
           </button>
         </>
       )}

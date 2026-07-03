@@ -45,6 +45,7 @@ export default function ThumbnailBuilder({
   const [subtitleColor, setSubtitleColor] = useState("#ff4757");
   const [subtitleSize, setSubtitleSize] = useState(44);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
   const [savedPath, setSavedPath] = useState(initialThumbnailPath);
 
   useEffect(() => {
@@ -124,6 +125,7 @@ export default function ThumbnailBuilder({
   const onImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setError("");
     setBgFile(file);
     setBgPath("");
     const img = new Image();
@@ -139,9 +141,10 @@ export default function ThumbnailBuilder({
     const canvas = canvasRef.current;
     if (!canvas) return;
     setSaving(true);
+    setError("");
     canvas.toBlob(async (blob) => {
       try {
-        if (!blob) return;
+        if (!blob) throw new Error("Could not render the thumbnail canvas.");
         const fd = new FormData();
         fd.set("packageId", packageId);
         fd.set("file", new File([blob], "thumbnail.png", { type: "image/png" }));
@@ -164,6 +167,8 @@ export default function ThumbnailBuilder({
         if (bgFile) fd.set("bg", bgFile);
         const path = await saveThumbnail(fd);
         setSavedPath(path);
+      } catch (err) {
+        setError(err instanceof Error && err.message ? err.message : "Could not save thumbnail.");
       } finally {
         setSaving(false);
       }
@@ -323,6 +328,7 @@ export default function ThumbnailBuilder({
             ⬇ Download PNG
           </button>
         </div>
+        {error && <div className="form-error">{error}</div>}
       </div>
     </div>
   );

@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-01T00:00:00Z",
+  "title": "Design System: TypeBeatOS",
+  "extensions": {
+    "colorMeta": {
+      "signal-red": {
+        "role": "primary",
+        "displayName": "Signal Red",
+        "canonical": "#ed072c",
+        "tonalRamp": ["#2b0308", "#55060f", "#80071a", "#b30420", "#ed072c", "#f24d63", "#f88a97", "#fdd0d6"]
+      },
+      "signal-red-deep": {
+        "role": "primary",
+        "displayName": "Signal Red Deep",
+        "canonical": "#b30420",
+        "tonalRamp": ["#230206", "#43040c", "#660512", "#8a0619", "#b30420", "#d83450", "#eb7e8e", "#f7ccd3"]
+      },
+      "blush": {
+        "role": "secondary",
+        "displayName": "Blush",
+        "canonical": "#ff8d94",
+        "tonalRamp": ["#3a1416", "#5e2226", "#853136", "#c25b62", "#ff8d94", "#ffa9ae", "#ffc6ca", "#ffe3e5"]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink (White)",
+        "canonical": "#ffffff",
+        "tonalRamp": ["#000000", "#1a1a1a", "#333333", "#666666", "#999999", "#cccccc", "#e6e6e6", "#ffffff"]
+      },
+      "void": {
+        "role": "neutral",
+        "displayName": "Void (True Black)",
+        "canonical": "#000000",
+        "tonalRamp": ["#000000", "#0a0a0a", "#131316", "#1c1c20", "#2a2a2f", "#3a3a40", "#55555c", "#74747c"]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted (White 60%)",
+        "canonical": "#ffffff99",
+        "tonalRamp": ["#3d3d3d", "#5c5c5c", "#7a7a7a", "#999999", "#b3b3b3", "#cccccc", "#e0e0e0", "#f5f5f5"]
+      },
+      "success": {
+        "role": "tertiary",
+        "displayName": "Success Green",
+        "canonical": "#6ee7a1",
+        "tonalRamp": ["#0c2b1a", "#12492c", "#186640", "#2ed573", "#6ee7a1", "#95efba", "#bcf5d3", "#e3fbec"]
+      },
+      "warning": {
+        "role": "tertiary",
+        "displayName": "Warning Amber",
+        "canonical": "#ffd166",
+        "tonalRamp": ["#3d2f0c", "#66500f", "#8a6c12", "#c29a2e", "#ffd166", "#ffdd8a", "#ffe8ae", "#fff4d6"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Page titles only. Bebas Neue, uppercase, condensed." },
+      "metric": { "displayName": "Metric", "purpose": "Big dashboard stat numbers. Bebas Neue for quantities." },
+      "body": { "displayName": "Body", "purpose": "All readable prose and field values. Inter." },
+      "label": { "displayName": "Label", "purpose": "Card headers, stat labels, eyebrows, badges. 0.7rem tracked uppercase." }
+    },
+    "shadows": [
+      { "name": "inset-edge-light", "value": "inset 0 1px 0 rgba(255,255,255,0.04)", "purpose": "Default lift on cards/stats — light catching a top edge. No dark drop shadow." },
+      { "name": "signal-glow", "value": "0 0 24px rgba(237,7,44,0.4)", "purpose": "Primary button at rest — the one element allowed to emit light." },
+      { "name": "signal-glow-hover", "value": "0 0 34px rgba(237,7,44,0.6)", "purpose": "Primary button hover — glow intensifies." },
+      { "name": "glass-float", "value": "0 12px 40px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.06)", "purpose": "The floating nav pill only (with backdrop-blur)." },
+      { "name": "focus-ring", "value": "0 0 0 4px rgba(237,7,44,0.14)", "purpose": "Input focus ring, paired with a red border." }
+    ],
+    "motion": [
+      { "name": "ease-standard", "value": "ease", "purpose": "Default for color/background/border transitions, ~0.22s." },
+      { "name": "hover-lift", "value": "translateY(-1px)", "purpose": "Buttons on hover; stats lift translateY(-3px)." },
+      { "name": "duration-fast", "value": "0.18s", "purpose": "Table row / small state transitions." },
+      { "name": "duration-base", "value": "0.22s", "purpose": "Buttons, inputs, nav links." },
+      { "name": "pulse", "value": "tb-pulse 1.6s ease-in-out infinite", "purpose": "Eyebrow dot — the only ambient motion. Suppressed under prefers-reduced-motion." }
+    ],
+    "breakpoints": [
+      { "name": "content-max", "value": "1120px" },
+      { "name": "measure-max", "value": "44rem" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one ship-it action per screen. Red gradient with signal glow.",
+      "html": "<button class=\"ds-btn-primary\">Generate upload package →</button>",
+      "css": ".ds-btn-primary { display:inline-flex; align-items:center; gap:0.4rem; padding:0.7rem 1.4rem; border:1px solid transparent; border-radius:9999px; font-family:'Inter',system-ui,sans-serif; font-size:0.88rem; font-weight:600; letter-spacing:0.02em; color:#fff; background:linear-gradient(135deg,#ed072c,#b30420); box-shadow:0 0 24px rgba(237,7,44,0.4); cursor:pointer; transition:transform 0.22s ease, box-shadow 0.22s ease, filter 0.22s ease; } .ds-btn-primary:hover { transform:translateY(-1px); filter:brightness(1.08); box-shadow:0 0 34px rgba(237,7,44,0.6); } .ds-btn-primary:disabled { opacity:0.65; cursor:wait; transform:none; filter:none; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary action. Translucent fill, hairline border shifting red on hover.",
+      "html": "<button class=\"ds-btn-ghost\">Cancel</button>",
+      "css": ".ds-btn-ghost { display:inline-flex; align-items:center; gap:0.4rem; padding:0.7rem 1.4rem; border:1px solid rgba(255,255,255,0.14); border-radius:9999px; font-family:'Inter',system-ui,sans-serif; font-size:0.88rem; font-weight:600; letter-spacing:0.02em; color:rgba(255,255,255,0.86); background:rgba(255,255,255,0.025); cursor:pointer; transition:transform 0.22s ease, border-color 0.22s ease, background 0.22s ease, color 0.22s ease; } .ds-btn-ghost:hover { transform:translateY(-1px); border-color:rgba(237,7,44,0.55); background:rgba(237,7,44,0.06); color:#fff; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Dark field, hairline border, red focus ring — the one consistent red moment per screen.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Late Night\" />",
+      "css": ".ds-input { width:100%; padding:0.75rem 0.9rem; border-radius:0.75rem; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.35); color:#fff; font-family:'Inter',system-ui,sans-serif; font-size:0.92rem; outline:none; transition:border-color 0.22s ease, box-shadow 0.22s ease, background 0.22s ease; } .ds-input::placeholder { color:rgba(255,255,255,0.35); } .ds-input:focus { border-color:rgba(237,7,44,0.7); box-shadow:0 0 0 4px rgba(237,7,44,0.14); background:rgba(0,0,0,0.45); }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Translucent panel over black, inset edge-light, tracked uppercase header. Never nested.",
+      "html": "<div class=\"ds-card\"><h3 class=\"ds-card-head\">Beat details</h3><p class=\"ds-card-body\">Auto-detected BPM and key from your audio.</p></div>",
+      "css": ".ds-card { background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.08); border-radius:1.25rem; padding:1.75rem; box-shadow:inset 0 1px 0 rgba(255,255,255,0.04); } .ds-card-head { margin:0 0 1.1rem; font-family:'Inter',system-ui,sans-serif; font-size:0.7rem; font-weight:700; letter-spacing:0.22em; text-transform:uppercase; color:rgba(255,255,255,0.5); } .ds-card-body { margin:0; font-family:'Inter',system-ui,sans-serif; font-size:1.05rem; line-height:1.6; color:rgba(255,255,255,0.6); }"
+    },
+    {
+      "name": "Status Badge (Uploaded)",
+      "kind": "chip",
+      "refersTo": "badge",
+      "description": "Pill status badge. Green = uploaded; always carries the status word, never hue alone.",
+      "html": "<span class=\"ds-badge ds-badge-uploaded\">uploaded</span>",
+      "css": ".ds-badge { display:inline-flex; align-items:center; padding:0.2rem 0.7rem; border-radius:9999px; font-family:'Inter',system-ui,sans-serif; font-size:0.7rem; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; border:1px solid transparent; background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.68); } .ds-badge-uploaded { background:rgba(46,213,115,0.12); color:#6ee7a1; border-color:rgba(46,213,115,0.3); }"
+    },
+    {
+      "name": "Nav Link",
+      "kind": "nav",
+      "refersTo": "nav-link",
+      "description": "Pill nav link inside the floating glass bar. Muted at rest, red-tinted fill when active.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-link ds-active\" href=\"#\">Beats</a><a class=\"ds-nav-link\" href=\"#\">Calendar</a></nav>",
+      "css": ".ds-nav { display:inline-flex; gap:0.15rem; padding:0.45rem 0.5rem; border:1px solid rgba(255,255,255,0.08); background:rgba(10,10,10,0.62); backdrop-filter:blur(18px) saturate(140%); border-radius:9999px; box-shadow:0 12px 40px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.06); } .ds-nav-link { padding:0.4rem 0.85rem; border-radius:9999px; font-family:'Inter',system-ui,sans-serif; font-size:0.82rem; font-weight:500; color:rgba(255,255,255,0.65); text-decoration:none; transition:color 0.22s ease, background 0.22s ease; } .ds-nav-link:hover { color:#fff; background:rgba(255,255,255,0.05); } .ds-nav-link.ds-active { color:#fff; background:rgba(237,7,44,0.16); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "After-Hours Studio",
+    "overview": "A producer working a beat at 2 a.m. in a blacked-out room, one red light on. The interface is that room: a true-black surface where everything recedes except the work in front of you, lit by a single brand red that behaves like signal. This is a product, not a poster — design serves the workflow (beat to package to schedule to upload to analytics) and never competes with it. Screens carry a lot of metadata, so the system leans on space, hairline structure, and a strict accent budget to keep density reading as control, not clutter.",
+    "keyCharacteristics": [
+      "True-black canvas (#000) with translucent white surfaces layered on top",
+      "A single brand red (#ed072c) used as signal, on a tight budget",
+      "Condensed display type (Bebas Neue) for headings + metrics; Inter for body",
+      "Flat surfaces lit from within (inset highlight) + ambient red glow — not drop shadows",
+      "Refined, restrained motion: subtle hover lift, crisp focus, nothing bouncy"
+    ],
+    "rules": [
+      { "name": "The Signal Rule", "body": "Red is signal, not paint. It marks the one live/primary thing on a screen and the focused field — nowhere else. More than one red element competing for the eye means you've overspent.", "section": "colors" },
+      { "name": "The Status-Is-More-Than-Hue Rule", "body": "Upload status (uploaded / failed / scheduled / ready) must always carry a text label, never color alone.", "section": "colors" },
+      { "name": "The Two-Voice Rule", "body": "Bebas for titles and numbers; Inter for everything else. Never set body copy in Bebas, never a page title in Inter.", "section": "typography" },
+      { "name": "The Caps-Are-Labels Rule", "body": "All-caps + wide tracking is reserved for small labels and display headings. Never for a sentence the user has to read.", "section": "typography" },
+      { "name": "The No-Drop-Shadow Rule", "body": "Surfaces don't cast dark shadows onto black. Depth is the inset highlight plus red glow.", "section": "elevation" },
+      { "name": "The Glass-Is-The-Nav Rule", "body": "Backdrop-blur glass is a deliberate signature for exactly one element — the floating nav pill. Forbidden as a default card/panel treatment.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep red on a tight budget — one live/primary element + the focused field per screen.",
+      "Do set titles and big numbers in Bebas Neue, everything readable in Inter.",
+      "Do convey depth with the inset top-highlight and red glow; keep surfaces flat.",
+      "Do pair every status with its word, and verify status colors aren't hue-only.",
+      "Do keep body/muted text at #ffffff99 or lighter-toward-ink; check >=4.5:1 on black before going dimmer.",
+      "Do give dense screens space and one primary action — density should read as control."
+    ],
+    "donts": [
+      "Don't build the cluttered, busy dashboard — no wall of equal panels, no competing accents.",
+      "Don't spend red as decoration (multiple glowing buttons, red borders everywhere). Rarity is the point.",
+      "Don't nest cards, or add border-left/border-right colored side-stripes as accents.",
+      "Don't use background-clip: text gradient text. The primary button's gradient fill is fine; gradient text is banned.",
+      "Don't use glassmorphism as a default surface — it's reserved for the nav pill only.",
+      "Don't set body copy in tracked uppercase or in Bebas; caps are for small labels only.",
+      "Don't drop dark drop-shadows onto the black canvas."
+    ]
+  }
+}

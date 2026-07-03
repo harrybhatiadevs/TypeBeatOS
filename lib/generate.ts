@@ -165,7 +165,7 @@ export async function aiTitleOptions(beat: Beat): Promise<string[]> {
           },
         ],
       }),
-      signal: AbortSignal.timeout(15000),
+      signal: AbortSignal.timeout(3000),
     });
     if (!res.ok) return [];
     const data = await res.json();

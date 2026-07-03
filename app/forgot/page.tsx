@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requestPasswordReset } from "@/lib/actions/password-reset";
+import FormSubmitButton from "../FormSubmitButton";
 import "../marketing.css";
 
 export const metadata: Metadata = {
@@ -75,9 +76,9 @@ export default async function ForgotPage({
                     className="tb-auth-input"
                   />
                 </div>
-                <button type="submit" className="tb-auth-submit">
+                <FormSubmitButton className="tb-auth-submit" pendingLabel="Sending link...">
                   Email me a reset link
-                </button>
+                </FormSubmitButton>
               </form>
 
               <p className="tb-auth-alt">

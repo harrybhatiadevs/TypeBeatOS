@@ -2,6 +2,7 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { youtubeConfigured } from "@/lib/youtube";
+import FormSubmitButton from "@/app/FormSubmitButton";
 import {
   finishOnboarding,
   saveOnboardingBrand,
@@ -91,9 +92,9 @@ export default async function OnboardingPage({
               </div>
             </div>
             <div className="form-actions">
-              <button type="submit" className="btn btn-primary">
+              <FormSubmitButton pendingLabel="Saving...">
                 Continue →
-              </button>
+              </FormSubmitButton>
               <Link href="/onboarding?step=2" className="nav-link">
                 Skip
               </Link>
@@ -138,9 +139,9 @@ export default async function OnboardingPage({
               </div>
             </div>
             <div className="form-actions">
-              <button type="submit" className="btn btn-primary">
+              <FormSubmitButton pendingLabel="Saving...">
                 Continue →
-              </button>
+              </FormSubmitButton>
               <Link href="/onboarding?step=3" className="nav-link">
                 Skip
               </Link>
@@ -177,9 +178,12 @@ export default async function OnboardingPage({
               </a>
             )}
             <form action={finishOnboarding} style={{ display: "inline" }}>
-              <button type="submit" className={youtube ? "btn btn-primary" : "btn btn-ghost"}>
+              <FormSubmitButton
+                className={youtube ? "btn btn-primary" : "btn btn-ghost"}
+                pendingLabel="Finishing..."
+              >
                 {youtube ? "Finish setup →" : "Skip & finish →"}
-              </button>
+              </FormSubmitButton>
             </form>
           </div>
         </div>

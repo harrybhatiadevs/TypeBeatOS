@@ -1,4 +1,5 @@
 import { resendVerificationEmail } from "@/lib/actions/email-verification";
+import FormSubmitButton from "@/app/FormSubmitButton";
 
 /**
  * Persistent banner in the authenticated app chrome, shown until the
@@ -16,7 +17,9 @@ export default function VerifyEmailBanner({ email }: { email: string }) {
         recovery and weekly digests.
       </div>
       <form action={resendVerificationEmail} className="tb-verify-action">
-        <button type="submit" className="copy-btn">Resend</button>
+        <FormSubmitButton className="copy-btn" pendingLabel="Sending...">
+          Resend
+        </FormSubmitButton>
       </form>
     </div>
   );

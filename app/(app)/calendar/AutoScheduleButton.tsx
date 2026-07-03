@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import FormSubmitButton from "@/app/FormSubmitButton";
 
 /**
  * Auto-schedule form that submits the browser's IANA time zone so posting
@@ -22,9 +23,9 @@ export default function AutoScheduleButton({
   return (
     <form action={action} style={{ marginTop: 16 }}>
       <input type="hidden" name="timeZone" ref={tzRef} />
-      <button type="submit" className="btn btn-primary btn-sm">
+      <FormSubmitButton className="btn btn-primary btn-sm" pendingLabel="Scheduling...">
         ⚡ Auto-schedule the queue
-      </button>
+      </FormSubmitButton>
     </form>
   );
 }

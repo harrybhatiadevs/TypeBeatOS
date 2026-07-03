@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
 
 /**
@@ -9,9 +10,31 @@ import { useFormStatus } from "react-dom";
  */
 export default function SubmitButton() {
   const { pending } = useFormStatus();
+  const [seconds, setSeconds] = useState(0);
+
+  useEffect(() => {
+    if (!pending) {
+      setSeconds(0);
+      return;
+    }
+
+    const startedAt = Date.now();
+    const timer = window.setInterval(() => {
+      setSeconds(Math.floor((Date.now() - startedAt) / 1000));
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, [pending]);
+
+  const label = seconds > 15
+    ? "Still generating..."
+    : seconds > 8
+      ? "Saving audio..."
+      : "Building package...";
+
   return (
     <button type="submit" className="btn btn-primary" disabled={pending} aria-busy={pending}>
-      {pending ? "Generating…" : "Generate upload package →"}
+      {pending ? label : "Generate upload package →"}
     </button>
   );
 }
