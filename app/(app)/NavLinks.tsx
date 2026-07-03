@@ -8,8 +8,8 @@ const LINKS = [
   { href: "/beats", label: "Beats" },
   { href: "/calendar", label: "Calendar" },
   { href: "/analytics", label: "Analytics" },
-  { href: "/billing", label: "Billing" },
   { href: "/profile", label: "Profile" },
+  { href: "/settings", label: "Settings" },
 ];
 
 export default function NavLinks() {

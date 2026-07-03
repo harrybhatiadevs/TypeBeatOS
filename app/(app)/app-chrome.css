@@ -225,6 +225,13 @@
 }
 .app-page .page-sub a:hover { color: var(--ink); }
 
+/* In-card prose links (settings privacy, helper copy, …) — never browser blue */
+.app-page .card a:not(.btn):not(.copy-btn) {
+  color: var(--accent-ink);
+  text-decoration: none;
+}
+.app-page .card a:not(.btn):not(.copy-btn):hover { color: var(--ink); }
+
 /* ---------- Cards ---------- */
 .app-page .card {
   background: var(--surface);
