@@ -60,10 +60,6 @@ export default function WaitlistPage() {
 
       {/* HERO */}
       <section className="tb-hero tb-hero-center">
-        <div className="tb-eyebrow">
-          <span className="tb-eyebrow-dot" aria-hidden="true" />
-          Private beta · 2026
-        </div>
 
         <h1 className="tb-h1" data-testid="waitlist-hero-title">
           <span className="tb-line"><span>The YouTube</span></span>

@@ -35,10 +35,6 @@ export default async function SignupPage({
 
       <main className="tb-auth-wrap">
         <div className="tb-auth-card">
-          <div className="tb-eyebrow">
-            <span className="tb-eyebrow-dot" aria-hidden="true" />
-            Free account
-          </div>
           <h1 className="tb-auth-heading">
             Join <span className="tb-red">TypeBeatOS.</span>
           </h1>

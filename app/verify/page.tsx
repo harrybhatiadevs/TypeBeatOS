@@ -38,10 +38,6 @@ export default async function VerifyPage({
 
       <main className="tb-auth-wrap">
         <div className="tb-auth-card">
-          <div className="tb-eyebrow">
-            <span className="tb-eyebrow-dot" aria-hidden="true" />
-            Email verification
-          </div>
 
           {error ? (
             <>

@@ -35,10 +35,6 @@ export default async function ResetPage({
 
       <main className="tb-auth-wrap">
         <div className="tb-auth-card">
-          <div className="tb-eyebrow">
-            <span className="tb-eyebrow-dot" aria-hidden="true" />
-            Password reset
-          </div>
           <h1 className="tb-auth-heading">
             Set a new <br />
             <span className="tb-red">password.</span>

@@ -26,10 +26,6 @@ export default function NotFound() {
       </nav>
 
       <section className="tb-final">
-        <div className="tb-eyebrow" style={{ marginBottom: "1.5rem" }}>
-          <span className="tb-eyebrow-dot" aria-hidden="true" />
-          Error 404
-        </div>
         <h1 className="tb-final-h2">
           Track <br />
           <span className="tb-red">not found.</span>

@@ -12,7 +12,7 @@ const UPDATED = "2026-06-20";
 
 export default function PrivacyPage() {
   return (
-    <LegalShell eyebrow="Privacy policy" title="Privacy policy." updated={UPDATED} isDraft={true}>
+    <LegalShell title="Privacy policy." updated={UPDATED} isDraft={true}>
       <p>
         TypeBeatOS (&quot;we&quot;, &quot;us&quot;) builds an upload pipeline for
         type-beat producers. This policy explains what we collect, how we use

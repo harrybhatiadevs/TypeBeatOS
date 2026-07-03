@@ -33,10 +33,6 @@ export default async function ProfilePage({
 
   return (
     <>
-      <p className="eyebrow">
-        <span className="eyebrow-dot" aria-hidden="true" />
-        Brand defaults
-      </p>
       <h1 className="page-title">Producer profile</h1>
       <p className="page-sub">
         Set this once — every generated description, pinned comment, and schedule uses it.
@@ -45,8 +41,8 @@ export default async function ProfilePage({
       <div className="card">
         <h3>Plan</h3>
         <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "1rem" }}>
-          <div style={{ fontSize: "0.95rem", color: "rgba(255,255,255,0.75)" }}>
-            <strong style={{ color: "#fff" }}>{plan.label}</strong>
+          <div style={{ fontSize: "0.95rem", color: "var(--muted)" }}>
+            <strong style={{ color: "var(--ink)" }}>{plan.label}</strong>
             {" · "}
             {used} / {isAdmin ? "unlimited" : limit} upload packs this month
           </div>

@@ -20,10 +20,6 @@ export default async function CalendarPage() {
 
   return (
     <>
-      <p className="eyebrow">
-        <span className="eyebrow-dot" aria-hidden="true" />
-        Posting rhythm
-      </p>
       <h1 className="page-title">Upload calendar</h1>
       <p className="page-sub">
         Your posting rhythm is set in your <Link href="/profile">profile</Link>. Auto-schedule

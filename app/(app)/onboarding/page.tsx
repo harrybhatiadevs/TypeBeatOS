@@ -38,10 +38,6 @@ export default async function OnboardingPage({
 
   return (
     <div className="onb-wrap">
-      <p className="eyebrow">
-        <span className="eyebrow-dot" aria-hidden="true" />
-        Welcome to TypeBeatOS
-      </p>
       <h1 className="page-title">Let&apos;s set you up</h1>
       <p className="page-sub">
         Three quick steps — everything here feeds your generated descriptions and schedules.

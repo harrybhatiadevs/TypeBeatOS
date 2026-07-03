@@ -9,13 +9,11 @@ import "./legal.css";
  * lawyer has signed off.
  */
 export default function LegalShell({
-  eyebrow,
   title,
   updated,
   isDraft,
   children,
 }: {
-  eyebrow: string;
   title: string;
   /** ISO date string, e.g. "2026-06-20" */
   updated: string;
@@ -42,10 +40,6 @@ export default function LegalShell({
 
       <main className="tb-legal">
         <header className="tb-legal-header">
-          <div className="tb-eyebrow">
-            <span className="tb-eyebrow-dot" aria-hidden="true" />
-            {eyebrow}
-          </div>
           <h1 className="tb-auth-heading" style={{ marginTop: "1rem" }}>{title}</h1>
           <p className="tb-legal-meta">Last updated · {updated}</p>
         </header>

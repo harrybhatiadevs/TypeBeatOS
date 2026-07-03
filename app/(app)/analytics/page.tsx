@@ -36,10 +36,6 @@ export default async function AnalyticsPage({
 
   return (
     <>
-      <p className="eyebrow">
-        <span className="eyebrow-dot" aria-hidden="true" />
-        Channel performance
-      </p>
       <h1 className="page-title">Analytics</h1>
       <p className="page-sub">
         How your uploaded packages are performing on YouTube — and which artist keywords earn

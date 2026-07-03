@@ -12,7 +12,7 @@ const UPDATED = "2026-06-20";
 
 export default function TermsPage() {
   return (
-    <LegalShell eyebrow="Terms of service" title="Terms of service." updated={UPDATED} isDraft={true}>
+    <LegalShell title="Terms of service." updated={UPDATED} isDraft={true}>
       <p>
         By creating a TypeBeatOS account, or by joining the waitlist, you
         agree to these terms. If you do not agree, do not use the service.

@@ -90,10 +90,6 @@ export default async function AdminPage() {
 
   return (
     <>
-      <p className="eyebrow">
-        <span className="eyebrow-dot" aria-hidden="true" />
-        Admin · owner only
-      </p>
       <h1 className="page-title">Overview</h1>
       <p className="page-sub">
         Signed in as {admin.email}. Live production metrics as of {fmtDate(now)}.{" "}

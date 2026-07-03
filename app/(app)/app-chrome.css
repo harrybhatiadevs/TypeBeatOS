@@ -200,30 +200,7 @@
   width: 100%;
 }
 
-/* ---------- Eyebrow + page header ---------- */
-.app-page .eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-  padding: 0.35rem 0.9rem;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  border-radius: 9999px;
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.22em;
-  color: var(--text);
-}
-.app-page .eyebrow-dot {
-  width: 0.4rem;
-  height: 0.4rem;
-  border-radius: 9999px;
-  background: var(--accent);
-  box-shadow: 0 0 12px var(--accent);
-  animation: tb-pulse 1.6s ease-in-out infinite;
-}
-
+/* ---------- Page header ---------- */
 .app-page .page-title {
   font-family: "Bebas Neue", Impact, sans-serif;
   font-size: clamp(2.25rem, 4vw, 3.25rem);
@@ -870,12 +847,6 @@
   .app-page .page-sub {
     font-size: 0.98rem;
     margin-bottom: 1.75rem;
-  }
-  .app-page .eyebrow {
-    max-width: 100%;
-    font-size: 0.66rem;
-    letter-spacing: 0.16em;
-    line-height: 1.35;
   }
   .app-page .stats-grid {
     grid-template-columns: 1fr;

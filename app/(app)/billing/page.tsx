@@ -34,10 +34,6 @@ export default async function BillingPage({
 
   return (
     <>
-      <p className="eyebrow">
-        <span className="eyebrow-dot" aria-hidden="true" />
-        Billing
-      </p>
       <h1 className="page-title">Plan &amp; billing</h1>
       <p className="page-sub">Manage your subscription and monthly upload-pack usage.</p>
 

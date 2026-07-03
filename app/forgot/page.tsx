@@ -35,10 +35,6 @@ export default async function ForgotPage({
 
       <main className="tb-auth-wrap">
         <div className="tb-auth-card">
-          <div className="tb-eyebrow">
-            <span className="tb-eyebrow-dot" aria-hidden="true" />
-            Password reset
-          </div>
           <h1 className="tb-auth-heading">
             Forgot it? <br />
             <span className="tb-red">no stress.</span>

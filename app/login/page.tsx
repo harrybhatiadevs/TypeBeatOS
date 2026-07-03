@@ -35,10 +35,6 @@ export default async function LoginPage({
 
       <main className="tb-auth-wrap">
         <div className="tb-auth-card">
-          <div className="tb-eyebrow">
-            <span className="tb-eyebrow-dot" aria-hidden="true" />
-            Producer log in
-          </div>
           <h1 className="tb-auth-heading">
             Welcome <span className="tb-red">back.</span>
           </h1>

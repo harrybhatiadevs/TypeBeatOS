@@ -194,25 +194,6 @@
   .lp-hero { min-height: 100svh; display: grid; align-content: center; padding-top: 5rem; }
   .lp-hero-grid { grid-template-columns: 1.05fr 0.95fr; }
 }
-.lp-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  padding: 0.4rem 0.95rem;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  border-radius: 9999px;
-  font-size: 0.74rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 1.6rem;
-}
-.lp-eyebrow-dot {
-  width: 0.42rem; height: 0.42rem; border-radius: 9999px;
-  background: var(--red); box-shadow: 0 0 12px var(--red);
-  animation: lp-pulse 1.6s ease-in-out infinite;
-}
 .lp-h1 {
   font-size: clamp(3.2rem, 8.5vw, 6rem);
   color: var(--ink);
@@ -443,5 +424,5 @@
 
 @media (prefers-reduced-motion: reduce) {
   .lp-reveal { opacity: 1; transform: none; transition: none; }
-  .lp-package, .lp-eyebrow-dot { animation: none; }
+  .lp-package { animation: none; }
 }

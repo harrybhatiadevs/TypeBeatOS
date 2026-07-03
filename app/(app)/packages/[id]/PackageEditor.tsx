@@ -158,10 +158,6 @@ export default function PackageEditor({
 
   return (
     <>
-      <p className="eyebrow">
-        <span className="eyebrow-dot" aria-hidden="true" />
-        Upload package
-      </p>
       <h1 className="page-title">{beat.name}</h1>
       <p className="page-sub">
         {beat.targetArtist}

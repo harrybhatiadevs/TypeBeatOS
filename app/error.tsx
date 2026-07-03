@@ -45,10 +45,6 @@ export default function ErrorPage({
       </nav>
 
       <section className="tb-final">
-        <div className="tb-eyebrow" style={{ marginBottom: "1.5rem" }}>
-          <span className="tb-eyebrow-dot" aria-hidden="true" />
-          Something went wrong
-        </div>
         <h1 className="tb-final-h2">
           The signal <br />
           <span className="tb-red">dropped.</span>

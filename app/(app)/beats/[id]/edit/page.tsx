@@ -30,10 +30,6 @@ export default async function EditBeatPage({
 
   return (
     <>
-      <p className="eyebrow">
-        <span className="eyebrow-dot" aria-hidden="true" />
-        Edit beat details
-      </p>
       <h1 className="page-title">Edit beat</h1>
       <p className="page-sub">
         Update the beat metadata used across your catalog and upload package workflow.

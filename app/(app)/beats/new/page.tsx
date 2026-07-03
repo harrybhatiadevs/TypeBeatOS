@@ -14,10 +14,6 @@ export default async function NewBeatPage({
 
   return (
     <>
-      <p className="eyebrow">
-        <span className="eyebrow-dot" aria-hidden="true" />
-        Step 1 of 2 · beat details
-      </p>
       <h1 className="page-title">New beat</h1>
       <p className="page-sub">
         Fill in the beat details — TypeBeatOS generates the full YouTube upload package from them.
