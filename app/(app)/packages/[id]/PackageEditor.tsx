@@ -114,6 +114,7 @@ export default function PackageEditor({
   const [templatePinnedComment, setTemplatePinnedComment] = useState(pkg.pinnedComment);
   const [templateMessage, setTemplateMessage] = useState("");
   const [templateError, setTemplateError] = useState("");
+  const [activePanel, setActivePanel] = useState<"content" | "media" | "publish">("content");
   const [scheduledAt, setScheduledAt] = useState(toLocalInputValue(pkg.scheduledAt));
   const [status, setStatus] = useState(pkg.status);
   const [saved, setSaved] = useState(false);
@@ -279,138 +280,176 @@ export default function PackageEditor({
 
   return (
     <>
-      <h1 className="page-title">{beat.name}</h1>
-      <p className="page-sub">
-        {beat.targetArtist}
-        {beat.secondaryArtist ? ` x ${beat.secondaryArtist}` : ""}{" "}
-        {(() => {
-          const s = effectiveStatus({ status, uploadStatus: pkg.uploadStatus });
-          return <span className={`badge badge-${s}`}>{s}</span>;
-        })()}
-      </p>
-
-      <div className="editor-grid">
+      <div className="package-workbench-head">
         <div>
-          <div className="card template-card">
-            <div className="field-head">
-              <h3>Import from template</h3>
-              <span className="badge badge-draft">{templateList.length}</span>
-            </div>
+          <h1 className="page-title">{beat.name}</h1>
+          <p className="page-sub package-sub">
+            {beat.targetArtist}
+            {beat.secondaryArtist ? ` x ${beat.secondaryArtist}` : ""}{" "}
+            {(() => {
+              const s = effectiveStatus({ status, uploadStatus: pkg.uploadStatus });
+              return <span className={`badge badge-${s}`}>{s}</span>;
+            })()}
+          </p>
+        </div>
 
-            <div className="template-select-row">
-              <select
-                value={selectedTemplateId}
-                onChange={(e) => setSelectedTemplateId(e.target.value)}
-              >
-                <option value="">Choose a saved template</option>
-                {templateList.map((template) => (
-                  <option key={template.id} value={template.id}>
-                    {template.name}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="button"
-                className="btn btn-primary"
-                disabled={templatePending || !selectedTemplateId}
-                onClick={applyTemplate}
-              >
-                Import
-              </button>
-              <button
-                type="button"
-                className="btn btn-ghost"
-                disabled={templatePending || !selectedTemplateId}
-                onClick={removeTemplate}
-              >
-                Delete
+        <div className="package-save-strip">
+          <button type="button" className="btn btn-ghost btn-sm" onClick={downloadPack}>
+            Download pack
+          </button>
+          <button type="button" className="btn btn-ghost btn-sm" disabled={isPending} onClick={() => save()}>
+            {isPending ? "Saving..." : "Save"}
+          </button>
+          <button type="button" className="btn btn-primary btn-sm" disabled={isPending} onClick={() => save("ready")}>
+            {isPending ? "Saving..." : "Mark ready"}
+          </button>
+        </div>
+      </div>
+
+      {(saveError || saved) && (
+        <div className="package-status-row">
+          {saveError && <div className="form-error">{saveError}</div>}
+          {saved && <span className="form-saved">Saved</span>}
+        </div>
+      )}
+
+      <div className="package-workbench-tabs" role="tablist" aria-label="Package editor sections">
+        {[
+          ["content", "Content"],
+          ["media", "Media"],
+          ["publish", "Publish"],
+        ].map(([key, label]) => (
+          <button
+            key={key}
+            type="button"
+            role="tab"
+            aria-selected={activePanel === key}
+            className={activePanel === key ? "active" : ""}
+            onClick={() => setActivePanel(key as "content" | "media" | "publish")}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      <div className="package-template-strip">
+        <div className="package-template-main">
+          <span>Template</span>
+          <select
+            value={selectedTemplateId}
+            onChange={(e) => setSelectedTemplateId(e.target.value)}
+          >
+            <option value="">Choose a saved template</option>
+            {templateList.map((template) => (
+              <option key={template.id} value={template.id}>
+                {template.name}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            disabled={templatePending || !selectedTemplateId}
+            onClick={applyTemplate}
+          >
+            Import
+          </button>
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm"
+            disabled={templatePending || !selectedTemplateId}
+            onClick={removeTemplate}
+          >
+            Delete
+          </button>
+        </div>
+
+        <details className="template-builder package-template-builder">
+          <summary>+ New</summary>
+          <div className="template-form">
+            <div className="form-field">
+              <label htmlFor="templateName">Template name</label>
+              <input
+                id="templateName"
+                type="text"
+                value={templateName}
+                onChange={(e) => setTemplateName(e.target.value)}
+                placeholder="Drake x Latin"
+              />
+            </div>
+            <div className="template-actions">
+              <button type="button" className="btn btn-ghost" onClick={fillTemplateFromCurrent}>
+                Fill from current pack
               </button>
             </div>
-
-            <details className="template-builder">
-              <summary>+ New template</summary>
-              <div className="template-form">
-                <div className="form-field">
-                  <label htmlFor="templateName">Template name</label>
-                  <input
-                    id="templateName"
-                    type="text"
-                    value={templateName}
-                    onChange={(e) => setTemplateName(e.target.value)}
-                    placeholder="Drake x Latin"
-                  />
-                </div>
-                <div className="template-actions">
-                  <button type="button" className="btn btn-ghost" onClick={fillTemplateFromCurrent}>
-                    Fill from current pack
-                  </button>
-                </div>
-                <div className="form-field">
-                  <label htmlFor="templateTitle">Title template</label>
-                  <input
-                    id="templateTitle"
-                    type="text"
-                    value={templateTitle}
-                    onChange={(e) => setTemplateTitle(e.target.value)}
-                    placeholder="[FREE] Latin x Drake Type Beat - {beatname}"
-                  />
-                  <p className="tb-helper">
-                    Placeholders: {"{beatname}"}, {"{artist}"}, {"{secondaryartist}"}, {"{genre}"}, {"{bpm}"}, {"{key}"}
-                  </p>
-                </div>
-                <div className="form-field">
-                  <label htmlFor="templateDescription">Description</label>
-                  <textarea
-                    id="templateDescription"
-                    rows={8}
-                    value={templateDescription}
-                    onChange={(e) => setTemplateDescription(e.target.value)}
-                  />
-                </div>
-                <div className="template-two-col">
-                  <div className="form-field">
-                    <label htmlFor="templateTags">Tags</label>
-                    <textarea
-                      id="templateTags"
-                      rows={4}
-                      value={templateTags}
-                      onChange={(e) => setTemplateTags(e.target.value)}
-                    />
-                  </div>
-                  <div className="form-field">
-                    <label htmlFor="templateHashtags">Hashtags</label>
-                    <input
-                      id="templateHashtags"
-                      type="text"
-                      value={templateHashtags}
-                      onChange={(e) => setTemplateHashtags(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div className="form-field">
-                  <label htmlFor="templatePinnedComment">Pinned comment</label>
-                  <textarea
-                    id="templatePinnedComment"
-                    rows={4}
-                    value={templatePinnedComment}
-                    onChange={(e) => setTemplatePinnedComment(e.target.value)}
-                  />
-                </div>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  disabled={templatePending}
-                  onClick={saveTemplate}
-                >
-                  {templatePending ? "Saving…" : "Save template"}
-                </button>
+            <div className="form-field">
+              <label htmlFor="templateTitle">Title template</label>
+              <input
+                id="templateTitle"
+                type="text"
+                value={templateTitle}
+                onChange={(e) => setTemplateTitle(e.target.value)}
+                placeholder="[FREE] Latin x Drake Type Beat - {beatname}"
+              />
+              <p className="tb-helper">
+                Placeholders: {"{beatname}"}, {"{artist}"}, {"{secondaryartist}"}, {"{genre}"}, {"{bpm}"}, {"{key}"}
+              </p>
+            </div>
+            <div className="form-field">
+              <label htmlFor="templateDescription">Description</label>
+              <textarea
+                id="templateDescription"
+                rows={8}
+                value={templateDescription}
+                onChange={(e) => setTemplateDescription(e.target.value)}
+              />
+            </div>
+            <div className="template-two-col">
+              <div className="form-field">
+                <label htmlFor="templateTags">Tags</label>
+                <textarea
+                  id="templateTags"
+                  rows={4}
+                  value={templateTags}
+                  onChange={(e) => setTemplateTags(e.target.value)}
+                />
               </div>
-            </details>
-
-            {templateError && <div className="form-error">{templateError}</div>}
-            {templateMessage && <span className="form-saved">{templateMessage}</span>}
+              <div className="form-field">
+                <label htmlFor="templateHashtags">Hashtags</label>
+                <input
+                  id="templateHashtags"
+                  type="text"
+                  value={templateHashtags}
+                  onChange={(e) => setTemplateHashtags(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="form-field">
+              <label htmlFor="templatePinnedComment">Pinned comment</label>
+              <textarea
+                id="templatePinnedComment"
+                rows={4}
+                value={templatePinnedComment}
+                onChange={(e) => setTemplatePinnedComment(e.target.value)}
+              />
+            </div>
+            <button
+              type="button"
+              className="btn btn-primary"
+              disabled={templatePending}
+              onClick={saveTemplate}
+            >
+              {templatePending ? "Saving..." : "Save template"}
+            </button>
           </div>
+        </details>
 
+        {templateError && <div className="form-error">{templateError}</div>}
+        {templateMessage && <span className="form-saved">{templateMessage}</span>}
+      </div>
+
+      <div className="package-panels">
+        <section className="package-panel" hidden={activePanel !== "content"}>
           <div className="card">
             <h3>Title</h3>
             {pkg.titleOptions.map((t) => (
@@ -429,7 +468,7 @@ export default function PackageEditor({
             ))}
             <div className="editor-field" style={{ marginTop: 14 }}>
               <div className="field-head">
-                <label>Final title (editable)</label>
+                <label>Final title</label>
                 <CopyButton value={selectedTitle} />
               </div>
               <input
@@ -440,51 +479,55 @@ export default function PackageEditor({
             </div>
           </div>
 
-          <div className="card">
-            <div className="field-head">
-              <h3>Description</h3>
-              <CopyButton value={description} />
-            </div>
-            <textarea
-              rows={14}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </div>
-
-          <div className="card">
-            <div className="field-head">
-              <h3>Tags</h3>
-              <CopyButton value={tags} />
-            </div>
-            <textarea rows={4} value={tags} onChange={(e) => setTags(e.target.value)} />
-            <p className="tb-helper" style={{ marginTop: 8, fontSize: "0.82rem" }}>
-              {tags.length} / 500 characters (YouTube limit)
-            </p>
-
-            <div className="editor-field" style={{ marginTop: 14 }}>
+          <div className="package-content-grid">
+            <div className="card">
               <div className="field-head">
-                <label>Hashtags</label>
-                <CopyButton value={hashtags} />
+                <h3>Description</h3>
+                <CopyButton value={description} />
               </div>
-              <input type="text" value={hashtags} onChange={(e) => setHashtags(e.target.value)} />
+              <textarea
+                rows={14}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+            </div>
+
+            <div className="package-stack">
+              <div className="card package-meta-card">
+                <div className="field-head">
+                  <h3>Tags</h3>
+                  <CopyButton value={tags} />
+                </div>
+                <textarea rows={4} value={tags} onChange={(e) => setTags(e.target.value)} />
+                <p className="tb-helper" style={{ marginTop: 8, fontSize: "0.82rem" }}>
+                  {tags.length} / 500 characters
+                </p>
+
+                <div className="editor-field package-hashtags-field">
+                  <div className="field-head">
+                    <label>Hashtags</label>
+                    <CopyButton value={hashtags} />
+                  </div>
+                  <textarea rows={3} value={hashtags} onChange={(e) => setHashtags(e.target.value)} />
+                </div>
+              </div>
+
+              <div className="card package-meta-card package-comment-card">
+                <div className="field-head">
+                  <h3>Pinned comment</h3>
+                  <CopyButton value={pinnedComment} />
+                </div>
+                <textarea
+                  rows={4}
+                  value={pinnedComment}
+                  onChange={(e) => setPinnedComment(e.target.value)}
+                />
+              </div>
             </div>
           </div>
+        </section>
 
-          <div className="card">
-            <div className="field-head">
-              <h3>Pinned comment</h3>
-              <CopyButton value={pinnedComment} />
-            </div>
-            <textarea
-              rows={4}
-              value={pinnedComment}
-              onChange={(e) => setPinnedComment(e.target.value)}
-            />
-          </div>
-        </div>
-
-        <div>
+        <section className="package-panel package-panel-grid" hidden={activePanel !== "media"}>
           <ThumbnailBuilder
             packageId={pkg.id}
             initialThumbnailPath={pkg.thumbnailPath}
@@ -493,6 +536,26 @@ export default function PackageEditor({
             defaultSubtitle={`${beat.targetArtist.toUpperCase()} TYPE BEAT`}
           />
 
+          <div className="package-stack">
+            {beat.audioPath && (
+              <div className="card">
+                <h3>Beat audio</h3>
+                <audio controls src={beat.audioPath} style={{ width: "100%" }} />
+              </div>
+            )}
+
+            <VideoGenerator
+              packageId={pkg.id}
+              initialStatus={pkg.videoStatus}
+              initialVideoPath={pkg.videoPath}
+              initialError={pkg.videoError}
+              hasAudio={!!beat.audioPath}
+              hasThumbnail={!!pkg.thumbnailPath}
+            />
+          </div>
+        </section>
+
+        <section className="package-panel package-panel-grid" hidden={activePanel !== "publish"}>
           <div className="card">
             <h3>Schedule</h3>
             <div className="form-field">
@@ -504,77 +567,58 @@ export default function PackageEditor({
                 value={scheduledAt}
                 onChange={(e) => setScheduledAt(e.target.value)}
                 onClick={(e) => {
-                  // Open the native date/time popup from anywhere on the
-                  // field, not just the tiny calendar icon.
                   try {
                     (e.currentTarget as HTMLInputElement).showPicker?.();
                   } catch {
-                    /* showPicker unsupported or not user-activated — ignore */
+                    /* showPicker unsupported or not user-activated - ignore */
                   }
                 }}
               />
             </div>
             <p className="tb-helper" style={{ marginTop: 10 }}>
-              Or leave blank and use ⚡ auto-schedule on the calendar page.
+              Leave blank to auto-schedule from the calendar.
             </p>
           </div>
 
-          {beat.audioPath && (
+          <div className="package-stack">
+            <YouTubeUploader
+              packageId={pkg.id}
+              configured={youtube.configured}
+              connected={youtube.connected}
+              channelTitle={youtube.channelTitle}
+              hasVideo={pkg.videoStatus === "done" && !!pkg.videoPath}
+              scheduledLabel={
+                scheduledAt
+                  ? new Date(scheduledAt).toLocaleString(undefined, {
+                      weekday: "short",
+                      month: "short",
+                      day: "numeric",
+                      hour: "numeric",
+                      minute: "2-digit",
+                    })
+                  : ""
+              }
+              initialStatus={pkg.uploadStatus}
+              initialVideoId={pkg.youtubeVideoId}
+              initialError={pkg.uploadError}
+            />
+
             <div className="card">
-              <h3>Beat audio</h3>
-              <audio controls src={beat.audioPath} style={{ width: "100%" }} />
-            </div>
-          )}
-
-          <VideoGenerator
-            packageId={pkg.id}
-            initialStatus={pkg.videoStatus}
-            initialVideoPath={pkg.videoPath}
-            initialError={pkg.videoError}
-            hasAudio={!!beat.audioPath}
-            hasThumbnail={!!pkg.thumbnailPath}
-          />
-
-          <YouTubeUploader
-            packageId={pkg.id}
-            configured={youtube.configured}
-            connected={youtube.connected}
-            channelTitle={youtube.channelTitle}
-            hasVideo={pkg.videoStatus === "done" && !!pkg.videoPath}
-            scheduledLabel={
-              scheduledAt
-                ? new Date(scheduledAt).toLocaleString(undefined, {
-                    weekday: "short",
-                    month: "short",
-                    day: "numeric",
-                    hour: "numeric",
-                    minute: "2-digit",
-                  })
-                : ""
-            }
-            initialStatus={pkg.uploadStatus}
-            initialVideoId={pkg.youtubeVideoId}
-            initialError={pkg.uploadError}
-          />
-
-
-          <div className="card">
-            <h3>Export</h3>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              <button type="button" className="btn btn-ghost" onClick={downloadPack}>
-                ⬇ Download upload pack (.txt)
-              </button>
-              <button type="button" className="btn btn-primary" disabled={isPending} onClick={() => save("ready")}>
-                {isPending ? "Saving…" : "Save & mark ready"}
-              </button>
-              <button type="button" className="btn btn-ghost" disabled={isPending} onClick={() => save()}>
-                Save changes
-              </button>
-              {saveError && <div className="form-error">{saveError}</div>}
-              {saved && <span className="form-saved">✓ Saved</span>}
+              <h3>Finalize</h3>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <button type="button" className="btn btn-ghost" onClick={downloadPack}>
+                  Download upload pack (.txt)
+                </button>
+                <button type="button" className="btn btn-primary" disabled={isPending} onClick={() => save("ready")}>
+                  {isPending ? "Saving..." : "Save & mark ready"}
+                </button>
+                <button type="button" className="btn btn-ghost" disabled={isPending} onClick={() => save()}>
+                  Save changes
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </section>
       </div>
     </>
   );

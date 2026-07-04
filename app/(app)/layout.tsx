@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { logout } from "@/lib/actions/auth";
+import AppNav from "./AppNav";
 import NavLinks from "./NavLinks";
 import VerifyEmailBanner from "./VerifyEmailBanner";
 import ThemeToggle from "@/app/ThemeToggle";
@@ -15,7 +16,7 @@ export default async function AppLayout({
 
   return (
     <div className="app-page">
-      <nav className="nav">
+      <AppNav>
         <div className="nav-inner">
           <Link href="/dashboard" className="logo" aria-label="TypeBeatOS dashboard">
             <span className="logo-mark" aria-hidden="true" />
@@ -59,7 +60,7 @@ export default async function AppLayout({
             </div>
           </details>
         </div>
-      </nav>
+      </AppNav>
       {!user.emailVerified && (
         <VerifyEmailBanner email={user.email} />
       )}
