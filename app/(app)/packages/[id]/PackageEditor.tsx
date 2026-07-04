@@ -251,33 +251,6 @@ export default function PackageEditor({
     });
   };
 
-  const downloadPack = () => {
-    const text = [
-      "=== TITLE ===",
-      selectedTitle,
-      "",
-      "=== DESCRIPTION ===",
-      description,
-      "",
-      "=== TAGS (paste into YouTube Studio) ===",
-      tags,
-      "",
-      "=== HASHTAGS ===",
-      hashtags,
-      "",
-      "=== PINNED COMMENT (paste after publishing) ===",
-      pinnedComment,
-      "",
-      scheduledAt ? `=== SCHEDULE ===\n${new Date(scheduledAt).toLocaleString()}` : "",
-    ].join("\n");
-    const blob = new Blob([text], { type: "text/plain" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `${beat.name.replace(/\s+/g, "-").toLowerCase()}-upload-pack.txt`;
-    a.click();
-    URL.revokeObjectURL(a.href);
-  };
-
   return (
     <>
       <div className="package-workbench-head">
@@ -294,9 +267,6 @@ export default function PackageEditor({
         </div>
 
         <div className="package-save-strip">
-          <button type="button" className="btn btn-ghost btn-sm" onClick={downloadPack}>
-            Download pack
-          </button>
           <button type="button" className="btn btn-ghost btn-sm" disabled={isPending} onClick={() => save()}>
             {isPending ? "Saving..." : "Save"}
           </button>
@@ -606,14 +576,11 @@ export default function PackageEditor({
             <div className="card">
               <h3>Finalize</h3>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <button type="button" className="btn btn-ghost" onClick={downloadPack}>
-                  Download upload pack (.txt)
-                </button>
                 <button type="button" className="btn btn-primary" disabled={isPending} onClick={() => save("ready")}>
                   {isPending ? "Saving..." : "Save & mark ready"}
                 </button>
-                <button type="button" className="btn btn-ghost" disabled={isPending} onClick={() => save()}>
-                  Save changes
+                <button type="button" className="btn btn-ghost" disabled={isPending} onClick={() => save("draft")}>
+                  {isPending ? "Saving..." : "Save draft"}
                 </button>
               </div>
             </div>

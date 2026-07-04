@@ -910,10 +910,19 @@
   height: 100%;
 }
 .app-page .package-content-grid .package-stack > .card {
-  flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
+}
+/* The tags/hashtags card sizes to its own content so the hashtags box can't
+   overflow its card and collide with the pinned-comment card below. The
+   comment card absorbs the leftover column height so the two columns still
+   line up with the description on the left. */
+.app-page .package-content-grid .package-stack > .package-meta-card:not(.package-comment-card) {
+  flex: 0 0 auto;
+}
+.app-page .package-content-grid .package-stack > .package-comment-card {
+  flex: 1 1 auto;
 }
 .app-page .package-content-grid > .card textarea,
 .app-page .package-comment-card textarea {
