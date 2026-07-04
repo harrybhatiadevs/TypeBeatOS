@@ -19,7 +19,7 @@ export default async function VerifyPage({
   const { error } = await searchParams;
 
   return (
-    <div className="tb-page" data-testid="verify-page">
+    <div className="tb-page tb-page-auth" data-testid="verify-page">
       <div className="tb-glow-layer" aria-hidden="true">
         <div className="tb-glow tb-glow-left" />
         <div className="tb-glow tb-glow-right" />

@@ -16,7 +16,7 @@ export default async function ForgotPage({
   const { error, sent } = await searchParams;
 
   return (
-    <div className="tb-page" data-testid="forgot-page">
+    <div className="tb-page tb-page-auth" data-testid="forgot-page">
       <div className="tb-glow-layer" aria-hidden="true">
         <div className="tb-glow tb-glow-left" />
         <div className="tb-glow tb-glow-right" />

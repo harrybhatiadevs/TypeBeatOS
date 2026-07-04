@@ -16,7 +16,7 @@ export default async function SignupPage({
   const { error } = await searchParams;
 
   return (
-    <div className="tb-page" data-testid="signup-page">
+    <div className="tb-page tb-page-auth" data-testid="signup-page">
       <div className="tb-glow-layer" aria-hidden="true">
         <div className="tb-glow tb-glow-left" />
         <div className="tb-glow tb-glow-right" />

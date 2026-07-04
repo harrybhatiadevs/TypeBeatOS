@@ -16,7 +16,7 @@ export default async function ResetPage({
   const { token, error } = await searchParams;
 
   return (
-    <div className="tb-page" data-testid="reset-page">
+    <div className="tb-page tb-page-auth" data-testid="reset-page">
       <div className="tb-glow-layer" aria-hidden="true">
         <div className="tb-glow tb-glow-left" />
         <div className="tb-glow tb-glow-right" />
