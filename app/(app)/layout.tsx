@@ -26,15 +26,38 @@ export default async function AppLayout({
           <div className="nav-links">
             <NavLinks />
           </div>
-          <Link href="/beats/new" className="btn btn-primary btn-sm">
+          <Link href="/beats/new" className="btn btn-primary btn-sm desktop-nav-action">
             + New beat
           </Link>
-          <ThemeToggle />
-          <form action={logout}>
+          <ThemeToggle className="desktop-nav-action" />
+          <form action={logout} className="desktop-nav-action">
             <button type="submit" className="nav-link nav-logout">
               Log out
             </button>
           </form>
+          <details className="mobile-nav-menu">
+            <summary className="mobile-nav-trigger" aria-label="Open navigation menu">
+              <span aria-hidden="true" />
+              <span aria-hidden="true" />
+              <span aria-hidden="true" />
+            </summary>
+            <div className="mobile-nav-panel">
+              <div className="mobile-nav-links">
+                <NavLinks />
+              </div>
+              <Link href="/beats/new" className="btn btn-primary btn-sm mobile-nav-primary">
+                + New beat
+              </Link>
+              <div className="mobile-nav-actions">
+                <ThemeToggle />
+                <form action={logout}>
+                  <button type="submit" className="nav-link nav-logout">
+                    Log out
+                  </button>
+                </form>
+              </div>
+            </div>
+          </details>
         </div>
       </nav>
       {!user.emailVerified && (

@@ -26,7 +26,7 @@ export default async function VerifyPage({
       </div>
       <div className="tb-grain" aria-hidden="true" />
 
-      <nav className="tb-nav">
+      <nav className="tb-nav tb-nav-auth">
         <Link href="/" className="tb-brand" aria-label="TypeBeatOS home">
           <span className="tb-badge" aria-hidden="true" />
           <span className="tb-wordmark">
