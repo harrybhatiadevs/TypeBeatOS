@@ -7,7 +7,8 @@ const W = 1280;
 const H = 720;
 
 const FONT_OPTIONS = [
-  { label: "Schibsted", value: "\"Schibsted Grotesk\", sans-serif" },
+  { label: "Inter Tight", value: "\"Inter Tight\", Inter, sans-serif" },
+  { label: "Inter", value: "Inter, sans-serif" },
   { label: "Arial Black", value: "\"Arial Black\", Arial, sans-serif" },
   { label: "Impact", value: "Impact, sans-serif" },
   { label: "Georgia", value: "Georgia, serif" },

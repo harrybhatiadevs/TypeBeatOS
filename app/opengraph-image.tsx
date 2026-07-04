@@ -35,11 +35,11 @@ export default async function OpengraphImage() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          background: "#000",
+          background: "#050505",
           color: "#fff",
           padding: "72px 96px",
           backgroundImage:
-            "radial-gradient(circle at 100% 100%, rgba(237, 7, 44, 0.55), transparent 55%)",
+            "radial-gradient(circle at 100% 100%, rgba(255, 29, 63, 0.55), transparent 55%)",
         }}
       >
         {/* Top row — brand mark + wordmark */}
@@ -69,7 +69,7 @@ export default async function OpengraphImage() {
             }}
           >
             <span style={{ color: "#fff" }}>TYPEBEAT</span>
-            <span style={{ color: "#ed072c" }}>OS</span>
+            <span style={{ color: "#FF1D3F" }}>OS</span>
           </div>
         </div>
 
@@ -78,12 +78,12 @@ export default async function OpengraphImage() {
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
           <div style={{ ...headlineLine, color: "#fff" }}>The YouTube</div>
           <div style={{ ...headlineLine, color: "#fff" }}>upload system for</div>
-          <div style={{ ...headlineLine, color: "#ed072c" }}>type-beat producers.</div>
+          <div style={{ ...headlineLine, color: "#FF1D3F" }}>type-beat producers.</div>
           <div
             style={{
               display: "flex",
               fontSize: 30,
-              color: "rgba(255, 255, 255, 0.62)",
+              color: "#A0A0A0",
               maxWidth: 880,
               lineHeight: 1.35,
               marginTop: 22,
@@ -100,7 +100,7 @@ export default async function OpengraphImage() {
               width: 12,
               height: 12,
               borderRadius: 999,
-              background: "#ed072c",
+              background: "#FF1D3F",
             }}
           />
           <div
@@ -109,7 +109,7 @@ export default async function OpengraphImage() {
               fontSize: 22,
               letterSpacing: 4,
               textTransform: "uppercase",
-              color: "rgba(255, 255, 255, 0.7)",
+              color: "#A0A0A0",
             }}
           >
             Private beta · 2026

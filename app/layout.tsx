@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 const APP_URL = process.env.APP_URL || "https://typebeatos.com";
-const TITLE = "TypeBeatOS — Upload a month of type beats in one sitting";
+const TITLE = "TypeBeatOS — YouTube upload automation for type-beat producers";
 const DESCRIPTION =
-  "TypeBeatOS generates SEO titles, descriptions, tags, thumbnails, pinned comments, and upload schedules so you can focus on making beats.";
+  "Upload type beats faster with AI metadata, SEO optimised titles, generated thumbnails, rendered videos, and scheduled YouTube uploads.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
@@ -17,10 +17,17 @@ export const metadata: Metadata = {
   authors: [{ name: "TypeBeatOS" }],
   keywords: [
     "type beats",
+    "upload type beats",
+    "YouTube upload automation",
     "beat producer",
+    "type beat producer",
     "youtube uploads",
     "beat scheduling",
+    "schedule uploads",
     "type beat SEO",
+    "SEO optimised",
+    "generate thumbnails",
+    "AI metadata",
     "music producer tools",
   ],
   openGraph: {
@@ -70,7 +77,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400..900;1,14..32,400..900&family=Inter+Tight:ital,wght@0,400..900;1,400..900&display=swap"
           rel="stylesheet"
         />
       </head>

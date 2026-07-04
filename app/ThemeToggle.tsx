@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 /**
- * Day/night toggle. Dark ("After-Hours Studio") is the brand default;
+ * Day/night toggle. Dark is the TypeBeatOS brand default;
  * flipping to light persists per device via localStorage("tb-theme") and
  * takes effect by setting data-theme on <html> — the same attribute the
  * pre-paint script in app/layout.tsx reads, so there's never a flash.

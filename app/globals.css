@@ -2,7 +2,7 @@
    Global resets, theme tokens, and body styling.
 
    THEME SYSTEM — every surface color reads a semantic token below.
-   :root carries the dark "After-Hours Studio" theme (brand default);
+   :root carries the dark TypeBeatOS design-system theme (brand default);
    [data-theme="light"] overrides with the "Daylight Studio" theme.
    The attribute is set pre-paint by the inline script in app/layout.tsx
    and toggled by app/ThemeToggle.tsx (persisted in localStorage).
@@ -16,83 +16,105 @@
 :root {
   color-scheme: dark;
 
+  /* Spacing: 8px system from the style guide */
+  --space-0-5: 0.25rem;
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2rem;
+  --space-5: 2.5rem;
+  --space-6: 3rem;
+  --space-8: 4rem;
+  --space-10: 5rem;
+  --space-12: 6rem;
+  --space-16: 8rem;
+
+  /* Shape */
+  --radius-card: 1.5rem;
+  --radius-card-sm: 1rem;
+  --radius-control: 0.85rem;
+  --radius-pill: 9999px;
+
   /* Surfaces */
-  --bg: #000000;
-  --surface: rgba(255, 255, 255, 0.025);
-  --surface-2: rgba(255, 255, 255, 0.05);
-  --surface-3: rgba(255, 255, 255, 0.08);
+  --bg: #050505;
+  --bg-2: #0B0B0B;
+  --surface: #111111;
+  --surface-2: #161616;
+  --surface-3: #0B0B0B;
   --border: rgba(255, 255, 255, 0.08);
   --border-2: rgba(255, 255, 255, 0.14);
 
   /* Text */
   --ink: #ffffff;
-  --text: rgba(255, 255, 255, 0.85);
-  --muted: rgba(255, 255, 255, 0.62);
-  --soft: rgba(255, 255, 255, 0.5);
-  --faint: rgba(255, 255, 255, 0.4);
+  --text: #ffffff;
+  --muted: #a0a0a0;
+  --soft: #707070;
+  --faint: #5a5a5a;
 
   /* Brand */
-  --accent: #ed072c;
-  --accent-deep: #b30420;
+  --accent: #ff1d3f;
+  --accent-hover: #ff3556;
+  --accent-deep: #c70a27;
   /* Red that is readable as TEXT on this theme's background */
-  --accent-ink: #ff8d94;
+  --accent-ink: #ff3556;
 
   /* Fields */
-  --field-bg: rgba(0, 0, 0, 0.35);
-  --field-bg-focus: rgba(0, 0, 0, 0.45);
-  --placeholder: rgba(255, 255, 255, 0.45);
+  --field-bg: #0b0b0b;
+  --field-bg-focus: #111111;
+  --placeholder: #707070;
 
   /* Chrome */
-  --nav-glass: rgba(10, 10, 10, 0.62);
-  --nav-glass-strong: rgba(8, 8, 8, 0.8);
-  --card-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --nav-glass: rgba(11, 11, 11, 0.72);
+  --nav-glass-strong: rgba(11, 11, 11, 0.88);
+  --card-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 18px 48px rgba(0, 0, 0, 0.28);
   --float-shadow: 0 12px 40px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  --glow-a: 0.18; /* ambient red radial, top-left */
-  --glow-b: 0.1;  /* ambient red radial, mid-right */
+  --glow-a: 0.14; /* ambient red radial, top-left */
+  --glow-b: 0.08; /* ambient red radial, mid-right */
 
   /* Status */
-  --ok-ink: #6ee7a1;
-  --ok-bg: rgba(46, 213, 115, 0.12);
-  --ok-border: rgba(46, 213, 115, 0.3);
-  --warn-ink: #ffd166;
-  --warn-bg: rgba(255, 209, 102, 0.12);
-  --warn-border: rgba(255, 209, 102, 0.35);
-  --danger-ink: #ff8d94;
-  --danger-bg: rgba(237, 7, 44, 0.1);
-  --danger-border: rgba(237, 7, 44, 0.4);
-  --accent-tint: rgba(237, 7, 44, 0.16);
+  --ok-ink: #22c55e;
+  --ok-bg: rgba(34, 197, 94, 0.12);
+  --ok-border: rgba(34, 197, 94, 0.3);
+  --warn-ink: #f59e0b;
+  --warn-bg: rgba(245, 158, 11, 0.13);
+  --warn-border: rgba(245, 158, 11, 0.34);
+  --danger-ink: #ef4444;
+  --danger-bg: rgba(239, 68, 68, 0.12);
+  --danger-border: rgba(239, 68, 68, 0.4);
+  --accent-tint: rgba(255, 29, 63, 0.16);
 }
 
 [data-theme="light"] {
   color-scheme: light;
 
-  --bg: #f6f4f4;
+  --bg: #fbfaf9;
   --surface: #ffffff;
-  --surface-2: #efeced;
-  --surface-3: #e7e3e4;
-  --border: rgba(20, 17, 20, 0.1);
-  --border-2: rgba(20, 17, 20, 0.18);
+  --surface-2: #f4f1f0;
+  --surface-3: #ece7e5;
+  --border: rgba(24, 22, 21, 0.09);
+  --border-2: rgba(24, 22, 21, 0.16);
 
-  --ink: #141114;
-  --text: rgba(20, 17, 20, 0.85);
-  --muted: rgba(20, 17, 20, 0.63);
-  --soft: rgba(20, 17, 20, 0.52);
-  --faint: rgba(20, 17, 20, 0.42);
+  --ink: #151312;
+  --text: rgba(21, 19, 18, 0.84);
+  --muted: rgba(21, 19, 18, 0.62);
+  --soft: rgba(21, 19, 18, 0.48);
+  --faint: rgba(21, 19, 18, 0.36);
 
-  --accent: #ed072c;
-  --accent-deep: #b30420;
-  --accent-ink: #b30420;
+  --accent: #ff1d3f;
+  --accent-hover: #ff3556;
+  --accent-deep: #c70a27;
+  --accent-ink: #c70a27;
 
   --field-bg: #ffffff;
   --field-bg-focus: #ffffff;
-  --placeholder: rgba(20, 17, 20, 0.45);
+  --placeholder: rgba(21, 19, 18, 0.42);
 
-  --nav-glass: rgba(255, 255, 255, 0.72);
-  --nav-glass-strong: rgba(255, 255, 255, 0.86);
-  --card-shadow: 0 1px 2px rgba(20, 17, 20, 0.05), 0 8px 24px rgba(20, 17, 20, 0.05);
-  --float-shadow: 0 12px 40px rgba(20, 17, 20, 0.12);
-  --glow-a: 0.09;
-  --glow-b: 0.05;
+  --nav-glass: rgba(255, 255, 255, 0.84);
+  --nav-glass-strong: rgba(255, 255, 255, 0.94);
+  --card-shadow: 0 1px 2px rgba(24, 22, 21, 0.04), 0 14px 34px rgba(24, 22, 21, 0.06);
+  --float-shadow: 0 14px 42px rgba(24, 22, 21, 0.1);
+  --glow-a: 0;
+  --glow-b: 0;
 
   --ok-ink: #0c7a42;
   --ok-bg: rgba(20, 160, 90, 0.12);
@@ -100,10 +122,10 @@
   --warn-ink: #7a5800;
   --warn-bg: rgba(255, 193, 61, 0.2);
   --warn-border: rgba(179, 132, 0, 0.35);
-  --danger-ink: #b30420;
-  --danger-bg: rgba(237, 7, 44, 0.07);
-  --danger-border: rgba(237, 7, 44, 0.3);
-  --accent-tint: rgba(237, 7, 44, 0.1);
+  --danger-ink: #C70A27;
+  --danger-bg: rgba(239, 68, 68, 0.08);
+  --danger-border: rgba(239, 68, 68, 0.3);
+  --accent-tint: rgba(255, 29, 63, 0.1);
 }
 
 * {
@@ -118,7 +140,7 @@ html {
 }
 
 body {
-  font-family: "Schibsted Grotesk", system-ui, -apple-system, sans-serif;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
   background: var(--bg);
   color: var(--text);
   line-height: 1.6;

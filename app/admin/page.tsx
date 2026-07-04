@@ -131,7 +131,7 @@ export default async function AdminPage() {
                   minHeight: b.count > 0 ? 4 : 2,
                   borderRadius: 6,
                   background: b.count > 0 ? "linear-gradient(180deg, var(--accent), var(--accent-deep))" : "var(--surface-3)",
-                  boxShadow: b.count > 0 ? "0 0 14px rgba(237,7,44,0.35)" : "none",
+                  boxShadow: b.count > 0 ? "0 0 14px rgba(255,29,63,0.35)" : "none",
                 }}
               />
               <span style={{ fontSize: "0.62rem", color: "var(--faint)", whiteSpace: "nowrap" }}>{b.label}</span>

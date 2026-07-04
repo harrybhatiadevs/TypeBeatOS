@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { getUser } from "@/lib/auth";
 import LpEffects from "./LpEffects";
-import ThemeToggle from "./ThemeToggle";
 import "./landing.css";
 
 const PROBLEMS = [
@@ -43,6 +42,7 @@ const PLANS = [
     cycle: "/mo",
     annual: "",
     perks: ["3 upload packs / mo", "Titles + descriptions", "Direct YouTube publish"],
+    cta: "Start free",
     featured: false,
   },
   {
@@ -51,6 +51,7 @@ const PLANS = [
     cycle: "/mo",
     annual: "or $190/yr — 2 months free",
     perks: ["60 upload packs / mo", "Batch upload queue", "Direct YouTube publish", "Custom templates"],
+    cta: "Upgrade to Pro",
     featured: true,
   },
   {
@@ -59,6 +60,7 @@ const PLANS = [
     cycle: "/mo",
     annual: "or $290/yr — 2 months free",
     perks: ["150 upload packs / mo", "Multiple channels", "Analytics + keyword insights", "Advanced templates"],
+    cta: "Upgrade to Serious",
     featured: false,
   },
 ];
@@ -83,39 +85,37 @@ export default async function Landing() {
       <nav className="lp-nav" data-testid="landing-nav">
         <div className="lp-nav-inner">
           <Link href="/" className="lp-brand" aria-label="TypeBeatOS home">
-            <span className="lp-brand-dot" aria-hidden="true" />
             <span className="lp-wordmark">TYPEBEAT<span>OS</span></span>
           </Link>
           <div className="lp-nav-links">
-            <a href="#workflow" className="lp-nav-link">How it works</a>
-            <a href="#features" className="lp-nav-link">Features</a>
-            <a href="#pricing" className="lp-nav-link">Pricing</a>
+            <a href="#home" className="lp-nav-link" data-section-link="home">Home</a>
+            <a href="#workflow" className="lp-nav-link" data-section-link="workflow">How it works</a>
+            <a href="#features" className="lp-nav-link" data-section-link="features">Features</a>
+            <a href="#pricing" className="lp-nav-link" data-section-link="pricing">Pricing</a>
           </div>
-          <ThemeToggle />
           <Link href={user ? "/dashboard" : "/login"} className="lp-btn lp-btn-ghost lp-btn-sm">
             {user ? "Open app" : "Log in"}
           </Link>
         </div>
+        <span className="lp-nav-progress" aria-hidden="true" />
       </nav>
 
       {/* HERO */}
-      <header className="lp-wrap lp-hero">
+      <header id="home" className="lp-wrap lp-hero">
         <div className="lp-hero-grid">
           <div>
             <h1 className="lp-display lp-h1">
-              Scale your channel
+              Scale your channel{" "}
               <span className="lp-red">without the busywork.</span>
             </h1>
             <p className="lp-hero-sub">
-              From finished beat to SEO-ready YouTube upload in seconds. TypeBeatOS
-              writes the metadata, builds the thumbnail, renders the video, and
-              schedules the post — so you stay on the music.
+              Upload a beat and get SEO metadata, a thumbnail, video render, and
+              schedule in one focused workflow.
             </p>
             <div className="lp-hero-actions">
               <Link href={ctaHref} className="lp-btn lp-btn-primary">{ctaLabel}</Link>
               <a href="#workflow" className="lp-btn lp-btn-ghost">See the workflow</a>
             </div>
-            <p className="lp-hero-note">No card required · 3 free packs every month</p>
           </div>
 
           {/* Product visual: a generated upload package */}
@@ -136,24 +136,27 @@ export default async function Landing() {
             </div>
           </div>
         </div>
-      </header>
 
-      {/* PROOF STRIP */}
-      <section className="lp-proof">
-        <div className="lp-wrap lp-proof-inner">
-          {PROOF.map((p) => (
-            <span key={p.l} className="lp-proof-item">
-              <span className="lp-display lp-proof-num">{p.n}</span>
-              <span className="lp-proof-label">{p.l}</span>
-            </span>
-          ))}
+        {/* PROOF STRIP */}
+        <div className="lp-proof lp-proof-hero">
+          <div className="lp-wrap lp-proof-inner">
+            {PROOF.map((p) => (
+              <span key={p.l} className="lp-proof-item">
+                <span className="lp-display lp-proof-num">{p.n}</span>
+                <span className="lp-proof-label">{p.l}</span>
+              </span>
+            ))}
+          </div>
         </div>
-      </section>
+      </header>
 
       {/* PROBLEM */}
       <section className="lp-wrap lp-section">
         <div className="lp-reveal">
-          <h2 className="lp-display lp-h2">Consistency wins. The upload admin kills it.</h2>
+          <h2 className="lp-display lp-h2 lp-h2-typewriter">
+            <span className="lp-red">Consistency wins.</span>{" "}
+            <span>The upload admin kills it.</span>
+          </h2>
         </div>
         <div className="lp-chips lp-reveal">
           {PROBLEMS.map((p) => (
@@ -170,7 +173,9 @@ export default async function Landing() {
       {/* HOW IT WORKS */}
       <section id="workflow" className="lp-wrap lp-section">
         <div className="lp-reveal">
-          <h2 className="lp-display lp-h2">Raw beat to scheduled upload.</h2>
+          <h2 className="lp-display lp-h2 lp-h2-swipe">
+            Raw beat to <span className="lp-red">scheduled upload.</span>
+          </h2>
           <p className="lp-lead">Three steps, under three minutes. No editor, no spreadsheet, no copy-paste.</p>
         </div>
         <div className="lp-steps lp-reveal">
@@ -211,7 +216,9 @@ export default async function Landing() {
       {/* PRICING */}
       <section id="pricing" className="lp-wrap lp-section">
         <div className="lp-reveal">
-          <h2 className="lp-display lp-h2">Start free. Upgrade when uploads stack.</h2>
+          <h2 className="lp-display lp-h2 lp-h2-swipe">
+            <span className="lp-red">Start free.</span> Upgrade when uploads stack.
+          </h2>
         </div>
         <div className="lp-plans lp-reveal">
           {PLANS.map((p) => (
@@ -224,7 +231,7 @@ export default async function Landing() {
                 {p.perks.map((perk) => <li key={perk}>{perk}</li>)}
               </ul>
               <Link href={ctaHref} className={`lp-btn ${p.featured ? "lp-btn-primary" : "lp-btn-ghost"}`}>
-                Start free
+                {p.cta}
               </Link>
             </div>
           ))}
@@ -233,24 +240,39 @@ export default async function Landing() {
 
       {/* FINAL CTA */}
       <section className="lp-wrap lp-final">
-        <h2 className="lp-display lp-final-h2">Make the beats.<br /><span className="lp-red">We handle YouTube.</span></h2>
-        <Link href={ctaHref} className="lp-btn lp-btn-primary">{ctaLabel}</Link>
+        <h2 className="lp-display lp-final-h2 lp-reveal">Make the beats.<br /><span className="lp-red">We handle YouTube.</span></h2>
+        <Link href={ctaHref} className="lp-btn lp-btn-primary lp-reveal">{ctaLabel}</Link>
       </section>
 
       {/* FOOTER */}
       <footer className="lp-footer">
-        <div className="lp-wrap lp-footer-inner">
-          <span className="lp-brand">
-            <span className="lp-brand-dot" aria-hidden="true" />
+        <div className="lp-wrap lp-footer-grid">
+          <div className="lp-footer-brand lp-reveal">
             <span className="lp-wordmark">TYPEBEAT<span>OS</span></span>
-          </span>
-          <span className="lp-footer-legal">
+            <p>YouTube upload automation for type-beat producers.</p>
+          </div>
+          <div className="lp-footer-col lp-reveal">
+            <h3>Product</h3>
+            <a href="#workflow">Workflow</a>
+            <a href="#features">Features</a>
+            <a href="#pricing">Pricing</a>
+          </div>
+          <div className="lp-footer-col lp-reveal">
+            <h3>Tools</h3>
+            <span>AI metadata</span>
+            <span>Thumbnail builder</span>
+            <span>Upload calendar</span>
+          </div>
+          <div className="lp-footer-col lp-reveal">
+            <h3>Company</h3>
             <Link href="/privacy">Privacy</Link>
             <Link href="/terms">Terms</Link>
-          </span>
-          <span className="lp-footer-copy">
-            © 2026 TypeBeatOS. Not affiliated with YouTube, BeatStars, or any artist mentioned.
-          </span>
+            <Link href={ctaHref}>Open app</Link>
+          </div>
+          <div className="lp-footer-bottom lp-reveal">
+            <span>© 2026 TypeBeatOS.</span>
+            <span>Not affiliated with YouTube, BeatStars, or any artist mentioned.</span>
+          </div>
         </div>
       </footer>
 

@@ -6,18 +6,18 @@
  */
 import type { EmailPayload } from "./email";
 
-const ACCENT = "#ed072c";
-const BG = "#000";
-const PANEL = "#0d0d10";
-const TEXT = "#faf7f7";
-const TEXT_DIM = "rgba(255, 255, 255, 0.62)";
+const ACCENT = "#FF1D3F";
+const BG = "#050505";
+const PANEL = "#111111";
+const TEXT = "#ffffff";
+const TEXT_DIM = "#A0A0A0";
 
 function shell(body: string): string {
   return `<!doctype html>
 <html><body style="margin:0;padding:0;background:${BG};font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,sans-serif;color:${TEXT};">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:${BG};padding:32px 0;">
   <tr><td align="center">
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:560px;background:${PANEL};border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:36px;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:560px;background:${PANEL};border:1px solid rgba(255,255,255,0.08);border-radius:24px;padding:40px;">
       <tr><td>
         <div style="font-size:14px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:${TEXT};">
           TYPEBEAT<span style="color:${ACCENT};">OS</span>
