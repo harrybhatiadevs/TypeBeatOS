@@ -94,6 +94,16 @@ export async function canGeneratePackage(user: { id: string; email: string }): P
   return { ok: true };
 }
 
+/** The saved-template allowance for a user's current plan. Admins are unlimited. */
+export async function getTemplateAllowance(
+  user: { id: string; email: string },
+): Promise<{ planId: PlanId; limit: number }> {
+  if (isAdminEmail(user.email)) return { planId: "serious", limit: Infinity };
+  const subscription = await getSubscription(user.id);
+  const planId = resolvePlanId(subscription);
+  return { planId, limit: PLANS[planId].maxTemplates };
+}
+
 // ---- Stripe customer ----
 
 export async function getOrCreateStripeCustomer(user: {

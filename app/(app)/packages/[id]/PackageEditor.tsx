@@ -93,11 +93,14 @@ export default function PackageEditor({
   beat,
   youtube,
   templates,
+  templateLimit,
 }: {
   pkg: PkgProps;
   beat: BeatProps;
   youtube: { configured: boolean; connected: boolean; channelTitle: string };
   templates: PackageTemplate[];
+  /** Saved-template cap for the user's plan; null = unlimited. */
+  templateLimit: number | null;
 }) {
   const [selectedTitle, setSelectedTitle] = useState(pkg.selectedTitle);
   const [description, setDescription] = useState(pkg.description);
@@ -122,6 +125,8 @@ export default function PackageEditor({
   const [isPending, startTransition] = useTransition();
   const [templatePending, startTemplateTransition] = useTransition();
   const router = useRouter();
+
+  const atTemplateLimit = templateLimit !== null && templateList.length >= templateLimit;
 
   const renderTemplate = (value: string) => {
     const replacements: Record<string, string> = {
@@ -403,10 +408,18 @@ export default function PackageEditor({
                 onChange={(e) => setTemplatePinnedComment(e.target.value)}
               />
             </div>
+            {atTemplateLimit && (
+              <p className="tb-helper">
+                {templateLimit === 0
+                  ? "Saved templates are a Pro feature. "
+                  : `You've reached your ${templateLimit}-template limit. `}
+                <a href="/settings?tab=billing">Upgrade</a> to save more.
+              </p>
+            )}
             <button
               type="button"
               className="btn btn-primary"
-              disabled={templatePending}
+              disabled={templatePending || atTemplateLimit}
               onClick={saveTemplate}
             >
               {templatePending ? "Saving..." : "Save template"}

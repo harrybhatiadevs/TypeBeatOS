@@ -1426,3 +1426,143 @@
   filter: brightness(0) saturate(100%);
   opacity: 0.88;
 }
+
+/* ---------- Settings: left-nav layout ---------- */
+.app-page .settings-layout {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  gap: 1.75rem;
+  align-items: start;
+}
+.app-page .settings-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  position: sticky;
+  top: 5.75rem;
+}
+.app-page .settings-nav-link {
+  display: block;
+  padding: 0.55rem 0.85rem;
+  border-radius: var(--radius-control, 0.7rem);
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.app-page .settings-nav-link:hover {
+  color: var(--ink);
+  background: var(--surface-2);
+}
+.app-page .settings-nav-link.is-active {
+  color: var(--accent-ink);
+  background: var(--accent-tint);
+}
+.app-page .settings-nav-danger {
+  color: var(--danger-ink);
+}
+.app-page .settings-nav-danger:hover,
+.app-page .settings-nav-danger.is-active {
+  color: var(--danger-ink);
+  background: var(--danger-bg);
+}
+.app-page .settings-content {
+  min-width: 0;
+}
+
+/* ---------- Settings: templates manager ---------- */
+.app-page .template-manager {
+  display: grid;
+  grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+  margin-top: 1rem;
+}
+.app-page .template-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+.app-page .template-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control, 0.7rem);
+  overflow: hidden;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.app-page .template-row.is-active {
+  border-color: rgba(255, 29, 63, 0.5);
+  background: var(--accent-tint);
+}
+.app-page .template-row-name {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  padding: 0.55rem 0.75rem;
+  background: none;
+  border: 0;
+  color: var(--ink);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.app-page .template-row-name:hover {
+  color: var(--accent-ink);
+}
+.app-page .template-row-del {
+  padding: 0.4rem 0.7rem;
+  background: none;
+  border: 0;
+  border-left: 1px solid var(--border);
+  color: var(--soft);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.app-page .template-row-del:hover {
+  color: var(--danger-ink);
+}
+.app-page .template-new-btn {
+  margin-top: 0.35rem;
+  align-self: flex-start;
+}
+.app-page .template-empty {
+  padding: 0.4rem 0;
+  font-size: 0.9rem;
+}
+.app-page .template-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card-sm, 1rem);
+  padding: 1.2rem;
+  background: var(--surface-3);
+  min-width: 0;
+}
+.app-page .settings-templates-locked .btn {
+  margin-top: 0.2rem;
+}
+
+@media (max-width: 780px) {
+  .app-page .settings-layout {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .app-page .settings-nav {
+    position: static;
+    flex-flow: row wrap;
+    gap: 0.3rem;
+    padding-bottom: 0.4rem;
+  }
+  .app-page .template-manager {
+    grid-template-columns: 1fr;
+  }
+}

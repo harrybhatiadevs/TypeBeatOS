@@ -134,6 +134,7 @@ model Profile {
   descriptionFooter String @default("")
   scheduleDays      String @default("1,3,5")
   scheduleTime      String @default("18:00")
+  timezone          String @default("")
 }
 
 model Beat {

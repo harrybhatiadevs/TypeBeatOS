@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { youtubeConfigured } from "@/lib/youtube";
-import { getPackageTemplates } from "@/lib/actions/packages";
+import { getTemplateState } from "@/lib/actions/packages";
 import PackageEditor from "./PackageEditor";
 
 export default async function PackagePage({ params }: { params: Promise<{ id: string }> }) {
@@ -15,9 +15,9 @@ export default async function PackagePage({ params }: { params: Promise<{ id: st
   });
   if (!pkg || pkg.beat.userId !== user.id) notFound();
 
-  const [youtube, templates] = await Promise.all([
+  const [youtube, templateState] = await Promise.all([
     db.youTubeAccount.findUnique({ where: { userId: user.id } }),
-    getPackageTemplates(),
+    getTemplateState(),
   ]);
 
   return (
@@ -55,7 +55,8 @@ export default async function PackagePage({ params }: { params: Promise<{ id: st
         connected: !!youtube,
         channelTitle: youtube?.channelTitle || "your channel",
       }}
-      templates={templates}
+      templates={templateState.templates}
+      templateLimit={Number.isFinite(templateState.limit) ? templateState.limit : null}
     />
   );
 }

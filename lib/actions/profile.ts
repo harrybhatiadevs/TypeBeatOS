@@ -27,8 +27,9 @@ export async function saveProfile(formData: FormData) {
       descriptionFooter: String(formData.get("descriptionFooter") || ""),
       scheduleDays: days || "1,3,5",
       scheduleTime: String(formData.get("scheduleTime") || "18:00"),
+      timezone: String(formData.get("timezone") || ""),
     },
   });
 
-  redirect("/profile?saved=1");
+  redirect("/settings?tab=profile&saved=profile");
 }

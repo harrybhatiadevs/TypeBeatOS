@@ -20,7 +20,7 @@ export async function POST(request: Request) {
   try {
     form = await request.formData();
   } catch {
-    return redirectTo("/settings?error=" + encodeURIComponent("Something went wrong — try again."));
+    return redirectTo("/settings?tab=security&error=" + encodeURIComponent("Something went wrong — try again."));
   }
 
   const currentPassword = String(form.get("currentPassword") || "");
@@ -28,10 +28,10 @@ export async function POST(request: Request) {
   const confirm = String(form.get("confirmPassword") || "");
 
   if (newPassword.length < 8) {
-    return redirectTo("/settings?error=" + encodeURIComponent("New password must be at least 8 characters."));
+    return redirectTo("/settings?tab=security&error=" + encodeURIComponent("New password must be at least 8 characters."));
   }
   if (newPassword !== confirm) {
-    return redirectTo("/settings?error=" + encodeURIComponent("New passwords don't match."));
+    return redirectTo("/settings?tab=security&error=" + encodeURIComponent("New passwords don't match."));
   }
 
   try {
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
       headers: request.headers,
     });
   } catch {
-    return redirectTo("/settings?error=" + encodeURIComponent("Current password is incorrect."));
+    return redirectTo("/settings?tab=security&error=" + encodeURIComponent("Current password is incorrect."));
   }
-  return redirectTo("/settings?saved=password");
+  return redirectTo("/settings?tab=security&saved=password");
 }

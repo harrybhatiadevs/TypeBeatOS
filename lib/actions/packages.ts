@@ -8,6 +8,8 @@ import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { nextSlots, parseScheduleDays } from "@/lib/schedule";
 import { sniff } from "@/lib/file-magic";
+import { getTemplateAllowance } from "@/lib/billing";
+import type { PlanId } from "@/lib/plans";
 
 export type PackageTemplate = {
   id: string;
@@ -89,6 +91,23 @@ export async function getPackageTemplates(): Promise<PackageTemplate[]> {
   return readTemplateList(user.id);
 }
 
+export type TemplateState = {
+  templates: PackageTemplate[];
+  planId: PlanId;
+  /** Max templates for this plan (Infinity = unlimited). */
+  limit: number;
+};
+
+/** Templates plus the current plan's allowance, for gating the create UI. */
+export async function getTemplateState(): Promise<TemplateState> {
+  const user = await requireUser();
+  const [templates, allowance] = await Promise.all([
+    readTemplateList(user.id),
+    getTemplateAllowance(user),
+  ]);
+  return { templates, planId: allowance.planId, limit: allowance.limit };
+}
+
 function revalidateTemplateSurfaces(packageId?: string) {
   revalidatePath("/profile");
   if (packageId) revalidatePath(`/packages/${packageId}`);
@@ -100,6 +119,16 @@ export async function createPackageTemplate(input: TemplateInput & { packageId?:
 
   const cleaned = cleanTemplateInput(input);
   const templates = await readTemplateList(user.id);
+
+  const { limit } = await getTemplateAllowance(user);
+  if (templates.length >= limit) {
+    throw new Error(
+      limit === 0
+        ? "Saved templates are a Pro feature — upgrade to save reusable upload templates."
+        : `You've reached your plan's ${limit}-template limit. Delete one or upgrade for more.`,
+    );
+  }
+
   if (templates.some((template) => template.name.toLowerCase() === cleaned.name.toLowerCase())) {
     throw new Error("A template with that name already exists");
   }
@@ -242,9 +271,10 @@ export async function saveThumbnail(formData: FormData) {
 export async function autoScheduleQueue(formData?: FormData) {
   const user = await requireUser();
   const profile = user.profile;
-  // The browser sends its IANA zone so posting times land in the producer's
-  // local time, not the server's UTC. Falls back to UTC if absent (no JS).
-  const timeZone = String(formData?.get("timeZone") || "") || "UTC";
+  // Posting times land in the producer's local time, not the server's UTC.
+  // The timezone they picked in their profile wins; if unset, fall back to the
+  // browser's detected zone (sent as a hidden field), then UTC.
+  const timeZone = profile?.timezone || String(formData?.get("timeZone") || "") || "UTC";
 
   const unscheduled = await db.package.findMany({
     where: { beat: { userId: user.id }, scheduledAt: null },

@@ -12,6 +12,8 @@ export type Plan = {
   packsPerMonth: number;
   /** Max connected YouTube channels (Infinity = unlimited). */
   maxChannels: number;
+  /** Max saved upload templates (0 = feature locked, Infinity = unlimited). */
+  maxTemplates: number;
   /** Display prices in USD. priceAnnual is the yearly total. */
   priceMonthly: number;
   priceAnnual: number;
@@ -25,6 +27,7 @@ export const PLANS: Record<PlanId, Plan> = {
     label: "Free",
     packsPerMonth: 3,
     maxChannels: 1,
+    maxTemplates: 0,
     priceMonthly: 0,
     priceAnnual: 0,
     blurb: "Get started",
@@ -35,6 +38,7 @@ export const PLANS: Record<PlanId, Plan> = {
     label: "Pro",
     packsPerMonth: 60,
     maxChannels: 1,
+    maxTemplates: 3,
     priceMonthly: 19,
     priceAnnual: 190, // ~2 months free
     blurb: "For active channels",
@@ -45,6 +49,7 @@ export const PLANS: Record<PlanId, Plan> = {
     label: "Serious",
     packsPerMonth: 150,
     maxChannels: Infinity,
+    maxTemplates: Infinity,
     priceMonthly: 29,
     priceAnnual: 290, // ~2 months free
     blurb: "Scale it",
