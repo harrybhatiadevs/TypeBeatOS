@@ -15,6 +15,11 @@ prisma/dev.db*
 uploads
 /tmp
 
+# Filled infra manifests carry real secrets (gitignored working copies) —
+# keep them out of the build context entirely.
+*.filled.yaml
+containerapp*.filled.yaml
+
 # Editor / OS junk
 .DS_Store
 *.swp
