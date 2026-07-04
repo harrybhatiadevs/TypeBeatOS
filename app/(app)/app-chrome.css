@@ -1430,7 +1430,7 @@
 /* ---------- Settings: left-nav layout ---------- */
 .app-page .settings-layout {
   display: grid;
-  grid-template-columns: 15rem minmax(0, 1fr);
+  grid-template-columns: 15rem minmax(0, 40rem);
   gap: 1.75rem;
   align-items: start;
 }
@@ -1565,4 +1565,26 @@
   .app-page .template-manager {
     grid-template-columns: 1fr;
   }
+}
+
+/* New / Delete equal-sized + inline in the package template picker */
+.app-page .package-template-btn {
+  min-width: 4.75rem;
+  justify-content: center;
+}
+.app-page .package-template-strip .package-template-upgrade {
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--muted);
+}
+
+/* When the "New" template form is open, it spans the full strip width below
+   the [select] [New] [Delete] row rather than wrapping beside it. */
+.app-page .package-template-strip .template-form {
+  flex-basis: 100%;
+  margin-top: 0.6rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
 }

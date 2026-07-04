@@ -68,11 +68,11 @@ export default async function SettingsPage({
               <div className="card">
                 <h3>Account</h3>
                 <div className="form-grid">
-                  <div className="form-field">
+                  <div className="form-field full">
                     <label htmlFor="name">Name</label>
                     <input id="name" name="name" type="text" defaultValue={user.name || ""} placeholder="Your name" required />
                   </div>
-                  <div className="form-field">
+                  <div className="form-field full">
                     <label htmlFor="email">
                       Email{" "}
                       {user.emailVerified ? (

@@ -120,6 +120,8 @@ export default function PackageEditor({
   const [activePanel, setActivePanel] = useState<"content" | "media" | "publish">("content");
   const [scheduledAt, setScheduledAt] = useState(toLocalInputValue(pkg.scheduledAt));
   const [status, setStatus] = useState(pkg.status);
+  const [videoStatus, setVideoStatus] = useState(pkg.videoStatus);
+  const [showNewTemplate, setShowNewTemplate] = useState(false);
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [isPending, startTransition] = useTransition();
@@ -127,6 +129,18 @@ export default function PackageEditor({
   const router = useRouter();
 
   const atTemplateLimit = templateLimit !== null && templateList.length >= templateLimit;
+  const templatesLocked = templateLimit === 0;
+
+  // "Mark ready" is only allowed once the essential metadata is filled in and a
+  // video has finished rendering (videoStatus is kept live via VideoGenerator).
+  const canMarkReady =
+    selectedTitle.trim() !== "" &&
+    description.trim() !== "" &&
+    tags.trim() !== "" &&
+    videoStatus === "done";
+  const markReadyHint = canMarkReady
+    ? "Save and send to the scheduled queue"
+    : "Fill in the title, description, and tags, and generate a video first";
 
   const renderTemplate = (value: string) => {
     const replacements: Record<string, string> = {
@@ -156,21 +170,23 @@ export default function PackageEditor({
     setTemplateError("");
   };
 
-  const applyTemplate = () => {
-    const template = templateList.find((t) => t.id === selectedTemplateId);
-    if (!template) {
-      setTemplateError("Choose a template first.");
+  // Selecting a template from the dropdown applies it immediately (no separate
+  // Import button). Empty selection just clears the picker.
+  const selectTemplate = (id: string) => {
+    setSelectedTemplateId(id);
+    setTemplateError("");
+    if (!id) {
       setTemplateMessage("");
       return;
     }
-
+    const template = templateList.find((t) => t.id === id);
+    if (!template) return;
     setSelectedTitle(renderTemplate(template.title));
     setDescription(renderTemplate(template.description));
     setTags(renderTemplate(template.tags));
     setHashtags(renderTemplate(template.hashtags));
     setPinnedComment(renderTemplate(template.pinnedComment));
-    setTemplateError("");
-    setTemplateMessage(`Imported "${template.name}". Save changes when ready.`);
+    setTemplateMessage(`Applied "${template.name}".`);
   };
 
   const saveTemplate = () => {
@@ -190,6 +206,7 @@ export default function PackageEditor({
         setTemplateList((current) => [template, ...current.filter((t) => t.id !== template.id)]);
         setSelectedTemplateId(template.id);
         setTemplateName("");
+        setShowNewTemplate(false);
         setTemplateMessage(`Saved "${template.name}" to templates.`);
       } catch (err) {
         setTemplateError(errorMessage(err, "Could not save template. Try again."));
@@ -242,7 +259,9 @@ export default function PackageEditor({
           scheduledAt: scheduledAtIso,
           status: s,
         });
-        if (nextStatus === "ready") {
+        // Both header actions (Save draft / Mark ready) return you to the
+        // dashboard queue; only inline component saves stay on the page.
+        if (nextStatus) {
           router.push("/dashboard");
           router.refresh();
           return;
@@ -272,10 +291,16 @@ export default function PackageEditor({
         </div>
 
         <div className="package-save-strip">
-          <button type="button" className="btn btn-ghost btn-sm" disabled={isPending} onClick={() => save()}>
-            {isPending ? "Saving..." : "Save"}
+          <button type="button" className="btn btn-ghost btn-sm" disabled={isPending} onClick={() => save("draft")}>
+            {isPending ? "Saving..." : "Save draft"}
           </button>
-          <button type="button" className="btn btn-primary btn-sm" disabled={isPending} onClick={() => save("ready")}>
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            disabled={isPending || !canMarkReady}
+            title={markReadyHint}
+            onClick={() => save("ready")}
+          >
             {isPending ? "Saving..." : "Mark ready"}
           </button>
         </div>
@@ -307,12 +332,22 @@ export default function PackageEditor({
         ))}
       </div>
 
+      {activePanel === "content" && (
       <div className="package-template-strip">
+        {templatesLocked ? (
+          <div className="package-template-main">
+            <span className="package-template-label">Template</span>
+            <span className="tb-helper package-template-upgrade">
+              Upgrade to <a href="/settings?tab=billing">Pro</a> to add templates.
+            </span>
+          </div>
+        ) : (
+        <>
         <div className="package-template-main">
-          <span>Template</span>
+          <span className="package-template-label">Template</span>
           <select
             value={selectedTemplateId}
-            onChange={(e) => setSelectedTemplateId(e.target.value)}
+            onChange={(e) => selectTemplate(e.target.value)}
           >
             <option value="">Choose a saved template</option>
             {templateList.map((template) => (
@@ -323,15 +358,20 @@ export default function PackageEditor({
           </select>
           <button
             type="button"
-            className="btn btn-primary btn-sm"
-            disabled={templatePending || !selectedTemplateId}
-            onClick={applyTemplate}
+            className="btn btn-ghost btn-sm package-template-btn"
+            disabled={templatePending || atTemplateLimit}
+            title={atTemplateLimit ? `You've reached your ${templateLimit}-template limit` : undefined}
+            onClick={() => {
+              setShowNewTemplate((v) => !v);
+              setTemplateError("");
+              setTemplateMessage("");
+            }}
           >
-            Import
+            New
           </button>
           <button
             type="button"
-            className="btn btn-ghost btn-sm"
+            className="btn btn-ghost btn-sm package-template-btn"
             disabled={templatePending || !selectedTemplateId}
             onClick={removeTemplate}
           >
@@ -339,8 +379,7 @@ export default function PackageEditor({
           </button>
         </div>
 
-        <details className="template-builder package-template-builder">
-          <summary>+ New</summary>
+        {showNewTemplate && (
           <div className="template-form">
             <div className="form-field">
               <label htmlFor="templateName">Template name</label>
@@ -425,11 +464,14 @@ export default function PackageEditor({
               {templatePending ? "Saving..." : "Save template"}
             </button>
           </div>
-        </details>
+        )}
 
         {templateError && <div className="form-error">{templateError}</div>}
         {templateMessage && <span className="form-saved">{templateMessage}</span>}
+        </>
+        )}
       </div>
+      )}
 
       <div className="package-panels">
         <section className="package-panel" hidden={activePanel !== "content"}>
@@ -534,6 +576,7 @@ export default function PackageEditor({
               initialError={pkg.videoError}
               hasAudio={!!beat.audioPath}
               hasThumbnail={!!pkg.thumbnailPath}
+              onStatusChange={setVideoStatus}
             />
           </div>
         </section>
@@ -585,18 +628,6 @@ export default function PackageEditor({
               initialVideoId={pkg.youtubeVideoId}
               initialError={pkg.uploadError}
             />
-
-            <div className="card">
-              <h3>Finalize</h3>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <button type="button" className="btn btn-primary" disabled={isPending} onClick={() => save("ready")}>
-                  {isPending ? "Saving..." : "Save & mark ready"}
-                </button>
-                <button type="button" className="btn btn-ghost" disabled={isPending} onClick={() => save("draft")}>
-                  {isPending ? "Saving..." : "Save draft"}
-                </button>
-              </div>
-            </div>
           </div>
         </section>
       </div>

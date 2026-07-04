@@ -10,6 +10,7 @@ export default function VideoGenerator({
   initialError,
   hasAudio,
   hasThumbnail,
+  onStatusChange,
 }: {
   packageId: string;
   initialStatus: string;
@@ -17,6 +18,8 @@ export default function VideoGenerator({
   initialError: string;
   hasAudio: boolean;
   hasThumbnail: boolean;
+  /** Notifies the parent editor when the render status changes (for gating). */
+  onStatusChange?: (status: string) => void;
 }) {
   const [status, setStatus] = useState(initialStatus);
   const [videoPath, setVideoPath] = useState(initialVideoPath);
@@ -24,6 +27,12 @@ export default function VideoGenerator({
   const [style, setStyle] = useState<"static" | "waveform">("static");
   const [starting, setStarting] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Keep the parent editor's copy of the video status in sync so it can gate
+  // "Mark ready" on a finished render without a full page refresh.
+  useEffect(() => {
+    onStatusChange?.(status);
+  }, [status, onStatusChange]);
 
   useEffect(() => {
     if (status !== "rendering") return;
