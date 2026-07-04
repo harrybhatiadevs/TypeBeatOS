@@ -805,6 +805,23 @@
   display: flex;
   justify-content: flex-start;
 }
+.app-page .profile-template-copy {
+  margin: -0.2rem 0 1.1rem;
+  max-width: 46rem;
+}
+.app-page .profile-template-select {
+  margin-bottom: 1.1rem;
+}
+.app-page .profile-template-form {
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+.app-page .profile-template-actions {
+  margin-top: 0;
+}
+.app-page .profile-template-card .form-error {
+  margin: 0;
+}
 .app-page .field-head {
   display: flex;
   justify-content: space-between;

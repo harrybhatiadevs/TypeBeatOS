@@ -19,20 +19,22 @@ export type PackageTemplate = {
   pinnedComment: string;
 };
 
-async function ownedPackage(id: string, userId: string) {
-  const pkg = await db.package.findUnique({ where: { id }, include: { beat: true } });
-  if (!pkg || pkg.beat.userId !== userId) throw new Error("Package not found");
-  return pkg;
-}
-
-function cleanTemplateInput(input: {
+type TemplateInput = {
   name: string;
   title: string;
   description: string;
   tags: string;
   hashtags: string;
   pinnedComment: string;
-}) {
+};
+
+async function ownedPackage(id: string, userId: string) {
+  const pkg = await db.package.findUnique({ where: { id }, include: { beat: true } });
+  if (!pkg || pkg.beat.userId !== userId) throw new Error("Package not found");
+  return pkg;
+}
+
+function cleanTemplateInput(input: TemplateInput) {
   const name = input.name.trim().replace(/\s+/g, " ");
   if (!name) throw new Error("Template name is required");
   if (name.length > 80) throw new Error("Template name must be 80 characters or less");
@@ -87,17 +89,14 @@ export async function getPackageTemplates(): Promise<PackageTemplate[]> {
   return readTemplateList(user.id);
 }
 
-export async function createPackageTemplate(input: {
-  packageId: string;
-  name: string;
-  title: string;
-  description: string;
-  tags: string;
-  hashtags: string;
-  pinnedComment: string;
-}) {
+function revalidateTemplateSurfaces(packageId?: string) {
+  revalidatePath("/profile");
+  if (packageId) revalidatePath(`/packages/${packageId}`);
+}
+
+export async function createPackageTemplate(input: TemplateInput & { packageId?: string }) {
   const user = await requireUser();
-  await ownedPackage(input.packageId, user.id);
+  if (input.packageId) await ownedPackage(input.packageId, user.id);
 
   const cleaned = cleanTemplateInput(input);
   const templates = await readTemplateList(user.id);
@@ -108,13 +107,40 @@ export async function createPackageTemplate(input: {
   const template: PackageTemplate = { id: randomUUID(), ...cleaned };
   await writeTemplateList(user.id, [template, ...templates]);
 
-  revalidatePath(`/packages/${input.packageId}`);
+  revalidateTemplateSurfaces(input.packageId);
   return template;
 }
 
-export async function deletePackageTemplate(input: { packageId: string; templateId: string }) {
+export async function updatePackageTemplate(input: TemplateInput & { templateId: string; packageId?: string }) {
   const user = await requireUser();
-  await ownedPackage(input.packageId, user.id);
+  if (input.packageId) await ownedPackage(input.packageId, user.id);
+
+  const cleaned = cleanTemplateInput(input);
+  const templates = await readTemplateList(user.id);
+  const index = templates.findIndex((template) => template.id === input.templateId);
+  if (index === -1) throw new Error("Template not found");
+  if (
+    templates.some(
+      (template) =>
+        template.id !== input.templateId &&
+        template.name.toLowerCase() === cleaned.name.toLowerCase()
+    )
+  ) {
+    throw new Error("A template with that name already exists");
+  }
+
+  const template: PackageTemplate = { id: input.templateId, ...cleaned };
+  const next = [...templates];
+  next[index] = template;
+  await writeTemplateList(user.id, next);
+
+  revalidateTemplateSurfaces(input.packageId);
+  return template;
+}
+
+export async function deletePackageTemplate(input: { packageId?: string; templateId: string }) {
+  const user = await requireUser();
+  if (input.packageId) await ownedPackage(input.packageId, user.id);
 
   const templates = await readTemplateList(user.id);
   await writeTemplateList(
@@ -122,7 +148,7 @@ export async function deletePackageTemplate(input: { packageId: string; template
     templates.filter((template) => template.id !== input.templateId)
   );
 
-  revalidatePath(`/packages/${input.packageId}`);
+  revalidateTemplateSurfaces(input.packageId);
 }
 
 export async function updatePackage(input: {

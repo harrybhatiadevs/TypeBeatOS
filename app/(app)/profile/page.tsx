@@ -4,9 +4,11 @@ import { requireUser } from "@/lib/auth";
 import { getPlanState } from "@/lib/billing";
 import { saveProfile } from "@/lib/actions/profile";
 import { disconnectYouTube } from "@/lib/actions/youtube";
+import { getPackageTemplates } from "@/lib/actions/packages";
 import FormSubmitButton from "@/app/FormSubmitButton";
 import { youtubeConfigured } from "@/lib/youtube";
 import { parseScheduleDays } from "@/lib/schedule";
+import TemplateManager from "./TemplateManager";
 
 const DAYS = [
   { num: 0, label: "Sun" },
@@ -25,10 +27,13 @@ export default async function ProfilePage({
 }) {
   const user = await requireUser();
   const { saved, yt_connected, yt_error } = await searchParams;
-  const { plan, used, limit, isAdmin } = await getPlanState(user);
   const p = user.profile;
   const activeDays = parseScheduleDays(p?.scheduleDays || "1,3,5");
-  const youtube = await db.youTubeAccount.findUnique({ where: { userId: user.id } });
+  const [{ plan, used, limit, isAdmin }, youtube, templates] = await Promise.all([
+    getPlanState(user),
+    db.youTubeAccount.findUnique({ where: { userId: user.id } }),
+    getPackageTemplates(),
+  ]);
   const configured = youtubeConfigured();
 
   return (
@@ -169,6 +174,8 @@ export default async function ProfilePage({
           {saved && <span className="form-saved">✓ Saved</span>}
         </div>
       </form>
+
+      <TemplateManager initialTemplates={templates} />
     </>
   );
 }
