@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { youtubeConfigured } from "@/lib/youtube";
+import { getPackageTemplates } from "@/lib/actions/packages";
 import PackageEditor from "./PackageEditor";
 
 export default async function PackagePage({ params }: { params: Promise<{ id: string }> }) {
@@ -14,7 +15,10 @@ export default async function PackagePage({ params }: { params: Promise<{ id: st
   });
   if (!pkg || pkg.beat.userId !== user.id) notFound();
 
-  const youtube = await db.youTubeAccount.findUnique({ where: { userId: user.id } });
+  const [youtube, templates] = await Promise.all([
+    db.youTubeAccount.findUnique({ where: { userId: user.id } }),
+    getPackageTemplates(),
+  ]);
 
   return (
     <PackageEditor
@@ -42,6 +46,8 @@ export default async function PackagePage({ params }: { params: Promise<{ id: st
         targetArtist: pkg.beat.targetArtist,
         secondaryArtist: pkg.beat.secondaryArtist,
         genre: pkg.beat.genre,
+        bpm: pkg.beat.bpm,
+        key: pkg.beat.key,
         audioPath: pkg.beat.audioPath,
       }}
       youtube={{
@@ -49,6 +55,7 @@ export default async function PackagePage({ params }: { params: Promise<{ id: st
         connected: !!youtube,
         channelTitle: youtube?.channelTitle || "your channel",
       }}
+      templates={templates}
     />
   );
 }

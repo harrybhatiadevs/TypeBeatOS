@@ -1,17 +1,128 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { mkdir, writeFile } from "fs/promises";
+import { randomUUID } from "crypto";
+import { mkdir, readFile, writeFile } from "fs/promises";
 import path from "path";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { nextSlots, parseScheduleDays } from "@/lib/schedule";
 import { sniff } from "@/lib/file-magic";
 
+export type PackageTemplate = {
+  id: string;
+  name: string;
+  title: string;
+  description: string;
+  tags: string;
+  hashtags: string;
+  pinnedComment: string;
+};
+
 async function ownedPackage(id: string, userId: string) {
   const pkg = await db.package.findUnique({ where: { id }, include: { beat: true } });
   if (!pkg || pkg.beat.userId !== userId) throw new Error("Package not found");
   return pkg;
+}
+
+function cleanTemplateInput(input: {
+  name: string;
+  title: string;
+  description: string;
+  tags: string;
+  hashtags: string;
+  pinnedComment: string;
+}) {
+  const name = input.name.trim().replace(/\s+/g, " ");
+  if (!name) throw new Error("Template name is required");
+  if (name.length > 80) throw new Error("Template name must be 80 characters or less");
+
+  return {
+    name,
+    title: input.title.trim(),
+    description: input.description.trim(),
+    tags: input.tags.trim(),
+    hashtags: input.hashtags.trim(),
+    pinnedComment: input.pinnedComment.trim(),
+  };
+}
+
+function templateFilePath(userId: string) {
+  return path.join(process.cwd(), "uploads", "templates", `${encodeURIComponent(userId)}.json`);
+}
+
+async function readTemplateList(userId: string): Promise<PackageTemplate[]> {
+  try {
+    const raw = await readFile(templateFilePath(userId), "utf8");
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((template): template is PackageTemplate => {
+      return (
+        template &&
+        typeof template.id === "string" &&
+        typeof template.name === "string" &&
+        typeof template.title === "string" &&
+        typeof template.description === "string" &&
+        typeof template.tags === "string" &&
+        typeof template.hashtags === "string" &&
+        typeof template.pinnedComment === "string"
+      );
+    });
+  } catch (err) {
+    if (err && typeof err === "object" && "code" in err && (err as { code?: string }).code === "ENOENT") {
+      return [];
+    }
+    throw err;
+  }
+}
+
+async function writeTemplateList(userId: string, templates: PackageTemplate[]) {
+  const filePath = templateFilePath(userId);
+  await mkdir(path.dirname(filePath), { recursive: true });
+  await writeFile(filePath, JSON.stringify(templates, null, 2), "utf8");
+}
+
+export async function getPackageTemplates(): Promise<PackageTemplate[]> {
+  const user = await requireUser();
+  return readTemplateList(user.id);
+}
+
+export async function createPackageTemplate(input: {
+  packageId: string;
+  name: string;
+  title: string;
+  description: string;
+  tags: string;
+  hashtags: string;
+  pinnedComment: string;
+}) {
+  const user = await requireUser();
+  await ownedPackage(input.packageId, user.id);
+
+  const cleaned = cleanTemplateInput(input);
+  const templates = await readTemplateList(user.id);
+  if (templates.some((template) => template.name.toLowerCase() === cleaned.name.toLowerCase())) {
+    throw new Error("A template with that name already exists");
+  }
+
+  const template: PackageTemplate = { id: randomUUID(), ...cleaned };
+  await writeTemplateList(user.id, [template, ...templates]);
+
+  revalidatePath(`/packages/${input.packageId}`);
+  return template;
+}
+
+export async function deletePackageTemplate(input: { packageId: string; templateId: string }) {
+  const user = await requireUser();
+  await ownedPackage(input.packageId, user.id);
+
+  const templates = await readTemplateList(user.id);
+  await writeTemplateList(
+    user.id,
+    templates.filter((template) => template.id !== input.templateId)
+  );
+
+  revalidatePath(`/packages/${input.packageId}`);
 }
 
 export async function updatePackage(input: {
