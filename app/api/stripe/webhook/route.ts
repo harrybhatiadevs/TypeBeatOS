@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
-import { getStripe } from "@/lib/stripe";
+import { getStripe, readStripeEnv } from "@/lib/stripe";
 import { db } from "@/lib/db";
 import { planFromPriceId } from "@/lib/billing";
 import { loggerFor } from "@/lib/logger";
@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 const log = loggerFor("stripe");
 
 export async function POST(request: Request) {
-  const secret = process.env.STRIPE_WEBHOOK_SECRET;
+  const secret = readStripeEnv("STRIPE_WEBHOOK_SECRET");
   if (!secret) return NextResponse.json({ error: "webhook not configured" }, { status: 503 });
 
   const sig = request.headers.get("stripe-signature");

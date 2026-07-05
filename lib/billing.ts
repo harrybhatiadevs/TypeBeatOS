@@ -1,6 +1,6 @@
 import "server-only";
 import { db } from "@/lib/db";
-import { getStripe } from "@/lib/stripe";
+import { getStripe, readStripeEnv } from "@/lib/stripe";
 import { PLANS, type Plan, type PlanId, type Interval } from "@/lib/plans";
 import { isAdminEmail } from "@/lib/admin";
 
@@ -8,20 +8,22 @@ import { isAdminEmail } from "@/lib/admin";
 
 export function priceIdFor(plan: PlanId, interval: Interval): string | undefined {
   if (plan === "pro") {
-    return interval === "year" ? process.env.STRIPE_PRICE_PRO_ANNUAL : process.env.STRIPE_PRICE_PRO_MONTHLY;
+    return interval === "year" ? readStripeEnv("STRIPE_PRICE_PRO_ANNUAL") : readStripeEnv("STRIPE_PRICE_PRO_MONTHLY");
   }
   if (plan === "serious") {
-    return interval === "year" ? process.env.STRIPE_PRICE_SERIOUS_ANNUAL : process.env.STRIPE_PRICE_SERIOUS_MONTHLY;
+    return interval === "year"
+      ? readStripeEnv("STRIPE_PRICE_SERIOUS_ANNUAL")
+      : readStripeEnv("STRIPE_PRICE_SERIOUS_MONTHLY");
   }
   return undefined;
 }
 
 export function planFromPriceId(priceId: string): { plan: PlanId; interval: Interval } | null {
   const table: Array<[string | undefined, PlanId, Interval]> = [
-    [process.env.STRIPE_PRICE_PRO_MONTHLY, "pro", "month"],
-    [process.env.STRIPE_PRICE_PRO_ANNUAL, "pro", "year"],
-    [process.env.STRIPE_PRICE_SERIOUS_MONTHLY, "serious", "month"],
-    [process.env.STRIPE_PRICE_SERIOUS_ANNUAL, "serious", "year"],
+    [readStripeEnv("STRIPE_PRICE_PRO_MONTHLY"), "pro", "month"],
+    [readStripeEnv("STRIPE_PRICE_PRO_ANNUAL"), "pro", "year"],
+    [readStripeEnv("STRIPE_PRICE_SERIOUS_MONTHLY"), "serious", "month"],
+    [readStripeEnv("STRIPE_PRICE_SERIOUS_ANNUAL"), "serious", "year"],
   ];
   for (const [id, plan, interval] of table) {
     if (id && id === priceId) return { plan, interval };
@@ -112,9 +114,20 @@ export async function getOrCreateStripeCustomer(user: {
   name?: string | null;
 }): Promise<string> {
   const existing = await getSubscription(user.id);
-  if (existing?.stripeCustomerId) return existing.stripeCustomerId;
+  const stripe = getStripe();
+  if (existing?.stripeCustomerId) {
+    try {
+      const customer = await stripe.customers.retrieve(existing.stripeCustomerId);
+      if (!("deleted" in customer) || !customer.deleted) return existing.stripeCustomerId;
+    } catch (err) {
+      const maybeStripeError = err as { code?: string; param?: string; statusCode?: number };
+      if (maybeStripeError.code !== "resource_missing" || maybeStripeError.param !== "customer") {
+        throw err;
+      }
+    }
+  }
 
-  const customer = await getStripe().customers.create({
+  const customer = await stripe.customers.create({
     email: user.email,
     name: user.name || undefined,
     metadata: { userId: user.id },
