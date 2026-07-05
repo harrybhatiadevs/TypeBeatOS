@@ -100,6 +100,37 @@
   color: var(--ok-ink);
 }
 
+.app-page .billing-beta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: 24rem;
+  margin: -0.5rem 0 1.5rem;
+  padding: 0.45rem 0.5rem 0.45rem 0.95rem;
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  background: var(--surface);
+}
+.app-page .billing-beta label {
+  flex: 0 0 auto;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+.app-page .billing-beta input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.9rem;
+}
+.app-page .billing-beta input::placeholder { color: var(--soft); }
+
 /* Plan cards */
 .app-page .billing-plans {
   display: grid;

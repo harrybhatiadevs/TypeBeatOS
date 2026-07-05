@@ -18,6 +18,7 @@ export default function BillingPlans({
 }) {
   const [interval, setInterval] = useState<Interval>("month");
   const [checkoutPlan, setCheckoutPlan] = useState<PlanId | null>(null);
+  const [betaCode, setBetaCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,7 +32,7 @@ export default function BillingPlans({
     const res = await fetch("/api/billing/checkout", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ plan: checkoutPlan, interval }),
+      body: JSON.stringify({ plan: checkoutPlan, interval, betaCode: betaCode.trim() || undefined }),
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
@@ -39,7 +40,7 @@ export default function BillingPlans({
     }
     const { clientSecret } = await res.json();
     return clientSecret as string;
-  }, [checkoutPlan, interval]);
+  }, [checkoutPlan, interval, betaCode]);
 
   async function openPortal() {
     setBusy(true);
@@ -88,6 +89,18 @@ export default function BillingPlans({
         >
           Annual <span className="billing-save">2 months free</span>
         </button>
+      </div>
+
+      <div className="billing-beta">
+        <label htmlFor="billing-beta-code">Beta code</label>
+        <input
+          id="billing-beta-code"
+          type="text"
+          value={betaCode}
+          onChange={(event) => setBetaCode(event.target.value)}
+          placeholder="Optional"
+          autoComplete="off"
+        />
       </div>
 
       <div className="billing-plans">
