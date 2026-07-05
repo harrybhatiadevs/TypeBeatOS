@@ -1,7 +1,7 @@
 import "./billing.css";
 import { requireUser } from "@/lib/auth";
 import { getPlanState } from "@/lib/billing";
-import { getStripe, stripeConfigured } from "@/lib/stripe";
+import { getStripe, readStripeEnv, stripeConfigured } from "@/lib/stripe";
 import { isPaidPlan } from "@/lib/plans";
 import BillingPlans from "./BillingPlans";
 
@@ -27,7 +27,7 @@ export default async function BillingPage({
     }
   }
 
-  const publishableKey = process.env.STRIPE_PUBLISHABLE_KEY || "";
+  const publishableKey = readStripeEnv("STRIPE_PUBLISHABLE_KEY");
   const paid = isPaidPlan(planId);
   const limitLabel = isAdmin ? "unlimited" : String(limit);
   const usagePct = isAdmin || !isFinite(limit) || limit <= 0 ? 0 : Math.min(100, Math.round((used / limit) * 100));
