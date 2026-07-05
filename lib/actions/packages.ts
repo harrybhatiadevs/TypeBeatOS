@@ -9,6 +9,7 @@ import { requireUser } from "@/lib/auth";
 import { nextSlots, parseScheduleDays } from "@/lib/schedule";
 import { sniff } from "@/lib/file-magic";
 import { getTemplateAllowance } from "@/lib/billing";
+import { aiConfigured, aiGenerateTemplate } from "@/lib/generate";
 import type { PlanId } from "@/lib/plans";
 
 export type PackageTemplate = {
@@ -96,6 +97,8 @@ export type TemplateState = {
   planId: PlanId;
   /** Max templates for this plan (Infinity = unlimited). */
   limit: number;
+  /** Whether AI template generation is available (an Anthropic key is set). */
+  aiEnabled: boolean;
 };
 
 /** Templates plus the current plan's allowance, for gating the create UI. */
@@ -105,7 +108,35 @@ export async function getTemplateState(): Promise<TemplateState> {
     readTemplateList(user.id),
     getTemplateAllowance(user),
   ]);
-  return { templates, planId: allowance.planId, limit: allowance.limit };
+  return { templates, planId: allowance.planId, limit: allowance.limit, aiEnabled: aiConfigured() };
+}
+
+/**
+ * AI-draft a reusable SEO template from a short brief. Fills the editor form;
+ * the producer reviews and Saves it (which enforces the plan cap). Gated to
+ * plans that can save templates at all.
+ */
+export async function generateTemplateDraft(input: { brief: string }): Promise<PackageTemplate> {
+  const user = await requireUser();
+
+  const { limit } = await getTemplateAllowance(user);
+  if (limit === 0) {
+    throw new Error("Saved templates are a Pro feature — upgrade to use AI generation.");
+  }
+  if (!aiConfigured()) {
+    throw new Error("AI generation isn't set up yet — an ANTHROPIC_API_KEY is required.");
+  }
+  const brief = input.brief.trim();
+  if (!brief) {
+    throw new Error('Describe the lane or vibe first — e.g. "Drake x Latin trap, dark melodic".');
+  }
+
+  const result = await aiGenerateTemplate(brief);
+  if (!result) {
+    throw new Error("Couldn't generate a template right now. Try again in a moment.");
+  }
+  // Shape matches PackageTemplate minus the id; the client uses it as a draft.
+  return { id: "", ...result };
 }
 
 function revalidateTemplateSurfaces(packageId?: string) {

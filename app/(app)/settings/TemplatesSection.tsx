@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import {
   createPackageTemplate,
   deletePackageTemplate,
+  generateTemplateDraft,
   updatePackageTemplate,
   type PackageTemplate,
 } from "@/lib/actions/packages";
@@ -28,17 +29,22 @@ function errorMessage(err: unknown, fallback: string) {
 export default function TemplatesSection({
   initialTemplates,
   limit,
+  aiEnabled,
 }: {
   initialTemplates: PackageTemplate[];
   /** Plan template cap; null = unlimited. */
   limit: number | null;
   planId: PlanId;
+  /** Whether AI generation is available (an Anthropic key is set). */
+  aiEnabled: boolean;
 }) {
   const [templates, setTemplates] = useState(initialTemplates);
   const [draft, setDraft] = useState<Draft | null>(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
+  const [brief, setBrief] = useState("");
+  const [aiPending, startAiTransition] = useTransition();
 
   const unlimited = limit === null;
   const locked = limit === 0;
@@ -49,6 +55,25 @@ export default function TemplatesSection({
     setDraft({ ...emptyDraft });
     setError("");
     setMessage("");
+  };
+
+  const generate = () => {
+    if (!brief.trim()) {
+      setError('Describe a lane first — e.g. "Drake x Latin trap, dark melodic".');
+      return;
+    }
+    setError("");
+    setMessage("");
+    startAiTransition(async () => {
+      try {
+        const t = await generateTemplateDraft({ brief });
+        // Open the editor pre-filled with the AI draft (id blank = unsaved).
+        setDraft({ name: t.name, title: t.title, description: t.description, tags: t.tags, hashtags: t.hashtags, pinnedComment: t.pinnedComment });
+        setMessage("Generated — review and Save it.");
+      } catch (err) {
+        setError(errorMessage(err, "Could not generate a template. Try again."));
+      }
+    });
   };
   const openEdit = (t: PackageTemplate) => {
     setDraft({ ...t });
@@ -126,6 +151,36 @@ export default function TemplatesSection({
         Reusable title, description, tag, hashtag, and pinned-comment presets for different artist
         lanes. Import any of them from a package&apos;s editor.
       </p>
+
+      <div className="template-ai-bar">
+        <input
+          type="text"
+          value={brief}
+          onChange={(e) => setBrief(e.target.value)}
+          placeholder="Describe a lane — e.g. Drake x Latin trap, dark melodic"
+          disabled={!aiEnabled || aiPending}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              generate();
+            }
+          }}
+        />
+        <button
+          type="button"
+          className="btn btn-primary btn-sm"
+          onClick={generate}
+          disabled={!aiEnabled || aiPending}
+          title={aiEnabled ? undefined : "Add an ANTHROPIC_API_KEY to enable AI generation"}
+        >
+          {aiPending ? "Generating…" : "✨ Generate with AI"}
+        </button>
+      </div>
+      {!aiEnabled && (
+        <p className="tb-helper">
+          Set <code>ANTHROPIC_API_KEY</code> to generate SEO-optimised templates with AI.
+        </p>
+      )}
 
       <div className="template-manager">
         <div className="template-list">

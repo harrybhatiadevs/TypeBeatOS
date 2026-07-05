@@ -110,6 +110,7 @@ export default async function SettingsPage({
               initialTemplates={templateState.templates}
               planId={templateState.planId}
               limit={Number.isFinite(templateState.limit) ? templateState.limit : null}
+              aiEnabled={templateState.aiEnabled}
             />
           )}
 

@@ -1588,3 +1588,19 @@
   padding-top: 0.9rem;
   border-top: 1px solid var(--border);
 }
+
+/* AI template-generation bar in Settings → Templates */
+.app-page .template-ai-bar {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  margin: 0.9rem 0 0.4rem;
+  flex-wrap: wrap;
+}
+.app-page .template-ai-bar input {
+  flex: 1;
+  min-width: 16rem;
+}
+.app-page .template-ai-bar .btn {
+  flex: 0 0 auto;
+}

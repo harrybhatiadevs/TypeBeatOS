@@ -2,6 +2,15 @@ import type { Beat, Profile } from "@prisma/client";
 
 const YEAR = new Date().getFullYear();
 
+// Claude Haiku 4.5 is the cheapest model and plenty for short SEO copy. Override
+// with ANTHROPIC_MODEL (e.g. claude-opus-4-8) for higher quality without a redeploy.
+const AI_MODEL = process.env.ANTHROPIC_MODEL || "claude-haiku-4-5-20251001";
+
+/** Whether AI generation is available (an Anthropic key is configured). */
+export function aiConfigured(): boolean {
+  return !!process.env.ANTHROPIC_API_KEY;
+}
+
 function dedupe(items: string[]) {
   return [...new Set(items.filter(Boolean))];
 }
@@ -156,7 +165,7 @@ export async function aiTitleOptions(beat: Beat): Promise<string[]> {
         "content-type": "application/json",
       },
       body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
+        model: AI_MODEL,
         max_tokens: 400,
         messages: [
           {
@@ -176,5 +185,80 @@ export async function aiTitleOptions(beat: Beat): Promise<string[]> {
     return Array.isArray(parsed) ? parsed.filter((t) => typeof t === "string").slice(0, 4) : [];
   } catch {
     return [];
+  }
+}
+
+export type AiTemplate = {
+  name: string;
+  title: string;
+  description: string;
+  tags: string;
+  hashtags: string;
+  pinnedComment: string;
+};
+
+// The per-beat values a template leaves as placeholders (filled in on import).
+const TEMPLATE_PLACEHOLDERS = "{beatname}, {artist}, {secondaryartist}, {genre}, {bpm}, {key}";
+
+/**
+ * Generate a reusable, SEO-optimised upload template for an artist lane / vibe.
+ * Returns null when no API key is set or the model call fails, so callers can
+ * surface a friendly error and fall back to hand-writing the template.
+ */
+export async function aiGenerateTemplate(brief: string): Promise<AiTemplate | null> {
+  const key = process.env.ANTHROPIC_API_KEY;
+  if (!key) return null;
+
+  const prompt = `You are an expert at YouTube SEO for "type beat" instrumental producers.
+Generate ONE reusable upload template for this artist lane / vibe: "${brief}".
+
+The template is reused across many beats, so use these placeholders wherever a
+per-beat value belongs (they are substituted on each upload): ${TEMPLATE_PLACEHOLDERS}.
+Always lead the title with the {artist} keyword and put {beatname} in quotes.
+
+Follow real type-beat SEO conventions:
+- name: a 2-4 word label for this lane (e.g. "Drake x Latin").
+- title: keyword-first, includes "{artist} Type Beat", "{beatname}" in quotes, and optionally {genre} and the year ${YEAR}. ~70 characters, no more than 100.
+- tags: comma-separated, 15-20 high-intent search phrases such as "{artist} type beat", "free {artist} type beat", "{genre} instrumental", "type beat ${YEAR}". TOTAL under 480 characters.
+- hashtags: exactly 3, space-separated, no commas, PascalCase (e.g. "#DrakeTypeBeat #LatinTrap #TypeBeat").
+- description: a few short lines — a purchase call-to-action line, a specs line using {bpm}/{key}/{genre}, and a "must credit" line. Keep it generic (no real links or emails).
+- pinnedComment: 2 short lines — a purchase call-to-action and an engagement prompt.
+
+Reply with ONLY a JSON object with exactly these keys: name, title, description, tags, hashtags, pinnedComment.`;
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": key,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model: AI_MODEL,
+        max_tokens: 1024,
+        messages: [{ role: "user", content: prompt }],
+      }),
+      signal: AbortSignal.timeout(20000),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const text: string = data?.content?.[0]?.text ?? "";
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) return null;
+    const p = JSON.parse(match[0]) as Record<string, unknown>;
+    const str = (v: unknown) => (typeof v === "string" ? v.trim() : "");
+    const title = str(p.title);
+    if (!title) return null; // a template with no title isn't useful
+    return {
+      name: str(p.name) || brief.slice(0, 60),
+      title,
+      description: str(p.description),
+      tags: str(p.tags),
+      hashtags: str(p.hashtags),
+      pinnedComment: str(p.pinnedComment),
+    };
+  } catch {
+    return null;
   }
 }
