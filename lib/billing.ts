@@ -121,7 +121,7 @@ export async function getOrCreateStripeCustomer(user: {
       if (!("deleted" in customer) || !customer.deleted) return existing.stripeCustomerId;
     } catch (err) {
       const maybeStripeError = err as { code?: string; param?: string; statusCode?: number };
-      if (maybeStripeError.code !== "resource_missing" || maybeStripeError.param !== "customer") {
+      if (maybeStripeError.code !== "resource_missing" && maybeStripeError.statusCode !== 404) {
         throw err;
       }
     }
