@@ -48,6 +48,7 @@ export default async function PackagePage({ params }: { params: Promise<{ id: st
         genre: pkg.beat.genre,
         bpm: pkg.beat.bpm,
         key: pkg.beat.key,
+        storeLink: pkg.beat.storeLink,
         audioPath: pkg.beat.audioPath,
       }}
       youtube={{
@@ -57,6 +58,7 @@ export default async function PackagePage({ params }: { params: Promise<{ id: st
       }}
       templates={templateState.templates}
       templateLimit={Number.isFinite(templateState.limit) ? templateState.limit : null}
+      profileStoreUrl={user.profile?.storeUrl || ""}
     />
   );
 }

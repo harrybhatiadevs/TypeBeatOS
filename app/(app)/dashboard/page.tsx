@@ -41,7 +41,8 @@ export default async function Dashboard() {
 
   const scheduled = packages.filter((p) => p.scheduledAt && p.scheduledAt > new Date());
   const drafts = packages.filter((p) => p.status === "draft");
-  const recent = packages.slice(0, 8);
+  const recent = packages.slice(0, 5);
+  const hiddenRecentCount = Math.max(packages.length - recent.length, 0);
 
   return (
     <>
@@ -90,7 +91,14 @@ export default async function Dashboard() {
       </div>
 
       <div className="card">
-        <h3>Recent upload packages</h3>
+        <div className="section-head">
+          <h3>Recent upload packages</h3>
+          {hiddenRecentCount > 0 && (
+            <Link href="/beats" className="btn btn-ghost btn-sm">
+              View all in Beats
+            </Link>
+          )}
+        </div>
         {recent.length === 0 ? (
           <div className="empty-state">
             <p>No upload packages yet. Add your first beat and TypeBeatOS will generate the full YouTube package.</p>
@@ -129,6 +137,11 @@ export default async function Dashboard() {
                 ))}
               </tbody>
             </table>
+            {hiddenRecentCount > 0 && (
+              <p className="tb-helper">
+                Showing the 5 latest packages. {hiddenRecentCount} older {hiddenRecentCount === 1 ? "package is" : "packages are"} in Beats.
+              </p>
+            )}
           </div>
         )}
       </div>

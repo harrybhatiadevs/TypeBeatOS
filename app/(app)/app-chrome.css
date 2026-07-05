@@ -350,6 +350,7 @@
   min-width: 0;
 }
 .app-page .card > h3,
+.app-page .card .section-head > h3,
 .app-page .card .field-head > h3 {
   font-family: inherit;
   font-size: 0.7rem;
@@ -359,6 +360,14 @@
   color: var(--soft);
   margin: 0 0 1.1rem;
 }
+.app-page .section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 0 1.1rem;
+}
+.app-page .section-head > h3 { margin: 0; }
 
 /* ---------- Forms ---------- */
 .app-page .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.25rem; }

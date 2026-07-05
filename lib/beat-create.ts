@@ -6,8 +6,8 @@ import {
   buildDescription,
   buildHashtags,
   buildPinnedComment,
+  buildPackageTitleOptions,
   buildTags,
-  buildTitleOptions,
 } from "@/lib/generate";
 import { analyzeAudio } from "@/lib/audio-analysis";
 import { sniff } from "@/lib/file-magic";
@@ -48,23 +48,46 @@ async function saveAudio(beatId: string, file: FormDataEntryValue | null) {
 }
 
 /** Auto-detect BPM/key from audio for any field the producer left blank. */
-async function fillMissingFromAudio(beatId: string, diskPath: string | null) {
-  if (!diskPath) return;
+async function fillMissingFromAudio(beatId: string, diskPath: string | null): Promise<boolean> {
+  if (!diskPath) return false;
   const beat = await db.beat.findUnique({ where: { id: beatId } });
-  if (!beat || (beat.bpm && beat.key)) return;
+  if (!beat || (beat.bpm && beat.key)) return false;
   const detected = await analyzeAudio(diskPath);
   const data: { bpm?: number; key?: string } = {};
   if (!beat.bpm && detected.bpm) data.bpm = detected.bpm;
   if (!beat.key && detected.key) data.key = detected.key;
   if (Object.keys(data).length > 0) {
     await db.beat.update({ where: { id: beatId }, data });
+    return true;
   }
+  return false;
 }
 
-function analyzeAudioInBackground(beatId: string, diskPath: string | null) {
+async function refreshGeneratedPackageFields(beatId: string, profile: Parameters<typeof buildDescription>[1]) {
+  const pkg = await db.package.findFirst({ where: { beatId }, include: { beat: true } });
+  if (!pkg) return;
+  await db.package.update({
+    where: { id: pkg.id },
+    data: {
+      description: buildDescription(pkg.beat, profile, pkg.selectedTitle),
+      tags: buildTags(pkg.beat),
+      hashtags: buildHashtags(pkg.beat),
+      pinnedComment: buildPinnedComment(pkg.beat, profile),
+    },
+  });
+}
+
+function analyzeAudioInBackground(
+  beatId: string,
+  diskPath: string | null,
+  profile: Parameters<typeof buildDescription>[1],
+) {
   if (!diskPath) return;
   fillMissingFromAudio(beatId, diskPath)
-    .then(() => log.info({ beatId }, "createBeat: background audio analysis done"))
+    .then(async (changed) => {
+      if (changed) await refreshGeneratedPackageFields(beatId, profile);
+      log.info({ beatId, changed }, "createBeat: background audio analysis done");
+    })
     .catch((err) =>
       log.warn(
         { beatId, err: err instanceof Error ? err.message : err },
@@ -120,7 +143,8 @@ export async function updateBeatFromForm(
     });
 
     const diskPath = await saveAudio(existing.id, formData.get("audio")).catch(() => null);
-    analyzeAudioInBackground(existing.id, diskPath);
+    const profile = await db.profile.findUnique({ where: { userId: user.id } });
+    analyzeAudioInBackground(existing.id, diskPath, profile);
     return { ok: true };
   } catch (err) {
     log.error({ err: err instanceof Error ? err.message : err }, "updateBeat: failed");
@@ -186,14 +210,27 @@ export async function createBeatPackage(
       { beatId: created.id, hasAudio: !!diskPath, ms: Date.now() - t0 },
       "createBeat: audio saved",
     );
-    analyzeAudioInBackground(created.id, diskPath);
+    const profile = user.profile as Parameters<typeof buildDescription>[1];
+    const analysisPromise = diskPath
+      ? fillMissingFromAudio(created.id, diskPath).catch((err) => {
+          log.warn(
+            { beatId: created.id, err: err instanceof Error ? err.message : err },
+            "createBeat: audio analysis failed",
+          );
+          return false;
+        })
+      : Promise.resolve(false);
+    const analysisChanged = await withTimeout(analysisPromise, 8000, false);
+    log.info(
+      { beatId: created.id, changed: analysisChanged, ms: Date.now() - t0 },
+      "createBeat: audio analysis ready",
+    );
 
     const beat = (await db.beat.findUnique({ where: { id: created.id } }))!;
 
-    const profile = user.profile as Parameters<typeof buildDescription>[1];
     const ai = await withTimeout(aiTitleOptions(beat), 3000, []);
     log.info({ beatId: created.id, aiTitles: ai.length, ms: Date.now() - t0 }, "createBeat: titles ready");
-    const titles = [...buildTitleOptions(beat), ...ai];
+    const titles = buildPackageTitleOptions(beat, ai);
     const selectedTitle = titles[0];
 
     const pkg = await db.package.create({
@@ -207,6 +244,11 @@ export async function createBeatPackage(
         pinnedComment: buildPinnedComment(beat, profile),
       },
     });
+    analysisPromise
+      .then(async (changed) => {
+        if (changed) await refreshGeneratedPackageFields(created.id, profile);
+      })
+      .catch(() => undefined);
     log.info({ beatId: created.id, packageId: pkg.id, totalMs: Date.now() - t0 }, "createBeat: done");
     return { packageId: pkg.id };
   } catch (err) {

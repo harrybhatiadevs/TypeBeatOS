@@ -39,6 +39,7 @@ type BeatProps = {
   genre: string;
   bpm: number | null;
   key: string;
+  storeLink: string;
   audioPath: string;
 };
 
@@ -94,6 +95,7 @@ export default function PackageEditor({
   youtube,
   templates,
   templateLimit,
+  profileStoreUrl,
 }: {
   pkg: PkgProps;
   beat: BeatProps;
@@ -101,6 +103,7 @@ export default function PackageEditor({
   templates: PackageTemplate[];
   /** Saved-template cap for the user's plan; null = unlimited. */
   templateLimit: number | null;
+  profileStoreUrl: string;
 }) {
   const [selectedTitle, setSelectedTitle] = useState(pkg.selectedTitle);
   const [description, setDescription] = useState(pkg.description);
@@ -143,6 +146,15 @@ export default function PackageEditor({
     : "Fill in the title, description, and tags, and generate a video first";
 
   const renderTemplate = (value: string) => {
+    const tagValue = (input: string) =>
+      input
+        .trim()
+        .split(/[\s\-_/&+]+/)
+        .filter(Boolean)
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join("")
+        .replace(/[^a-zA-Z0-9]/g, "");
+
     const replacements: Record<string, string> = {
       beat: beat.name,
       beatname: beat.name,
@@ -152,12 +164,26 @@ export default function PackageEditor({
       genre: beat.genre,
       bpm: beat.bpm ? String(beat.bpm) : "",
       key: beat.key,
+      purchaselink: beat.storeLink || profileStoreUrl || "(add your beat store link in Profile)",
+      storelink: beat.storeLink || profileStoreUrl || "(add your beat store link in Profile)",
+      artisttag: tagValue(beat.targetArtist),
+      targetartisttag: tagValue(beat.targetArtist),
+      secondaryartisttag: tagValue(beat.secondaryArtist),
+      genretag: tagValue(beat.genre),
+      beattag: tagValue(beat.name),
+      keytag: tagValue(beat.key),
     };
 
     return value.replace(/\{([a-zA-Z]+)\}/g, (token, key) => {
       const replacement = replacements[String(key).toLowerCase()];
       return replacement === undefined ? token : replacement;
-    });
+    })
+      .replace(/\s+(ft\.|feat\.)\s*(?=\||-|$)/gi, "")
+      .replace(/\s+x\s*(?=\||-|type beat|$)/gi, " ")
+      .replace(/\(\s*\)/g, "")
+      .replace(/[ \t]{2,}/g, " ")
+      .replace(/[ \t]+\n/g, "\n")
+      .trim();
   };
 
   const fillTemplateFromCurrent = () => {
@@ -406,7 +432,7 @@ export default function PackageEditor({
                 placeholder="[FREE] Latin x Drake Type Beat - {beatname}"
               />
               <p className="tb-helper">
-                Placeholders: {"{beatname}"}, {"{artist}"}, {"{secondaryartist}"}, {"{genre}"}, {"{bpm}"}, {"{key}"}
+                Placeholders: {"{beatname}"}, {"{artist}"}, {"{secondaryartist}"}, {"{genre}"}, {"{bpm}"}, {"{key}"}, {"{purchaselink}"}, {"{artisttag}"}, {"{genretag}"}
               </p>
             </div>
             <div className="form-field">
@@ -477,9 +503,9 @@ export default function PackageEditor({
         <section className="package-panel" hidden={activePanel !== "content"}>
           <div className="card">
             <h3>Title</h3>
-            {pkg.titleOptions.map((t) => (
+            {pkg.titleOptions.slice(0, 3).map((t, index) => (
               <label
-                key={t}
+                key={`${index}-${t}`}
                 className={`title-option${t === selectedTitle ? " selected" : ""}`}
               >
                 <input

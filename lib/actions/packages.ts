@@ -131,7 +131,7 @@ export async function generateTemplateDraft(input: { brief: string }): Promise<P
     throw new Error('Describe the lane or vibe first — e.g. "Drake x Latin trap, dark melodic".');
   }
 
-  const result = await aiGenerateTemplate(brief);
+  const result = await aiGenerateTemplate(brief, user.profile);
   if (!result) {
     throw new Error("Couldn't generate a template right now. Try again in a moment.");
   }

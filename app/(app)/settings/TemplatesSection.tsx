@@ -235,7 +235,7 @@ export default function TemplatesSection({
               <label htmlFor="tplTitle">Title template</label>
               <input id="tplTitle" type="text" value={draft.title} onChange={(e) => update("title", e.target.value)} placeholder="[FREE] Latin x Drake Type Beat - {beatname}" />
               <p className="tb-helper">
-                Placeholders: {"{beatname}"}, {"{artist}"}, {"{secondaryartist}"}, {"{genre}"}, {"{bpm}"}, {"{key}"}
+                Placeholders: {"{beatname}"}, {"{artist}"}, {"{secondaryartist}"}, {"{genre}"}, {"{bpm}"}, {"{key}"}, {"{purchaselink}"}, {"{artisttag}"}, {"{genretag}"}
               </p>
             </div>
             <div className="form-field">
