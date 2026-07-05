@@ -124,7 +124,7 @@ export async function generateTemplateDraft(input: { brief: string }): Promise<P
     throw new Error("Saved templates are a Pro feature — upgrade to use AI generation.");
   }
   if (!aiConfigured()) {
-    throw new Error("AI generation isn't set up yet — an ANTHROPIC_API_KEY is required.");
+    throw new Error("AI generation isn't set up yet — a Gemini or Anthropic API key is required.");
   }
   const brief = input.brief.trim();
   if (!brief) {

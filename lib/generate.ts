@@ -2,13 +2,95 @@ import type { Beat, Profile } from "@prisma/client";
 
 const YEAR = new Date().getFullYear();
 
-// Claude Haiku 4.5 is the cheapest model and plenty for short SEO copy. Override
-// with ANTHROPIC_MODEL (e.g. claude-opus-4-8) for higher quality without a redeploy.
-const AI_MODEL = process.env.ANTHROPIC_MODEL || "claude-haiku-4-5-20251001";
+// AI provider: Google Gemini (free tier) when GEMINI_API_KEY is set, otherwise
+// Anthropic Claude when ANTHROPIC_API_KEY is set. Both are called over plain
+// HTTP — no SDK. Override the model per provider without a redeploy.
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+const ANTHROPIC_MODEL = process.env.ANTHROPIC_MODEL || "claude-haiku-4-5-20251001";
 
-/** Whether AI generation is available (an Anthropic key is configured). */
+/** Whether AI generation is available (a Gemini or Anthropic key is configured). */
 export function aiConfigured(): boolean {
-  return !!process.env.ANTHROPIC_API_KEY;
+  return !!(process.env.GEMINI_API_KEY || process.env.ANTHROPIC_API_KEY);
+}
+
+type LlmOptions = { maxTokens: number; json?: boolean; temperature?: number };
+
+/**
+ * Prompt the configured model and return its raw text. Gemini is preferred when
+ * its key is set; falls back to Claude. Returns null on any failure so callers
+ * degrade to hand-writing.
+ */
+async function callLlm(prompt: string, opts: LlmOptions): Promise<string | null> {
+  const gemini = process.env.GEMINI_API_KEY;
+  if (gemini) {
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:generateContent`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json", "x-goog-api-key": gemini },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+              maxOutputTokens: opts.maxTokens,
+              temperature: opts.temperature ?? 0.9,
+              // Gemini 2.5 Flash "thinks" by default, which burns the output
+              // budget on these short structured tasks — turn it off.
+              thinkingConfig: { thinkingBudget: 0 },
+              ...(opts.json ? { responseMimeType: "application/json" } : {}),
+            },
+          }),
+          signal: AbortSignal.timeout(20000),
+        },
+      );
+      if (!res.ok) return null;
+      const data = await res.json();
+      const parts = data?.candidates?.[0]?.content?.parts;
+      const text = Array.isArray(parts)
+        ? parts.map((p: { text?: string }) => p?.text ?? "").join("")
+        : "";
+      return text || null;
+    } catch {
+      return null;
+    }
+  }
+
+  const anthropic = process.env.ANTHROPIC_API_KEY;
+  if (anthropic) {
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "x-api-key": anthropic,
+          "anthropic-version": "2023-06-01",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          model: ANTHROPIC_MODEL,
+          max_tokens: opts.maxTokens,
+          messages: [{ role: "user", content: prompt }],
+        }),
+        signal: AbortSignal.timeout(20000),
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+      const text: string = data?.content?.[0]?.text ?? "";
+      return text || null;
+    } catch {
+      return null;
+    }
+  }
+
+  return null;
+}
+
+/** Ensure each space-separated hashtag starts with a single '#'. */
+function normalizeHashtags(s: string): string {
+  return s
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((h) => `#${h.replace(/^#+/, "")}`)
+    .join(" ");
 }
 
 function dedupe(items: string[]) {
@@ -154,31 +236,11 @@ export function buildPinnedComment(beat: Beat, profile: Profile | null): string 
  * No-op when ANTHROPIC_API_KEY is unset; failures fall back silently.
  */
 export async function aiTitleOptions(beat: Beat): Promise<string[]> {
-  const key = process.env.ANTHROPIC_API_KEY;
-  if (!key) return [];
+  if (!aiConfigured()) return [];
+  const prompt = `Write 4 YouTube title options for a type beat. Target artist: ${beat.targetArtist}${beat.secondaryArtist ? `, secondary artist: ${beat.secondaryArtist}` : ""}. Beat name: "${beat.name}". Genre: ${beat.genre || "n/a"}. Mood: ${beat.mood || "n/a"}. Follow real type-beat title conventions (artist keyword first, beat name in quotes). Reply with ONLY a JSON array of 4 strings.`;
+  const text = await callLlm(prompt, { maxTokens: 512, json: true });
+  if (!text) return [];
   try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": key,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: AI_MODEL,
-        max_tokens: 400,
-        messages: [
-          {
-            role: "user",
-            content: `Write 4 YouTube title options for a type beat. Target artist: ${beat.targetArtist}${beat.secondaryArtist ? `, secondary artist: ${beat.secondaryArtist}` : ""}. Beat name: "${beat.name}". Genre: ${beat.genre || "n/a"}. Mood: ${beat.mood || "n/a"}. Follow real type-beat title conventions (artist keyword first, beat name in quotes). Reply with ONLY a JSON array of 4 strings.`,
-          },
-        ],
-      }),
-      signal: AbortSignal.timeout(3000),
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
-    const text: string = data?.content?.[0]?.text ?? "";
     const match = text.match(/\[[\s\S]*\]/);
     if (!match) return [];
     const parsed = JSON.parse(match[0]);
@@ -206,8 +268,7 @@ const TEMPLATE_PLACEHOLDERS = "{beatname}, {artist}, {secondaryartist}, {genre},
  * surface a friendly error and fall back to hand-writing the template.
  */
 export async function aiGenerateTemplate(brief: string): Promise<AiTemplate | null> {
-  const key = process.env.ANTHROPIC_API_KEY;
-  if (!key) return null;
+  if (!aiConfigured()) return null;
 
   const prompt = `You are an expert at YouTube SEO for "type beat" instrumental producers.
 Generate ONE reusable upload template for this artist lane / vibe: "${brief}".
@@ -226,24 +287,9 @@ Follow real type-beat SEO conventions:
 
 Reply with ONLY a JSON object with exactly these keys: name, title, description, tags, hashtags, pinnedComment.`;
 
+  const text = await callLlm(prompt, { maxTokens: 2048, json: true });
+  if (!text) return null;
   try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": key,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: AI_MODEL,
-        max_tokens: 1024,
-        messages: [{ role: "user", content: prompt }],
-      }),
-      signal: AbortSignal.timeout(20000),
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    const text: string = data?.content?.[0]?.text ?? "";
     const match = text.match(/\{[\s\S]*\}/);
     if (!match) return null;
     const p = JSON.parse(match[0]) as Record<string, unknown>;
@@ -255,7 +301,7 @@ Reply with ONLY a JSON object with exactly these keys: name, title, description,
       title,
       description: str(p.description),
       tags: str(p.tags),
-      hashtags: str(p.hashtags),
+      hashtags: normalizeHashtags(str(p.hashtags)),
       pinnedComment: str(p.pinnedComment),
     };
   } catch {

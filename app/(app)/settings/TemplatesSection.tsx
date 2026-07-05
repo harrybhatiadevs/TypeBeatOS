@@ -171,14 +171,15 @@ export default function TemplatesSection({
           className="btn btn-primary btn-sm"
           onClick={generate}
           disabled={!aiEnabled || aiPending}
-          title={aiEnabled ? undefined : "Add an ANTHROPIC_API_KEY to enable AI generation"}
+          title={aiEnabled ? undefined : "Add a Gemini or Anthropic API key to enable AI generation"}
         >
           {aiPending ? "Generating…" : "✨ Generate with AI"}
         </button>
       </div>
       {!aiEnabled && (
         <p className="tb-helper">
-          Set <code>ANTHROPIC_API_KEY</code> to generate SEO-optimised templates with AI.
+          Set <code>GEMINI_API_KEY</code> (or <code>ANTHROPIC_API_KEY</code>) to generate
+          SEO-optimised templates with AI.
         </p>
       )}
 

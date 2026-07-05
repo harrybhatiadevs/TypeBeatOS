@@ -22,7 +22,7 @@ The YouTube growth system for type-beat producers.
 
 ### Optional AI enhancement
 
-Metadata generation works offline. Set `ANTHROPIC_API_KEY` in `.env` to unlock Claude-powered features: 4 extra title options per beat, and AI-generated SEO upload templates (Settings → Templates). Uses Claude Haiku 4.5 by default (a few hundredths of a cent per call); override with `ANTHROPIC_MODEL` (e.g. `claude-opus-4-8`) for higher quality.
+Metadata generation works offline. Set an AI key in `.env.local` to unlock AI features — 4 extra title options per beat, and AI-generated SEO upload templates (Settings → Templates). Provider is auto-selected: `GEMINI_API_KEY` (Google Gemini, has a free tier — checked first) or `ANTHROPIC_API_KEY` (Claude). Defaults to `gemini-2.5-flash` / `claude-haiku-4-5`; override with `GEMINI_MODEL` / `ANTHROPIC_MODEL`.
 
 ### Enabling YouTube upload
 
