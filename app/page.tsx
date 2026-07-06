@@ -35,21 +35,6 @@ const FEATURE_LIST = [
   { t: "Upload calendar", b: "Batch a month of beats and auto-spread them across your schedule. One session, a month of content." },
 ];
 
-const GOOGLE_ACCESS = [
-  {
-    t: "Connect your YouTube channel",
-    b: "TypeBeatOS uses Google OAuth so you can securely connect the YouTube channel you own.",
-  },
-  {
-    t: "Publish videos you create",
-    b: "After you approve access, TypeBeatOS can upload and schedule the rendered beat videos and metadata you create inside the app.",
-  },
-  {
-    t: "Use only what the workflow needs",
-    b: "We use Google user data to identify your channel and publish your requested uploads. We do not sell Google user data or use it for advertising.",
-  },
-];
-
 const PLANS = [
   {
     name: "Free",
@@ -106,7 +91,6 @@ export default async function Landing() {
             <a href="#home" className="lp-nav-link" data-section-link="home">Home</a>
             <a href="#workflow" className="lp-nav-link" data-section-link="workflow">How it works</a>
             <a href="#features" className="lp-nav-link" data-section-link="features">Features</a>
-            <a href="#google-access" className="lp-nav-link" data-section-link="google-access">YouTube access</a>
             <a href="#pricing" className="lp-nav-link" data-section-link="pricing">Pricing</a>
           </div>
           <Link href={user ? "/dashboard" : "/login"} className="lp-btn lp-btn-ghost lp-btn-sm">
@@ -129,11 +113,6 @@ export default async function Landing() {
               SEO title, description, tags, thumbnail, and a rendered video — then
               publishes it straight to your connected YouTube channel on the
               schedule you set.
-            </p>
-            <p className="lp-google-summary">
-              Google/YouTube access is used only to connect your channel, read
-              basic channel information, and upload or schedule videos you choose
-              to publish from TypeBeatOS.
             </p>
             <div className="lp-hero-actions">
               <Link href={ctaHref} className="lp-btn lp-btn-primary">{ctaLabel}</Link>
@@ -172,32 +151,6 @@ export default async function Landing() {
           </div>
         </div>
       </header>
-
-      {/* GOOGLE / YOUTUBE ACCESS */}
-      <section id="google-access" className="lp-wrap lp-section lp-google-section">
-        <div className="lp-reveal">
-          <h2 className="lp-display lp-h2">Why TypeBeatOS needs <span className="lp-red">YouTube access.</span></h2>
-          <p className="lp-lead">
-            TypeBeatOS is a YouTube upload automation app for type-beat producers.
-            The app requests Google/YouTube permissions only so it can perform the
-            publishing workflow you start: connect your channel, prepare your
-            upload package, and publish or schedule your beat videos to YouTube.
-          </p>
-        </div>
-        <div className="lp-google-grid lp-reveal">
-          {GOOGLE_ACCESS.map((item) => (
-            <div key={item.t} className="lp-google-card">
-              <h3>{item.t}</h3>
-              <p>{item.b}</p>
-            </div>
-          ))}
-        </div>
-        <p className="lp-google-note lp-reveal">
-          You can disconnect YouTube from your profile at any time. Our public{" "}
-          <Link href="/privacy">Privacy Policy</Link> explains how Google user data
-          is accessed, used, stored, and deleted.
-        </p>
-      </section>
 
       {/* PROBLEM */}
       <section className="lp-wrap lp-section">
