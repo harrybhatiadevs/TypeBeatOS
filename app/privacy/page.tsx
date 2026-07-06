@@ -8,11 +8,11 @@ export const metadata: Metadata = {
     "How TypeBeatOS collects, stores, and uses producer account data, YouTube channel data, and beat uploads.",
 };
 
-const UPDATED = "2026-06-20";
+const UPDATED = "2026-07-06";
 
 export default function PrivacyPage() {
   return (
-    <LegalShell title="Privacy policy." updated={UPDATED} isDraft={true}>
+    <LegalShell title="Privacy policy." updated={UPDATED} isDraft={false}>
       <p>
         TypeBeatOS (&quot;we&quot;, &quot;us&quot;) builds an upload pipeline for
         type-beat producers. This policy explains what we collect, how we use
@@ -21,11 +21,9 @@ export default function PrivacyPage() {
 
       <h2>Who runs this</h2>
       <p>
-        TypeBeatOS is operated by{" "}
-        <span className="tb-legal-placeholder">[legal-entity]</span> registered
-        in <span className="tb-legal-placeholder">[jurisdiction]</span>.
-        Questions, requests, or complaints can be sent to{" "}
-        <span className="tb-legal-placeholder">[privacy-contact-email]</span>.
+        TypeBeatOS is operated from Australia. Questions, requests, or
+        complaints can be sent to{" "}
+        <a href="mailto:typebeatos@gmail.com">typebeatos@gmail.com</a>.
       </p>
 
       <h2>What we collect</h2>
@@ -58,9 +56,7 @@ export default function PrivacyPage() {
         </li>
         <li>
           Operational logs: request IDs, IP addresses, and error traces — kept
-          for{" "}
-          <span className="tb-legal-placeholder">[log-retention-days]</span>{" "}
-          days for debugging and abuse prevention.
+          for 30 days for debugging and abuse prevention.
         </li>
       </ul>
 
@@ -94,6 +90,76 @@ export default function PrivacyPage() {
         </li>
       </ul>
 
+      <h2>Google and YouTube data</h2>
+      <p>
+        TypeBeatOS uses YouTube API Services. By connecting your channel you
+        also agree to the{" "}
+        <a
+          href="https://www.youtube.com/t/terms"
+          target="_blank"
+          rel="noreferrer noopener"
+        >
+          YouTube Terms of Service
+        </a>
+        , and Google&apos;s handling of your data is governed by the{" "}
+        <a
+          href="https://policies.google.com/privacy"
+          target="_blank"
+          rel="noreferrer noopener"
+        >
+          Google Privacy Policy
+        </a>
+        .
+      </p>
+      <p>
+        TypeBeatOS&apos;s use and transfer of information received from Google
+        APIs to any other app will adhere to the{" "}
+        <a
+          href="https://developers.google.com/terms/api-services-user-data-policy"
+          target="_blank"
+          rel="noreferrer noopener"
+        >
+          Google API Services User Data Policy
+        </a>
+        , including the Limited Use requirements. Specifically:
+      </p>
+      <ul>
+        <li>
+          We request only the scopes the upload pipeline needs:{" "}
+          <code>youtube.upload</code> to publish videos to your channel, and{" "}
+          <code>youtube.readonly</code> to read your channel ID + title and the
+          public stats of the videos we ship for you.
+        </li>
+        <li>
+          We use this data solely to provide and improve those user-facing
+          features. We do not use Google user data for advertising, and we do
+          not sell it.
+        </li>
+        <li>
+          We do not transfer Google user data to third parties except as needed
+          to provide or improve the service, to comply with applicable law, or
+          in connection with a merger or acquisition.
+        </li>
+        <li>
+          We do not allow humans to read your Google user data unless we have
+          your consent for a specific support issue, it is necessary for
+          security purposes (such as investigating abuse), or we are required
+          to by applicable law.
+        </li>
+        <li>
+          You can revoke our access at any time by disconnecting YouTube from
+          your <Link href="/profile">profile</Link>, or from your{" "}
+          <a
+            href="https://myaccount.google.com/permissions"
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            Google Account permissions
+          </a>
+          .
+        </li>
+      </ul>
+
       <h2>Who else sees it</h2>
       <ul>
         <li>
@@ -102,30 +168,25 @@ export default function PrivacyPage() {
           becomes the controller of that video.
         </li>
         <li>
-          <strong>Anthropic.</strong> Beat metadata (artist, genre, mood, key,
-          BPM) is sent to Anthropic&apos;s Claude API to generate the SEO
-          pack. We do not send your audio file or YouTube credentials.
+          <strong>AI provider.</strong> Beat metadata (artist, genre, mood,
+          key, BPM) is sent to Google&apos;s Gemini API — or Anthropic&apos;s
+          Claude API as a fallback — to generate the SEO pack. We do not send
+          your audio file or YouTube credentials.
         </li>
         <li>
-          <strong>Stability AI / image-gen provider.</strong> Thumbnail
-          background prompts are sent to the configured image-generation
-          provider. We do not send producer-identifying information.
-        </li>
-        <li>
-          <strong>Infrastructure providers.</strong> Hosting at Fly.io,
-          database at Neon, object storage at{" "}
-          <span className="tb-legal-placeholder">[object-storage-provider]</span>,
-          email at <span className="tb-legal-placeholder">[email-provider]</span>.
-          Each handles data as a processor on our behalf.
+          <strong>Infrastructure providers.</strong> Compute on Azure Container
+          Apps, database at Neon, object storage on Azure Files, transactional
+          email via Resend. Each handles data as a processor on our behalf.
         </li>
       </ul>
 
       <h2>Where data lives</h2>
       <p>
-        Application and database run in the{" "}
-        <span className="tb-legal-placeholder">[hosting-region]</span> region
-        (Fly.io + Neon). Beat audio and rendered videos sit on object storage
-        in <span className="tb-legal-placeholder">[storage-region]</span>.
+        The application and your uploaded files run in Microsoft Azure&apos;s
+        Australia East region (Azure Container Apps + Azure Files), and the
+        database is hosted by Neon. Some data is processed overseas by the
+        sub-processors listed above (for example Google, Anthropic, and Resend
+        in the United States).
       </p>
 
       <h2>How long we keep it</h2>
@@ -140,11 +201,7 @@ export default function PrivacyPage() {
         <li>
           YouTube tokens: until you disconnect from <Link href="/profile">profile</Link>.
         </li>
-        <li>
-          Operational logs:{" "}
-          <span className="tb-legal-placeholder">[log-retention-days]</span>{" "}
-          days, then auto-deleted.
-        </li>
+        <li>Operational logs: 30 days, then rolled off by our logging platform.</li>
         <li>
           Waitlist signups: until the waitlist is closed or you ask us to
           remove your email.
@@ -167,15 +224,14 @@ export default function PrivacyPage() {
         <li>
           Request a copy of your data, ask us to correct it, or restrict our
           processing of it by emailing{" "}
-          <span className="tb-legal-placeholder">[privacy-contact-email]</span>.
+          <a href="mailto:typebeatos@gmail.com">typebeatos@gmail.com</a>.
         </li>
       </ul>
 
       <h2>Children</h2>
       <p>
-        TypeBeatOS is intended for producers aged{" "}
-        <span className="tb-legal-placeholder">[minimum-age]</span> and over.
-        We do not knowingly collect data from anyone under that age. If you
+        TypeBeatOS is intended for producers aged 16 and over. We do not
+        knowingly collect data from anyone under that age. If you
         believe a minor signed up, email us and we will delete the account.
       </p>
 
@@ -189,7 +245,7 @@ export default function PrivacyPage() {
       <h2>Contact</h2>
       <p>
         Questions, data requests, or complaints:{" "}
-        <span className="tb-legal-placeholder">[privacy-contact-email]</span>.
+        <a href="mailto:typebeatos@gmail.com">typebeatos@gmail.com</a>.
       </p>
     </LegalShell>
   );

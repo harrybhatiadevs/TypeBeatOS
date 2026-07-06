@@ -8,11 +8,11 @@ export const metadata: Metadata = {
     "Terms of service for TypeBeatOS — what producers can do with the service, what we provide, and the rules around YouTube and AI-generated assets.",
 };
 
-const UPDATED = "2026-06-20";
+const UPDATED = "2026-07-06";
 
 export default function TermsPage() {
   return (
-    <LegalShell title="Terms of service." updated={UPDATED} isDraft={true}>
+    <LegalShell title="Terms of service." updated={UPDATED} isDraft={false}>
       <p>
         By creating a TypeBeatOS account, or by joining the waitlist, you
         agree to these terms. If you do not agree, do not use the service.
@@ -20,9 +20,8 @@ export default function TermsPage() {
 
       <h2>1. Who we are</h2>
       <p>
-        TypeBeatOS is operated by{" "}
-        <span className="tb-legal-placeholder">[legal-entity]</span>{" "}
-        (&quot;we&quot;) and built for type-beat producers (&quot;you&quot;).
+        TypeBeatOS is operated from Australia (&quot;we&quot;) and built for
+        type-beat producers (&quot;you&quot;).
         We provide tooling that turns finished beats into SEO-optimised
         YouTube upload packages and ships them to your channel on a
         schedule you control.
@@ -35,9 +34,7 @@ export default function TermsPage() {
           activity on your account.
         </li>
         <li>
-          You must be at least{" "}
-          <span className="tb-legal-placeholder">[minimum-age]</span> years
-          old to use TypeBeatOS.
+          You must be at least 16 years old to use TypeBeatOS.
         </li>
         <li>
           We may suspend or terminate accounts that abuse the service —
@@ -94,10 +91,9 @@ export default function TermsPage() {
 
       <h2>6. AI-generated assets</h2>
       <p>
-        Generated titles, descriptions, tags, pinned comments, and thumbnail
-        backgrounds come from third-party AI models (Anthropic Claude,{" "}
-        <span className="tb-legal-placeholder">[image-gen-provider]</span>).
-        Outputs are not guaranteed to be unique, accurate, or
+        Generated titles, descriptions, tags, and pinned comments come from
+        third-party AI models (Google Gemini, or Anthropic Claude as a
+        fallback). Outputs are not guaranteed to be unique, accurate, or
         non-infringing. You are responsible for reviewing every generated
         asset before publishing.
       </p>
@@ -124,9 +120,8 @@ export default function TermsPage() {
       <h2>9. Availability</h2>
       <p>
         We aim for high availability but make no specific uptime guarantee
-        during the beta. After general availability the target uptime SLA is{" "}
-        <span className="tb-legal-placeholder">[uptime-sla]</span> per
-        calendar month, measured monthly.
+        during the beta. After general availability the target uptime SLA is
+        99.5% per calendar month, measured monthly.
       </p>
 
       <h2>10. Termination</h2>
@@ -146,13 +141,14 @@ export default function TermsPage() {
       <h2>11. Disclaimers and liability</h2>
       <p>
         TypeBeatOS is provided &quot;as is&quot; without warranties of any
-        kind. To the maximum extent permitted by{" "}
-        <span className="tb-legal-placeholder">[jurisdiction]</span> law, we
-        are not liable for indirect, incidental, special, consequential, or
-        punitive damages, or for lost profits or revenue. Our total
-        liability for any claim arising out of these terms is limited to the
-        greater of <span className="tb-legal-placeholder">[liability-cap]</span>{" "}
-        or the fees you paid us in the 12 months before the claim.
+        kind. To the maximum extent permitted by Australian law, we are not
+        liable for indirect, incidental, special, consequential, or punitive
+        damages, or for lost profits or revenue. Our total liability for any
+        claim arising out of these terms is limited to the greater of AUD 100
+        or the fees you paid us in the 12 months before the claim. Nothing in
+        these terms excludes, restricts, or modifies any consumer guarantee,
+        right, or remedy you have under the Australian Consumer Law that
+        cannot lawfully be excluded.
       </p>
 
       <h2>12. Changes to these terms</h2>
@@ -164,17 +160,15 @@ export default function TermsPage() {
 
       <h2>13. Governing law</h2>
       <p>
-        These terms are governed by the laws of{" "}
-        <span className="tb-legal-placeholder">[jurisdiction]</span>.
-        Disputes that cannot be resolved by email are subject to the
-        exclusive jurisdiction of the courts of{" "}
-        <span className="tb-legal-placeholder">[court-jurisdiction]</span>.
+        These terms are governed by the laws of Australia. Disputes that
+        cannot be resolved by email are subject to the exclusive jurisdiction
+        of the courts of Australia.
       </p>
 
       <h2>14. Contact</h2>
       <p>
         Questions or complaints about these terms:{" "}
-        <span className="tb-legal-placeholder">[support-contact-email]</span>.
+        <a href="mailto:typebeatos@gmail.com">typebeatos@gmail.com</a>.
       </p>
     </LegalShell>
   );
