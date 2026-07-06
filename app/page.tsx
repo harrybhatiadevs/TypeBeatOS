@@ -109,8 +109,10 @@ export default async function Landing() {
               <span className="lp-red">without the busywork.</span>
             </h1>
             <p className="lp-hero-sub">
-              Upload a beat and get SEO metadata, a thumbnail, video render, and
-              schedule in one focused workflow.
+              TypeBeatOS turns a finished beat into a complete YouTube upload —
+              SEO title, description, tags, thumbnail, and a rendered video — then
+              publishes it straight to your connected YouTube channel on the
+              schedule you set.
             </p>
             <div className="lp-hero-actions">
               <Link href={ctaHref} className="lp-btn lp-btn-primary">{ctaLabel}</Link>
