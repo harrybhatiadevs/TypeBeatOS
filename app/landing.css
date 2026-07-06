@@ -230,24 +230,26 @@
   color: var(--red);
 }
 .lp-h2-swipe {
+  opacity: 0;
+  clip-path: inset(0 100% 0 0);
+  transform: translateX(-24px);
+  transition:
+    opacity 0.72s ease,
+    clip-path 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.lp-reveal.is-in .lp-h2-swipe {
   opacity: 1;
   clip-path: inset(0 0 0 0);
   transform: none;
 }
-.lp-reveal.is-in .lp-h2-swipe {
-  animation: lp-swipe-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-@keyframes lp-swipe-in {
-  from { opacity: 1; clip-path: inset(0 0 0 0); transform: translateX(-24px); }
-  to   { opacity: 1; clip-path: inset(0 0 0 0); transform: none; }
-}
 .lp-h2-typewriter {
   max-width: 20ch;
-  opacity: 1;
-  clip-path: inset(0 0 0 0);
+  opacity: 0;
+  clip-path: inset(0 100% 0 0);
 }
 .lp-reveal.is-in .lp-h2-typewriter {
-  animation: lp-type-mask 1.55s steps(44, end) both;
+  animation: lp-type-mask 1.55s steps(44, end) forwards;
 }
 .lp-lead {
   margin-top: 1.1rem;
@@ -612,17 +614,14 @@
 }
 
 /* ---------- Motion ----------
-   Motion is enhancement-only: core text remains visible even if a crawler,
-   hidden tab, or reduced renderer never advances CSS animation timelines.
-   Exponential ease-out throughout; no bounce. */
+   One choreographed hero entrance (CSS animations with `backwards` fill —
+   they complete on their own, so content can never ship hidden), quiet
+   scroll reveals below, and per-item stagger where a group benefits from
+   it. Exponential ease-out throughout; no bounce. */
 @keyframes lp-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 @keyframes lp-rise {
   from { opacity: 0; transform: translateY(26px); }
   to { opacity: 1; transform: translateY(0); }
-}
-@keyframes lp-hero-rise {
-  from { transform: translateY(26px); }
-  to { transform: translateY(0); }
 }
 @keyframes lp-nav-in {
   from { opacity: 0; transform: translateY(-14px); }
@@ -648,62 +647,57 @@
 }
 
 .lp-nav { animation: lp-nav-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.08s backwards; }
-/* Transform-only entrance: opacity stays 1 so the hero copy (the app's
-   description) is never left blank on a renderer that doesn't advance the
-   animation timeline (hidden tabs, some crawlers). */
-.lp-hero .lp-h1 { animation: lp-hero-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.05s backwards; }
-.lp-hero .lp-hero-sub { animation: lp-hero-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.16s backwards; }
-.lp-hero .lp-hero-actions { animation: lp-hero-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.26s backwards; }
+.lp-hero .lp-h1 { animation: lp-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.05s backwards; }
+.lp-hero .lp-hero-sub { animation: lp-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.16s backwards; }
+.lp-hero .lp-hero-actions { animation: lp-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.26s backwards; }
 .lp-hero .lp-package {
   animation:
     lp-card-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.3s backwards,
     lp-float 7s ease-in-out 1.4s infinite;
 }
-.lp-proof-inner { animation: lp-hero-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.45s backwards; }
+.lp-proof-inner { animation: lp-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.45s backwards; }
 
 /* Scroll reveals (LpEffects adds .is-in; a fallback timer guarantees it) */
 .lp-reveal {
-  opacity: 1;
-  transform: none;
+  opacity: 0;
+  transform: translateY(28px) scale(0.992);
+  transition:
+    opacity 0.74s ease,
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, transform;
 }
-.lp-reveal.is-in { animation: lp-reveal-in 0.82s cubic-bezier(0.16, 1, 0.3, 1) both; }
-@keyframes lp-reveal-in {
-  from { opacity: 1; transform: translateY(28px) scale(0.992); }
-  to   { opacity: 1; transform: none; }
-}
+.lp-reveal.is-in { opacity: 1; transform: none; }
 
 /* Groups reveal per item, lightly staggered — each list earns its own beat */
 .lp-chips.lp-reveal, .lp-steps.lp-reveal, .lp-spot.lp-reveal, .lp-list.lp-reveal, .lp-plans.lp-reveal {
   opacity: 1;
   transform: none;
-  animation: none;
 }
 .lp-chips.lp-reveal > *, .lp-steps.lp-reveal > *, .lp-spot.lp-reveal > *, .lp-list.lp-reveal > *, .lp-plans.lp-reveal > * {
-  opacity: 1;
-  transform: none;
-  transition: background 0.24s ease;
+  opacity: 0;
+  transform: translateY(18px) scale(0.99);
+  transition:
+    opacity 0.58s ease,
+    transform 0.62s cubic-bezier(0.16, 1, 0.3, 1),
+    background 0.24s ease;
 }
 .lp-chips.lp-reveal.is-in > *, .lp-steps.lp-reveal.is-in > *, .lp-spot.lp-reveal.is-in > *, .lp-list.lp-reveal.is-in > *, .lp-plans.lp-reveal.is-in > * {
-  animation: lp-reveal-in-sm 0.62s cubic-bezier(0.16, 1, 0.3, 1) both;
+  opacity: 1;
+  transform: none;
 }
-@keyframes lp-reveal-in-sm {
-  from { opacity: 1; transform: translateY(18px) scale(0.99); }
-  to   { opacity: 1; transform: none; }
-}
-.lp-footer-grid > .lp-reveal:nth-child(2) { animation-delay: 0.06s; }
-.lp-footer-grid > .lp-reveal:nth-child(3) { animation-delay: 0.12s; }
-.lp-footer-grid > .lp-reveal:nth-child(4) { animation-delay: 0.18s; }
-.lp-footer-grid > .lp-reveal:nth-child(5) { animation-delay: 0.24s; }
-.lp-reveal.is-in > :nth-child(2) { animation-delay: 0.06s; }
-.lp-reveal.is-in > :nth-child(3) { animation-delay: 0.12s; }
-.lp-reveal.is-in > :nth-child(4) { animation-delay: 0.18s; }
-.lp-reveal.is-in > :nth-child(5) { animation-delay: 0.24s; }
-.lp-reveal.is-in > :nth-child(6) { animation-delay: 0.3s; }
-.lp-reveal.is-in > :nth-child(7) { animation-delay: 0.36s; }
-.lp-reveal.is-in > :nth-child(8) { animation-delay: 0.42s; }
-.lp-reveal.is-in > :nth-child(9) { animation-delay: 0.48s; }
-.lp-reveal.is-in > :nth-child(10) { animation-delay: 0.54s; }
+.lp-footer-grid > .lp-reveal:nth-child(2) { transition-delay: 0.06s; }
+.lp-footer-grid > .lp-reveal:nth-child(3) { transition-delay: 0.12s; }
+.lp-footer-grid > .lp-reveal:nth-child(4) { transition-delay: 0.18s; }
+.lp-footer-grid > .lp-reveal:nth-child(5) { transition-delay: 0.24s; }
+.lp-reveal.is-in > :nth-child(2) { transition-delay: 0.06s; }
+.lp-reveal.is-in > :nth-child(3) { transition-delay: 0.12s; }
+.lp-reveal.is-in > :nth-child(4) { transition-delay: 0.18s; }
+.lp-reveal.is-in > :nth-child(5) { transition-delay: 0.24s; }
+.lp-reveal.is-in > :nth-child(6) { transition-delay: 0.3s; }
+.lp-reveal.is-in > :nth-child(7) { transition-delay: 0.36s; }
+.lp-reveal.is-in > :nth-child(8) { transition-delay: 0.42s; }
+.lp-reveal.is-in > :nth-child(9) { transition-delay: 0.48s; }
+.lp-reveal.is-in > :nth-child(10) { transition-delay: 0.54s; }
 
 @media (min-width: 860px) {
   .lp-plans.lp-reveal.is-in > .lp-plan:not(.lp-plan-featured) {
@@ -753,5 +747,5 @@
   .lp-proof-inner, .lp-final .lp-btn-primary { animation: none; }
   .lp-package { animation: none; }
   .lp-reveal, .lp-reveal > * { opacity: 1 !important; transform: none !important; transition: none !important; animation: none !important; }
-  .lp-h2-typewriter, .lp-h2-swipe { clip-path: inset(0 0 0 0) !important; }
+  .lp-h2-typewriter { clip-path: inset(0 0 0 0) !important; }
 }
