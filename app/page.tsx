@@ -265,8 +265,8 @@ export default async function Landing() {
           </div>
           <div className="lp-footer-col lp-reveal">
             <h3>Company</h3>
-            <Link href="/privacy">Privacy</Link>
-            <Link href="/terms">Terms</Link>
+            <Link href="/privacy">Privacy Policy</Link>
+            <Link href="/terms">Terms of Service</Link>
             <Link href={ctaHref}>Open app</Link>
           </div>
           <div className="lp-footer-bottom lp-reveal">

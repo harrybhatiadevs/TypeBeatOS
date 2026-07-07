@@ -188,8 +188,8 @@ export default function WaitlistPage() {
             </span>
           </span>
           <span className="tb-footer-legal">
-            <Link href="/privacy">Privacy</Link>
-            <Link href="/terms">Terms</Link>
+            <Link href="/privacy">Privacy Policy</Link>
+            <Link href="/terms">Terms of Service</Link>
           </span>
           <span className="tb-footer-copy">© 2026 — Built for producers, by producers.</span>
         </div>
