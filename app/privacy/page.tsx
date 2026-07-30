@@ -6,9 +6,10 @@ export const metadata: Metadata = {
   title: "Privacy policy — TypeBeatOS",
   description:
     "How TypeBeatOS collects, stores, and uses producer account data, YouTube channel data, and beat uploads.",
+  alternates: { canonical: "/privacy" },
 };
 
-const UPDATED = "2026-07-06";
+const UPDATED = "2026-07-24";
 
 export default function PrivacyPage() {
   return (
@@ -48,8 +49,8 @@ export default function PrivacyPage() {
         <li>
           YouTube channel data, only after you connect via Google OAuth:
           channel ID + title, an OAuth access + refresh token scoped to
-          uploads and read-only analytics, and per-video stats (views, likes,
-          comments) for the packages we shipped.
+          uploads and read-only YouTube access, and per-video stats (views,
+          likes, comments) for the packages we shipped.
         </li>
         <li>
           Waitlist: just the email you submitted and the date.
@@ -141,6 +142,11 @@ export default function PrivacyPage() {
           in connection with a merger or acquisition.
         </li>
         <li>
+          We do not send Google or YouTube user data to Gemini, Anthropic, or
+          any other AI provider, and we do not use it to develop, improve, or
+          train general-purpose or third-party AI/ML models.
+        </li>
+        <li>
           We do not allow humans to read your Google user data unless we have
           your consent for a specific support issue, it is necessary for
           security purposes (such as investigating abuse), or we are required
@@ -148,9 +154,9 @@ export default function PrivacyPage() {
         </li>
         <li>
           You can revoke our access at any time by disconnecting YouTube from
-          your <Link href="/profile">profile</Link>, or from your{" "}
+          your <Link href="/settings?tab=profile">producer profile</Link>, or from your{" "}
           <a
-            href="https://myaccount.google.com/permissions"
+            href="https://security.google.com/settings/security/permissions"
             target="_blank"
             rel="noreferrer noopener"
           >
@@ -171,7 +177,8 @@ export default function PrivacyPage() {
           <strong>AI provider.</strong> Beat metadata (artist, genre, mood,
           key, BPM) is sent to Google&apos;s Gemini API — or Anthropic&apos;s
           Claude API as a fallback — to generate the SEO pack. We do not send
-          your audio file or YouTube credentials.
+          your audio file, YouTube credentials, channel identity, YouTube
+          statistics, or any other Google user data.
         </li>
         <li>
           <strong>Infrastructure providers.</strong> Compute on Azure Container
@@ -189,6 +196,28 @@ export default function PrivacyPage() {
         in the United States).
       </p>
 
+      <h2>How we protect your data</h2>
+      <ul>
+        <li>
+          Data is encrypted in transit using HTTPS/TLS. Our managed database
+          and storage providers encrypt stored data at rest.
+        </li>
+        <li>
+          Access to production systems and Google OAuth credentials is limited
+          to authorised operators and service components that need it to run
+          TypeBeatOS.
+        </li>
+        <li>
+          OAuth tokens and application secrets are kept on the server, are
+          never exposed to the browser, and are not written to application
+          logs.
+        </li>
+        <li>
+          We use session protections, OAuth state validation, rate limiting,
+          and operational monitoring to reduce unauthorised access and abuse.
+        </li>
+      </ul>
+
       <h2>How long we keep it</h2>
       <ul>
         <li>
@@ -199,7 +228,9 @@ export default function PrivacyPage() {
           the account.
         </li>
         <li>
-          YouTube tokens: until you disconnect from <Link href="/profile">profile</Link>.
+          YouTube tokens, channel ID, and channel title: until you disconnect
+          from your <Link href="/settings?tab=profile">producer profile</Link>{" "}
+          or delete your account.
         </li>
         <li>Operational logs: 30 days, then rolled off by our logging platform.</li>
         <li>
@@ -212,11 +243,15 @@ export default function PrivacyPage() {
       <ul>
         <li>Export every package and uploaded asset from the producer dashboard.</li>
         <li>
-          Disconnect YouTube any time from <Link href="/profile">profile</Link>.
-          We revoke the refresh token and stop polling stats.
+          Disconnect YouTube any time from your{" "}
+          <Link href="/settings?tab=profile">producer profile</Link>.
+          We revoke the Google authorization, delete the stored access and
+          refresh tokens and connected channel identity, and stop requesting
+          video statistics.
         </li>
         <li>
-          Delete your account from <Link href="/profile">profile</Link>. This
+          Delete your account from{" "}
+          <Link href="/settings?tab=delete">Settings</Link>. This
           removes your producer profile, beats, packages, generated assets,
           YouTube tokens, and waitlist signup. Videos already published to
           YouTube stay on your channel — YouTube controls them now.

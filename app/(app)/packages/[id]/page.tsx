@@ -38,6 +38,8 @@ export default async function PackagePage({ params }: { params: Promise<{ id: st
         uploadStatus: pkg.uploadStatus,
         youtubeVideoId: pkg.youtubeVideoId,
         uploadError: pkg.uploadError,
+        youtubePrivacyStatus: pkg.youtubePrivacyStatus,
+        youtubeMadeForKids: pkg.youtubeMadeForKids,
         scheduledAt: pkg.scheduledAt ? pkg.scheduledAt.toISOString() : "",
         status: pkg.status,
       }}

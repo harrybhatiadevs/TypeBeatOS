@@ -28,6 +28,8 @@ type PkgProps = {
   uploadStatus: string;
   youtubeVideoId: string;
   uploadError: string;
+  youtubePrivacyStatus: string;
+  youtubeMadeForKids: boolean;
   scheduledAt: string; // ISO or ""
   status: string;
 };
@@ -650,9 +652,12 @@ export default function PackageEditor({
                     })
                   : ""
               }
+              scheduledAt={scheduledAt ? new Date(scheduledAt).toISOString() : ""}
               initialStatus={pkg.uploadStatus}
               initialVideoId={pkg.youtubeVideoId}
               initialError={pkg.uploadError}
+              initialPrivacyStatus={pkg.youtubePrivacyStatus}
+              initialMadeForKids={pkg.youtubeMadeForKids}
             />
           </div>
         </section>

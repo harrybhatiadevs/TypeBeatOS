@@ -37,7 +37,8 @@ export default function DeleteAccount({ email }: { email: string }) {
       <p style={{ fontSize: "0.92rem", lineHeight: 1.55, color: "var(--muted)" }}>
         This permanently deletes <strong style={{ color: "var(--ink)" }}>{email}</strong> — every
         beat, upload package, thumbnail, video, and your subscription (canceled immediately).
-        There is no undo.
+        Any connected Google authorization is revoked first. Videos already published on YouTube
+        remain on your YouTube channel. There is no undo.
       </p>
       <div className="form-field">
         <label htmlFor="confirm-delete">Type <strong>DELETE</strong> to confirm</label>

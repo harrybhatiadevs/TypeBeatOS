@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
+import { CANONICAL_ORIGIN } from "@/lib/site-url";
 import "./globals.css";
 
-const APP_URL = process.env.APP_URL || "https://typebeatos.com";
 const TITLE = "TypeBeatOS — YouTube upload automation for type-beat producers";
 const DESCRIPTION =
   "Upload type beats faster with AI metadata, SEO optimised titles, generated thumbnails, rendered videos, and scheduled YouTube uploads.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(APP_URL),
+  metadataBase: new URL(CANONICAL_ORIGIN),
   title: {
     default: TITLE,
     template: "%s · TypeBeatOS",
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     siteName: "TypeBeatOS",
     title: TITLE,
     description: DESCRIPTION,
-    url: APP_URL,
+    url: CANONICAL_ORIGIN,
     locale: "en_US",
     // Image picked up automatically from app/opengraph-image.tsx via the
     // file convention — Next emits the correct og:image + dimensions.

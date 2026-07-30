@@ -159,30 +159,32 @@ model Beat {
 }
 
 model Package {
-  id             String    @id @default(cuid())
-  beatId         String    @unique
-  beat           Beat      @relation(fields: [beatId], references: [id], onDelete: Cascade)
-  titleOptions   String
-  selectedTitle  String
-  description    String
-  tags           String
-  hashtags       String
-  pinnedComment  String
-  thumbnailPath  String    @default("")
-  thumbnailConfig String    @default("")
-  videoPath      String    @default("")
-  videoStatus    String    @default("none")
-  videoError     String    @default("")
-  youtubeVideoId String    @default("")
-  uploadStatus   String    @default("none")
-  uploadError    String    @default("")
-  viewCount      Int       @default(0)
-  likeCount      Int       @default(0)
-  commentCount   Int       @default(0)
-  statsUpdatedAt DateTime?
-  scheduledAt    DateTime?
-  status         String    @default("draft")
-  createdAt      DateTime  @default(now())
+  id                   String    @id @default(cuid())
+  beatId               String    @unique
+  beat                 Beat      @relation(fields: [beatId], references: [id], onDelete: Cascade)
+  titleOptions         String
+  selectedTitle        String
+  description          String
+  tags                 String
+  hashtags             String
+  pinnedComment        String
+  thumbnailPath        String    @default("")
+  thumbnailConfig      String    @default("")
+  videoPath            String    @default("")
+  videoStatus          String    @default("none")
+  videoError           String    @default("")
+  youtubeVideoId       String    @default("")
+  uploadStatus         String    @default("none")
+  uploadError          String    @default("")
+  youtubePrivacyStatus String    @default("private")
+  youtubeMadeForKids   Boolean   @default(false)
+  viewCount            Int       @default(0)
+  likeCount            Int       @default(0)
+  commentCount         Int       @default(0)
+  statsUpdatedAt       DateTime?
+  scheduledAt          DateTime?
+  status               String    @default("draft")
+  createdAt            DateTime  @default(now())
 
   @@index([scheduledAt])
   @@index([status])

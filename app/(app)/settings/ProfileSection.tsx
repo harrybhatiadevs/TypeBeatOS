@@ -56,11 +56,21 @@ export default function ProfileSection({
               Connected as <strong>{youtube.channelTitle || youtube.channelId}</strong> — uploads
               publish straight to this channel at their scheduled time.
             </p>
-            <form action={disconnectYouTube}>
-              <FormSubmitButton className="btn btn-danger btn-sm" pendingLabel="Disconnecting...">
-                Disconnect
-              </FormSubmitButton>
-            </form>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+              <a
+                href="https://security.google.com/settings/security/permissions"
+                target="_blank"
+                rel="noreferrer noopener"
+                className="btn btn-ghost btn-sm"
+              >
+                Google permissions ↗
+              </a>
+              <form action={disconnectYouTube}>
+                <FormSubmitButton className="btn btn-danger btn-sm" pendingLabel="Disconnecting...">
+                  Disconnect &amp; revoke
+                </FormSubmitButton>
+              </form>
+            </div>
           </div>
         ) : configured ? (
           <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>

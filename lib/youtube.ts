@@ -2,10 +2,12 @@ import { readFile } from "fs/promises";
 import path from "path";
 import { db } from "./db";
 import { loggerFor } from "./logger";
+import { youtubePublishStatus } from "./youtube-upload-policy";
 
 const log = loggerFor("youtube");
 
 const TOKEN_URL = "https://oauth2.googleapis.com/token";
+const REVOKE_URL = "https://oauth2.googleapis.com/revoke";
 const SCOPES =
   "https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.readonly";
 
@@ -52,6 +54,23 @@ export async function exchangeCode(code: string) {
     refresh_token?: string;
     expires_in: number;
   };
+}
+
+/** Revoke the complete Google authorization grant represented by this token. */
+export async function revokeGoogleAuthorization(token: string) {
+  if (!token) return;
+
+  const res = await fetch(REVOKE_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ token }),
+  });
+  if (res.ok) return;
+
+  const detail = (await res.text()).slice(0, 200);
+  // Google returns invalid_token when the user has already revoked the grant.
+  if (res.status === 400 && /invalid_token/i.test(detail)) return;
+  throw new Error(`Google authorization revocation failed (${res.status})`);
 }
 
 /** Returns a valid access token for the user, refreshing it if needed. */
@@ -131,9 +150,6 @@ async function uploadPackage(packageId: string) {
       .map((t) => t.trim())
       .filter(Boolean)
       .slice(0, 30);
-    const scheduled =
-      pkg.scheduledAt && pkg.scheduledAt > new Date() ? pkg.scheduledAt.toISOString() : null;
-
     const metadata = {
       snippet: {
         title: pkg.selectedTitle.slice(0, 100),
@@ -141,11 +157,15 @@ async function uploadPackage(packageId: string) {
         tags,
         categoryId: "10",
       },
-      status: {
-        privacyStatus: "private",
-        selfDeclaredMadeForKids: false,
-        ...(scheduled ? { publishAt: scheduled } : {}),
-      },
+      status: youtubePublishStatus({
+        privacyStatus:
+          pkg.youtubePrivacyStatus === "public" ||
+          pkg.youtubePrivacyStatus === "unlisted"
+            ? pkg.youtubePrivacyStatus
+            : "private",
+        madeForKids: pkg.youtubeMadeForKids,
+        scheduledAt: pkg.scheduledAt,
+      }),
     };
 
     const init = await fetch(

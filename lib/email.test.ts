@@ -48,7 +48,7 @@ describe("ResendEmail.send", () => {
   it("POSTs the payload to the resend API and returns the message id", async () => {
     process.env.RESEND_API_KEY = "re_live_test_key";
     const svc = _resolveForTests();
-    const fetchMock = vi.fn(async () =>
+    const fetchMock = vi.fn(async (_url: string, _init?: RequestInit) =>
       new Response(JSON.stringify({ id: "msg_abc123" }), {
         status: 200,
         headers: { "content-type": "application/json" },
@@ -65,7 +65,10 @@ describe("ResendEmail.send", () => {
     expect(res.id).toBe("msg_abc123");
     expect(res.provider).toBe("resend");
     expect(fetchMock).toHaveBeenCalledOnce();
-    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const [url, init] = fetchMock.mock.calls[0];
+    if (!init) {
+      throw new Error("Expected a request configuration");
+    }
     expect(url).toBe("https://api.resend.com/emails");
     expect(init.method).toBe("POST");
     const headers = init.headers as Record<string, string>;

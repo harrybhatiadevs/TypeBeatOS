@@ -42,7 +42,30 @@ const PROD_ONLY_HEADERS: Record<string, string> = {
   "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
 };
 
+function withSecurityHeaders(res: NextResponse) {
+  for (const [k, v] of Object.entries(HEADERS)) res.headers.set(k, v);
+  if (IS_PROD) {
+    for (const [k, v] of Object.entries(PROD_ONLY_HEADERS)) res.headers.set(k, v);
+  }
+  return res;
+}
+
 export function middleware(req: NextRequest) {
+  const forwardedHost = req.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
+  const hostname = (forwardedHost || req.headers.get("host") || req.nextUrl.hostname)
+    .split(":")[0]
+    .toLowerCase();
+
+  // Both domains terminate at the same Azure app. Permanently consolidate the
+  // www host so crawlers and users see a single public URL for every page.
+  if (hostname === "www.typebeatos.com") {
+    const canonicalUrl = req.nextUrl.clone();
+    canonicalUrl.protocol = "https:";
+    canonicalUrl.hostname = "typebeatos.com";
+    canonicalUrl.port = "";
+    return withSecurityHeaders(NextResponse.redirect(canonicalUrl, 308));
+  }
+
   // Honour an upstream request ID (load balancer, fetch caller) if present;
   // otherwise mint one. The downstream handler will see it via headers().
   const requestId = req.headers.get("x-request-id") || newRequestId();
@@ -51,11 +74,7 @@ export function middleware(req: NextRequest) {
 
   const res = NextResponse.next({ request: { headers: requestHeaders } });
   res.headers.set("x-request-id", requestId);
-  for (const [k, v] of Object.entries(HEADERS)) res.headers.set(k, v);
-  if (IS_PROD) {
-    for (const [k, v] of Object.entries(PROD_ONLY_HEADERS)) res.headers.set(k, v);
-  }
-  return res;
+  return withSecurityHeaders(res);
 }
 
 export const config = {
@@ -70,6 +89,6 @@ export const config = {
   // to the handler. (Small/urlencoded actions survive the clone, which is why a
   // no-audio submit worked.)
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|beats/new|beats/[^/]+/edit|api/beats|api/stripe).*)",
+    "/((?!_next/static|_next/image|favicon.ico|beats/new|beats/[^/]+/edit|api/beats|api/stripe).*)",
   ],
 };

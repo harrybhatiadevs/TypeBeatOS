@@ -5,6 +5,7 @@ import { getUser, destroySession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getStripe, stripeConfigured } from "@/lib/stripe";
 import { loggerFor } from "@/lib/logger";
+import { revokeGoogleAuthorization } from "@/lib/youtube";
 
 const log = loggerFor("account");
 
@@ -28,11 +29,12 @@ async function removeUploads(subdir: string, ids: string[]) {
 /**
  * Permanently delete the signed-in account (Settings → Danger zone).
  * Plain form POST with a typed confirmation. Order matters:
- * 1. cancel any live Stripe subscription (no further charges),
- * 2. best-effort remove uploaded audio / thumbnails / videos from disk,
- * 3. delete the User row — Session, Account, Profile, Beat→Package,
+ * 1. revoke any connected Google authorization,
+ * 2. cancel any live Stripe subscription (no further charges),
+ * 3. best-effort remove uploaded audio / thumbnails / videos from disk,
+ * 4. delete the User row — Session, Account, Profile, Beat→Package,
  *    YouTubeAccount, and Subscription all cascade,
- * 4. clear the session cookie and land on the homepage.
+ * 5. clear the session cookie and land on the homepage.
  */
 export async function POST(request: Request) {
   const redirectTo = (p: string) =>
@@ -52,7 +54,22 @@ export async function POST(request: Request) {
     return redirectTo("/settings?error=" + encodeURIComponent('Type "DELETE" to confirm.'));
   }
 
-  // 1. Stop billing before the data goes away.
+  // 1. Revoke Google access before the stored refresh token goes away.
+  const youtube = await db.youTubeAccount.findUnique({ where: { userId: user.id } });
+  if (youtube) {
+    try {
+      await revokeGoogleAuthorization(youtube.refreshToken);
+    } catch (err) {
+      // Account/data deletion must still complete if Google is temporarily
+      // unavailable. The deleted credentials can no longer be used by us.
+      log.warn(
+        { userId: user.id, err: err instanceof Error ? err.message : err },
+        "google revoke during account deletion failed",
+      );
+    }
+  }
+
+  // 2. Stop billing before the data goes away.
   const sub = await db.subscription.findUnique({ where: { userId: user.id } });
   if (sub?.stripeSubscriptionId && stripeConfigured()) {
     try {
@@ -67,7 +84,7 @@ export async function POST(request: Request) {
     }
   }
 
-  // 2. Uploaded files (audio keyed by beat id, thumbs/videos by package id).
+  // 3. Uploaded files (audio keyed by beat id, thumbs/videos by package id).
   const beats = await db.beat.findMany({
     where: { userId: user.id },
     select: { id: true, package: { select: { id: true } } },
@@ -78,11 +95,11 @@ export async function POST(request: Request) {
   await removeUploads("thumbs", packageIds);
   await removeUploads("videos", packageIds);
 
-  // 3. The row — everything else cascades.
+  // 4. The row — everything else cascades.
   await db.user.delete({ where: { id: user.id } });
   log.info({ userId: user.id, beats: beatIds.length, packages: packageIds.length }, "account deleted");
 
-  // 4. Session out, back to the landing page.
+  // 5. Session out, back to the landing page.
   await destroySession();
   return redirectTo("/");
 }
