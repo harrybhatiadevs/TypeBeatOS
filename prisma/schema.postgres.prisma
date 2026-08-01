@@ -26,12 +26,13 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  sessions     Session[]
-  accounts     Account[]
-  profile      Profile?
-  beats        Beat[]
-  youtube      YouTubeAccount?
-  subscription Subscription?
+  sessions      Session[]
+  accounts      Account[]
+  profile       Profile?
+  beats         Beat[]
+  uploadBatches UploadBatch[]
+  youtube       YouTubeAccount?
+  subscription  Subscription?
 }
 
 // ============================================================
@@ -159,33 +160,71 @@ model Beat {
 }
 
 model Package {
-  id                   String    @id @default(cuid())
-  beatId               String    @unique
-  beat                 Beat      @relation(fields: [beatId], references: [id], onDelete: Cascade)
+  id                   String           @id @default(cuid())
+  beatId               String           @unique
+  beat                 Beat             @relation(fields: [beatId], references: [id], onDelete: Cascade)
   titleOptions         String
   selectedTitle        String
   description          String
   tags                 String
   hashtags             String
   pinnedComment        String
-  thumbnailPath        String    @default("")
-  thumbnailConfig      String    @default("")
-  videoPath            String    @default("")
-  videoStatus          String    @default("none")
-  videoError           String    @default("")
-  youtubeVideoId       String    @default("")
-  uploadStatus         String    @default("none")
-  uploadError          String    @default("")
-  youtubePrivacyStatus String    @default("private")
-  youtubeMadeForKids   Boolean   @default(false)
-  viewCount            Int       @default(0)
-  likeCount            Int       @default(0)
-  commentCount         Int       @default(0)
+  thumbnailPath        String           @default("")
+  thumbnailConfig      String           @default("")
+  videoPath            String           @default("")
+  videoStatus          String           @default("none")
+  videoError           String           @default("")
+  youtubeVideoId       String           @default("")
+  uploadStatus         String           @default("none")
+  uploadError          String           @default("")
+  youtubePrivacyStatus String           @default("private")
+  youtubeMadeForKids   Boolean          @default(false)
+  viewCount            Int              @default(0)
+  likeCount            Int              @default(0)
+  commentCount         Int              @default(0)
   statsUpdatedAt       DateTime?
   scheduledAt          DateTime?
-  status               String    @default("draft")
-  createdAt            DateTime  @default(now())
+  status               String           @default("draft")
+  createdAt            DateTime         @default(now())
+  batchItem            UploadBatchItem?
 
   @@index([scheduledAt])
   @@index([status])
+}
+
+model UploadBatch {
+  id            String            @id @default(cuid())
+  userId        String
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status        String            @default("creating")
+  videoStyle    String            @default("static")
+  autoUpload    Boolean           @default(true)
+  autoSchedule  Boolean           @default(true)
+  privacyStatus String            @default("private")
+  madeForKids   Boolean           @default(false)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  items         UploadBatchItem[]
+
+  @@index([userId, createdAt])
+  @@index([status])
+}
+
+model UploadBatchItem {
+  id          String      @id @default(cuid())
+  batchId     String
+  batch       UploadBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  packageId   String?     @unique
+  package     Package?    @relation(fields: [packageId], references: [id], onDelete: SetNull)
+  position    Int
+  audioName   String
+  imageName   String
+  scheduledAt DateTime?
+  status      String      @default("pending")
+  error       String      @default("")
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@unique([batchId, position])
+  @@index([batchId, status])
 }

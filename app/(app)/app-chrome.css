@@ -1613,3 +1613,195 @@
 .app-page .template-ai-bar .btn {
   flex: 0 0 auto;
 }
+
+/* ---------- Batch upload ---------- */
+.app-page .batch-page-heading,
+.app-page .batch-page-actions,
+.app-page .batch-step-head,
+.app-page .batch-submit-bar,
+.app-page .batch-summary-card,
+.app-page .batch-progress-title,
+.app-page .batch-progress-actions {
+  display: flex;
+  align-items: center;
+}
+.app-page .batch-page-heading {
+  justify-content: space-between;
+  gap: 1rem;
+}
+.app-page .batch-page-heading .page-title { margin-bottom: 0; }
+.app-page .batch-page-actions { gap: 0.55rem; }
+.app-page .batch-builder,
+.app-page .batch-progress-page,
+.app-page .batch-progress-list {
+  display: grid;
+  gap: 1rem;
+}
+.app-page .batch-upgrade-card {
+  max-width: 44rem;
+  display: grid;
+  justify-items: start;
+  gap: 1rem;
+}
+.app-page .batch-upgrade-card h2 { margin: 0; }
+.app-page .batch-step-card { padding: 1.35rem; }
+.app-page .batch-step-head {
+  align-items: flex-start;
+  gap: 0.85rem;
+  margin-bottom: 1.15rem;
+}
+.app-page .batch-step-head > span,
+.app-page .batch-progress-index {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--accent-tint);
+  color: var(--accent-ink);
+  font-weight: 800;
+}
+.app-page .batch-step-head h2,
+.app-page .batch-step-head p,
+.app-page .batch-summary-card h2,
+.app-page .batch-summary-card p,
+.app-page .batch-progress-title h3,
+.app-page .batch-progress-title p { margin: 0; }
+.app-page .batch-step-head p,
+.app-page .batch-summary-card p,
+.app-page .batch-progress-title p {
+  margin-top: 0.2rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+.app-page .batch-drop-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+.app-page .batch-drop-zone {
+  display: grid;
+  justify-items: center;
+  gap: 0.45rem;
+  padding: 1.6rem 1rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-card-sm, 1rem);
+  background: var(--surface-2);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+.app-page .batch-drop-zone:hover {
+  border-color: var(--accent);
+  background: var(--accent-tint);
+}
+.app-page .batch-drop-zone span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.app-page .batch-drop-zone input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+.app-page .batch-drop-zone em {
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 0.82rem;
+  font-style: normal;
+  font-weight: 700;
+}
+.app-page .batch-pair-table { margin-top: 1rem; }
+.app-page .batch-pair-table input,
+.app-page .batch-pair-table select {
+  min-width: 9rem;
+  padding: 0.55rem 0.65rem;
+}
+.app-page .batch-toggle-field label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  min-height: 100%;
+  padding: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control, 0.75rem);
+  cursor: pointer;
+}
+.app-page .batch-toggle-field input {
+  width: auto;
+  margin-top: 0.2rem;
+}
+.app-page .batch-toggle-field span { display: grid; gap: 0.15rem; }
+.app-page .batch-toggle-field small { color: var(--muted); }
+.app-page .batch-submit-bar {
+  position: sticky;
+  bottom: 1rem;
+  z-index: 10;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--nav-glass);
+  backdrop-filter: blur(18px);
+  box-shadow: var(--float-shadow);
+}
+.app-page .batch-submit-bar > div { display: grid; }
+.app-page .batch-submit-bar span { color: var(--muted); font-size: 0.8rem; }
+.app-page .batch-local-failed { color: var(--danger-ink); }
+.app-page .batch-summary-card {
+  justify-content: space-between;
+  gap: 1rem;
+}
+.app-page .batch-summary-card .badge { margin-bottom: 0.55rem; }
+.app-page .batch-progress-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.app-page .batch-progress-main { flex: 1; min-width: 0; }
+.app-page .batch-progress-title {
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.app-page .batch-progress-track {
+  height: 0.42rem;
+  margin-top: 0.9rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--surface-3);
+}
+.app-page .batch-progress-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transition: width 0.35s ease;
+}
+.app-page .batch-progress-item.is-failed .batch-progress-track span { background: var(--danger-ink); }
+.app-page .batch-schedule-note {
+  margin: 0.65rem 0 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+.app-page .batch-progress-actions { gap: 0.65rem; margin-top: 0.75rem; }
+
+@media (max-width: 760px) {
+  .app-page .batch-drop-grid { grid-template-columns: 1fr; }
+  .app-page .batch-page-heading,
+  .app-page .batch-submit-bar,
+  .app-page .batch-summary-card,
+  .app-page .batch-progress-title {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .app-page .batch-page-actions { width: 100%; }
+  .app-page .batch-page-actions .btn { flex: 1; }
+  .app-page .batch-submit-bar .btn { width: 100%; }
+  .app-page .batch-progress-title .badge { align-self: flex-start; }
+}

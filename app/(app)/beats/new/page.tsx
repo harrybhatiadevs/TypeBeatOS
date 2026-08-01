@@ -1,4 +1,5 @@
 import NewBeatForm from "./NewBeatForm";
+import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { getPlanState } from "@/lib/billing";
 
@@ -14,7 +15,10 @@ export default async function NewBeatPage({
 
   return (
     <>
-      <h1 className="page-title">New beat</h1>
+      <div className="batch-page-heading">
+        <h1 className="page-title">New beat</h1>
+        <Link href="/beats/batch" className="btn btn-ghost btn-sm">Upload 2–5 beats</Link>
+      </div>
       <p className="page-sub">
         Fill in the beat details — TypeBeatOS generates the full YouTube upload package from them.
       </p>

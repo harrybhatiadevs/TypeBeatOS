@@ -121,13 +121,24 @@ function diskPath(fileUrl: string) {
 const globalForQueue = globalThis as unknown as { ytQueue?: Promise<void> };
 globalForQueue.ytQueue ??= Promise.resolve();
 
-export function enqueueYouTubeUpload(packageId: string) {
-  globalForQueue.ytQueue = globalForQueue.ytQueue!.then(() =>
-    uploadPackage(packageId).catch(() => {})
-  );
+type UploadResult = { ok: true } | { ok: false; error: string };
+
+export function enqueueYouTubeUpload(
+  packageId: string,
+  onComplete?: (result: UploadResult) => void | Promise<void>,
+) {
+  globalForQueue.ytQueue = globalForQueue.ytQueue!.then(async () => {
+    const result = await uploadPackage(packageId).catch((err) => ({
+      ok: false as const,
+      error: err instanceof Error ? err.message : "Upload failed",
+    }));
+    await onComplete?.(result);
+  }).catch((err) => {
+    log.error({ packageId, err: err instanceof Error ? err.message : err }, "upload queue callback failed");
+  });
 }
 
-async function uploadPackage(packageId: string) {
+async function uploadPackage(packageId: string): Promise<UploadResult> {
   const jobLog = log.child({ packageId, op: "uploadPackage" });
   const pkg = await db.package.findUnique({
     where: { id: packageId },
@@ -135,7 +146,7 @@ async function uploadPackage(packageId: string) {
   });
   if (!pkg) {
     jobLog.warn("package not found, skipping upload");
-    return;
+    return { ok: false, error: "Package not found" };
   }
 
   const startedAt = Date.now();
@@ -227,6 +238,7 @@ async function uploadPackage(packageId: string) {
       { youtubeVideoId: uploaded.id, durationMs: Date.now() - startedAt },
       "upload done",
     );
+    return { ok: true };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Upload failed";
     jobLog.error(
@@ -240,5 +252,6 @@ async function uploadPackage(packageId: string) {
         uploadError: message,
       },
     });
+    return { ok: false, error: message };
   }
 }

@@ -14,7 +14,13 @@ export default async function BeatsPage() {
 
   return (
     <>
-      <h1 className="page-title">Beats</h1>
+      <div className="batch-page-heading">
+        <h1 className="page-title">Beats</h1>
+        <div className="batch-page-actions">
+          <Link href="/beats/batch" className="btn btn-primary btn-sm">Batch upload</Link>
+          <Link href="/beats/new" className="btn btn-ghost btn-sm">+ One beat</Link>
+        </div>
+      </div>
       <p className="page-sub">Every beat you&apos;ve added, with its upload package.</p>
 
       <div className="card">

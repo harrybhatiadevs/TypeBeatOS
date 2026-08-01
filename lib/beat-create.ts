@@ -164,6 +164,7 @@ export async function updateBeatFromForm(
 export async function createBeatPackage(
   user: ProfileUser,
   formData: FormData,
+  options: { fast?: boolean } = {},
 ): Promise<CreateBeatResult> {
   const name = String(formData.get("name") || "").trim();
   const targetArtist = String(formData.get("targetArtist") || "").trim();
@@ -220,7 +221,9 @@ export async function createBeatPackage(
           return false;
         })
       : Promise.resolve(false);
-    const analysisChanged = await withTimeout(analysisPromise, 8000, false);
+    const analysisChanged = options.fast
+      ? false
+      : await withTimeout(analysisPromise, 8000, false);
     log.info(
       { beatId: created.id, changed: analysisChanged, ms: Date.now() - t0 },
       "createBeat: audio analysis ready",
@@ -228,7 +231,7 @@ export async function createBeatPackage(
 
     const beat = (await db.beat.findUnique({ where: { id: created.id } }))!;
 
-    const ai = await withTimeout(aiTitleOptions(beat), 3000, []);
+    const ai = options.fast ? [] : await withTimeout(aiTitleOptions(beat), 3000, []);
     log.info({ beatId: created.id, aiTitles: ai.length, ms: Date.now() - t0 }, "createBeat: titles ready");
     const titles = buildPackageTitleOptions(beat, ai);
     const selectedTitle = titles[0];
@@ -244,11 +247,15 @@ export async function createBeatPackage(
         pinnedComment: buildPinnedComment(beat, profile),
       },
     });
-    analysisPromise
-      .then(async (changed) => {
-        if (changed) await refreshGeneratedPackageFields(created.id, profile);
-      })
-      .catch(() => undefined);
+    if (options.fast) {
+      analysisPromise
+        .then(async (changed) => {
+          if (changed) await refreshGeneratedPackageFields(created.id, profile);
+        })
+        .catch(() => undefined);
+    } else {
+      analysisPromise.catch(() => undefined);
+    }
     log.info({ beatId: created.id, packageId: pkg.id, totalMs: Date.now() - t0 }, "createBeat: done");
     return { packageId: pkg.id };
   } catch (err) {

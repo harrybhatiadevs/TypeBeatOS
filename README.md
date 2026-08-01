@@ -10,6 +10,7 @@ The YouTube growth system for type-beat producers.
 - **Auth** — email/password accounts via [Better-Auth](https://better-auth.com); email verification on signup (soft gate + in-app resend banner) and a full password-reset flow (`/forgot` → email → `/reset`)
 - **Producer profile** — store links, license text, description footer, default posting schedule
 - **Beat upload** — beat details + optional audio file
+- **Batch upload queue** — Pro/Serious users can pair 2–5 audio files with artwork, apply shared metadata and publishing defaults, automatically schedule the next open slots, render every video, and optionally send the completed queue directly to YouTube from one progress screen
 - **Upload package generation** — SEO title options (type-beat structures), description with your links, tags (capped at YouTube's 500-char limit), hashtags, pinned comment
 - **Thumbnail builder** — canvas-based: gradient/image backgrounds, title text, producer name, parental advisory sticker; save or download as PNG
 - **Upload calendar** — set posting days/time once, ⚡ auto-schedule spreads the queue across your next free slots

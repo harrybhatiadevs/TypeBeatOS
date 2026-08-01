@@ -117,13 +117,25 @@ if (!globalForQueue.videoRecovered) {
     .catch(() => {});
 }
 
-export function enqueueRender(packageId: string, style: VideoStyle) {
-  globalForQueue.videoQueue = globalForQueue.videoQueue!.then(() =>
-    renderVideo(packageId, style).catch(() => {})
-  );
+export type QueueResult = { ok: true } | { ok: false; error: string };
+
+export function enqueueRender(
+  packageId: string,
+  style: VideoStyle,
+  onComplete?: (result: QueueResult) => void | Promise<void>,
+) {
+  globalForQueue.videoQueue = globalForQueue.videoQueue!.then(async () => {
+    const result = await renderVideo(packageId, style).catch((err) => ({
+      ok: false as const,
+      error: err instanceof Error ? err.message : "Render failed",
+    }));
+    await onComplete?.(result);
+  }).catch((err) => {
+    log.error({ packageId, err: err instanceof Error ? err.message : err }, "render queue callback failed");
+  });
 }
 
-async function renderVideo(packageId: string, style: VideoStyle) {
+async function renderVideo(packageId: string, style: VideoStyle): Promise<QueueResult> {
   const jobLog = log.child({ packageId, style });
   const pkg = await db.package.findUnique({
     where: { id: packageId },
@@ -131,7 +143,7 @@ async function renderVideo(packageId: string, style: VideoStyle) {
   });
   if (!pkg) {
     jobLog.warn("package not found, skipping render");
-    return;
+    return { ok: false, error: "Package not found" };
   }
 
   const startedAt = Date.now();
@@ -153,6 +165,7 @@ async function renderVideo(packageId: string, style: VideoStyle) {
       data: { videoStatus: "done", videoPath: `/api/files/videos/${packageId}.mp4`, videoError: "" },
     });
     jobLog.info({ durationMs: Date.now() - startedAt }, "render done");
+    return { ok: true };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Render failed";
     jobLog.error(
@@ -163,5 +176,6 @@ async function renderVideo(packageId: string, style: VideoStyle) {
       where: { id: packageId },
       data: { videoStatus: "failed", videoError: message },
     });
+    return { ok: false, error: message };
   }
 }
