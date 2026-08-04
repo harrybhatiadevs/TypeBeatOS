@@ -12,6 +12,7 @@ npm-debug.log
 .env.development
 .env.development.local
 prisma/dev.db*
+dev.db*
 uploads
 /tmp
 
