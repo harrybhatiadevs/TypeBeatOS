@@ -64,8 +64,8 @@ export const auth = betterAuth({
   },
 
   session: {
-    expiresIn: 30 * 24 * 60 * 60, // 30 days, same as the legacy session
-    updateAge: 24 * 60 * 60,      // refresh every 24h
+    expiresIn: 7 * 24 * 60 * 60,  // require a fresh sign-in every 7 days
+    disableSessionRefresh: true,   // fixed lifetime; activity does not extend it
     cookieCache: {
       enabled: true,
       maxAge: 60 * 5,             // 5 minutes

@@ -51,7 +51,7 @@ const PLANS = [
     cycle: "/mo",
     annual: "or $190/yr — 2 months free",
     perks: ["60 upload packs / mo", "Batch upload queue", "Direct YouTube publish", "Custom templates"],
-    cta: "Upgrade to Pro",
+    cta: "Get Pro",
     featured: true,
   },
   {
@@ -60,7 +60,7 @@ const PLANS = [
     cycle: "/mo",
     annual: "or $290/yr — 2 months free",
     perks: ["150 upload packs / mo", "Multiple channels", "Analytics + keyword insights", "Advanced templates"],
-    cta: "Upgrade to Serious",
+    cta: "Get Serious",
     featured: false,
   },
 ];
