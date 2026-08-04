@@ -92,6 +92,12 @@ components:
 
 # Design System: TypeBeatOS
 
+> **Implementation status — 4 August 2026:** This system is live across the
+> marketing, authentication, app, billing, settings, single-upload, and batch
+> upload surfaces. Treat this file as the visual source of truth. The active
+> product phase is post-MVP production hardening; extend the existing tokens and
+> component vocabulary instead of introducing a second UI system.
+
 ## 1. Overview
 
 **Creative North Star: "After-Hours Studio"**
@@ -229,7 +235,7 @@ Two large blurred red radials (`blur(170px)`, opacity ~0.1–0.18) fixed behind 
 
 ### Do:
 - **Do** keep red on a tight budget — one live/primary element + the focused field per screen (The Signal Rule).
-- **Do** set titles and big numbers in Bebas Neue, everything readable in Inter (The Two-Voice Rule).
+- **Do** set titles and big numbers in Bebas Neue, everything readable in Schibsted Grotesk (The Two-Voice Rule).
 - **Do** convey depth with the inset top-highlight and red glow; keep surfaces flat (The No-Drop-Shadow Rule).
 - **Do** pair every status with its word, and verify status colors aren't hue-only (color-blind producers).
 - **Do** keep body/muted text at `#ffffff99` or lighter-toward-ink; check ≥4.5:1 on the black field before going dimmer.

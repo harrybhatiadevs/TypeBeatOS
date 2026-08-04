@@ -1,5 +1,12 @@
 # Fly.io deploy runbook
 
+> **Retired fallback — updated 4 August 2026.** Production runs on Azure
+> Container Apps, not Fly.io. Do not use this file for a normal release; follow
+> `docs/azure-deployment.md`. This runbook remains only as disaster-recovery
+> context. If Fly is ever reactivated, first reconcile all environment variables,
+> migrations, plan/batch routes, session policy, storage, and health checks with
+> the current application.
+
 This is the first real production deploy. Until now we've served beta
 traffic via the Cloudflare quick tunnel from a Mac (`start-beta.sh`),
 which is fine for ten testers and not fine for a hundred.
@@ -77,7 +84,7 @@ In order — stop at the first failure:
 - [ ] Sign up a real account, log in, log out
 - [ ] Upload a small mp3 beat
 - [ ] Generate a package (titles, description, tags)
-- [ ] Render a video (waveform style — exercises ffmpeg)
+- [ ] Render a video (static artwork — exercises ffmpeg; waveform is unsupported)
 - [ ] Connect a YouTube channel
 - [ ] (Skip actual YouTube upload until Google app verification clears)
 
@@ -122,8 +129,8 @@ These are Sprint 2+ follow-ups, deliberately scoped out:
   Upstash Redis first.
 - **Sentry.** DSN wiring is one env var + a small `instrumentation.ts`
   hook — saved for when we have the Sentry account.
-- **Resend.** Same story — needs an account before the in-codebase wiring
-  is worth doing.
+- **Resend.** Email integration is implemented; a reactivated Fly environment
+  would need the current `RESEND_API_KEY` and `EMAIL_FROM` configured securely.
 - **Custom domain + TLS.** `fly certs add typebeatos.com` once DNS is
   pointed at the Fly anycast IP.
 

@@ -1,5 +1,18 @@
 # Product
 
+## Current Delivery Stage
+
+**Updated 4 August 2026.** Roadmap stages 2–5 are implemented and deployed:
+package generation, static-artwork video rendering, scheduling, direct YouTube
+publishing, and analytics. The current phase is production hardening plus speed
+to publish. Pro and Serious users now have a 2–5 beat batch queue; Free users
+keep the single-upload flow. Waveform videos are intentionally unsupported.
+
+The next priorities are Google OAuth verification/quota approval, resilient
+YouTube retries and reconnect UX, durable render/upload jobs, and automatic
+analytics refresh. The authoritative engineering status is
+`docs/core-workflow-roadmap.md`.
+
 ## Register
 
 product
@@ -37,7 +50,7 @@ the producer's way. Voice is confident and plainspoken in producer language
 
 Visual signature already established and worth preserving: a dark, near-black
 surface with a single decisive red accent (`#ed072c`) and condensed display
-type (Bebas Neue) over Inter body — high-contrast, music-industry energy used
+type (Bebas Neue) over Schibsted Grotesk body — high-contrast, music-industry energy used
 with restraint, not as decoration.
 
 ## Anti-references
@@ -57,6 +70,9 @@ nothing competing for attention.
   Never let polish hide whether something worked.
 - **Speed to publish.** Minimize clicks from finished beat to scheduled upload.
   Defaults should be good enough to ship without editing.
+- **Batch without clutter.** Paid producers can submit 2–5 matched beats and
+  artworks in one run. Shared metadata and publishing defaults remove repeated
+  work, while per-item status keeps failures understandable.
 - **Calm under density.** There's a lot of metadata; present it with hierarchy
   and space so it reads as control, not clutter.
 - **Speak the producer's language.** Beats, type beats, BPM, key, lease vs.

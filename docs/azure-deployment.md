@@ -1,5 +1,15 @@
 # Azure Container Apps deployment runbook — TypeBeatOS
 
+> **Active production runbook — updated 4 August 2026.** Production is live at
+> `https://typebeatos.com` in `rg-typebeatos-eastus`, app `ca-typebeatos`, ACR
+> `crtypebeatos5c46ce.azurecr.io`. The live image before the August batch release
+> is `typebeatos:v45`. Always query the app first and deploy the next unused
+> immutable tag; do not blindly reuse the examples below.
+
+**Current application stage:** roadmap stages 2–5 are live. The active release
+adds paid 2–5 beat batch upload, static-only videos, seven-day renewable
+inactivity sessions, mobile-nav cleanup, and pricing/paywall polish.
+
 Production deployment target for TypeBeatOS. Mirrors the structure of
 `docs/deploy-runbook.md` (Fly.io), which is kept as a fallback. Database stays
 on **Neon Postgres**; email stays on **Resend**; uploads use an **Azure Files**
@@ -8,9 +18,9 @@ share mounted at `/app/uploads` (no application code change).
 This runbook assumes the SQLite→Neon cutover in `docs/postgres-cutover.md` is
 done and you have a Neon **pooled** `DATABASE_URL` and **direct** `DIRECT_URL`.
 
-> **No app code changes.** The same `Dockerfile` Fly used is reused as-is. Only
-> new infra (Azure) and these docs are added. `fly.toml` and the Fly runbook
-> remain untouched as a fallback.
+The provisioning sections below explain how the existing platform was created.
+For normal releases, start at **Run Neon migrations** and **Redeploying after a
+code change**. `fly.toml` and the Fly runbook remain only as a fallback.
 
 ---
 
@@ -19,12 +29,12 @@ done and you have a Neon **pooled** `DATABASE_URL` and **direct** `DIRECT_URL`.
 | Concern | Choice |
 | --- | --- |
 | Compute | Azure Container Apps, **single replica (min=max=1)** |
-| Image build | `az acr build` (remote, **amd64** — required for `ffmpeg-static`) |
+| Image build | Local Docker Buildx targeting **linux/amd64**, pushed to ACR (ACR Tasks unavailable on this subscription) |
 | Registry | Azure Container Registry (Basic, admin enabled for v1) |
 | Database | Neon Postgres (unchanged) |
 | Email | Resend (unchanged) |
 | File storage | Azure Files SMB share mounted at `/app/uploads` |
-| Ingress / TLS | Free `*.azurecontainerapps.io` FQDN, auto HTTPS |
+| Ingress / TLS | `typebeatos.com` custom domain plus ACA FQDN, managed HTTPS |
 | Logs | Log Analytics workspace (attached to the ACA environment) |
 | Migrations | Run manually from a laptop against Neon (unchanged flow) |
 
@@ -47,15 +57,16 @@ az provider register --namespace Microsoft.OperationalInsights
 az provider register --namespace Microsoft.ContainerRegistry
 ```
 
-Shell variables used throughout (edit the unique ones — see naming rules below):
+Current production variables (the registry intentionally remains in the older
+Australia East resource group while compute/storage run in East US):
 
 ```bash
-RG=rg-typebeatos
-REGION=australiaeast            # Fly was Sydney; australiaeast is the AU region
-ENV=cae-typebeatos
+RG=rg-typebeatos-eastus
+REGION=eastus
+ENV=cae-typebeatos-eus
 APP=ca-typebeatos
-ACR=crtypebeatos<UNIQUE>        # see naming rules
-STORAGE=sttypebeatos<UNIQUE>    # see naming rules
+ACR=crtypebeatos5c46ce
+STORAGE=sttypebeatoseus12ce26
 SHARE=uploads
 ```
 
@@ -112,10 +123,11 @@ az group create --name $RG --location $REGION
 
 az acr create --resource-group $RG --name $ACR --sku Basic --admin-enabled true
 
-# Remote build on Azure's amd64 builders. Do NOT `docker build` locally on an
-# Apple-silicon Mac — ffmpeg-static would embed an arm64 binary that crashes on
-# the amd64 Container Apps runtime. This is the analog of `fly deploy --remote-only`.
-az acr build --registry $ACR --image typebeatos:v1 .
+# Build explicitly for amd64. A native Apple-Silicon build would package the
+# wrong ffmpeg binary, and ACR Tasks are unavailable on the current subscription.
+az acr login -n $ACR
+docker buildx build --platform linux/amd64 \
+  -t $ACR.azurecr.io/typebeatos:v1 --push .
 ```
 
 Grab the registry login server + admin credentials (needed for the YAML):
@@ -295,8 +307,17 @@ DIRECT_URL="<...>" DATABASE_URL="<...>" npm run db:migrate:status
 ## Redeploying after a code change
 
 ```bash
-az acr build --registry $ACR --image typebeatos:v2 .
-az containerapp update -g $RG -n $APP --image $ACR_LOGIN_SERVER/typebeatos:v2
+# Inspect the current immutable image first.
+az containerapp show -g rg-typebeatos-eastus -n ca-typebeatos \
+  --query properties.template.containers[0].image -o tsv
+
+# On Apple Silicon, build and push the next tag for the amd64 runtime.
+az acr login -n crtypebeatos5c46ce
+docker buildx build --platform linux/amd64 \
+  -t crtypebeatos5c46ce.azurecr.io/typebeatos:v<NEXT> --push .
+
+az containerapp update -g rg-typebeatos-eastus -n ca-typebeatos \
+  --image crtypebeatos5c46ce.azurecr.io/typebeatos:v<NEXT>
 ```
 
 Image-only update. Secrets (including `BETTER_AUTH_SECRET`) and env vars are
@@ -317,6 +338,12 @@ Against `https://$FQDN`:
 - [ ] **Beat upload** (real audio) → BPM/key auto-detected, package generated.
 - [ ] **Thumbnail save** → served via `/api/files/thumbs/...`.
 - [ ] **Video render** → MP4 plays via `/api/files/videos/...`.
+- [ ] **Video format** → only static artwork is offered; no waveform option or
+      waveform filter path remains.
+- [ ] **Batch plan gate** → Free sees the upgrade path; Pro/Serious can open
+      `Batch upload` and queue 2–5 pairs.
+- [ ] **Session policy** → active use can renew the session; seven days without
+      renewal requires a new login.
 - [ ] **Persistence test:** `az containerapp revision restart` (or deploy a new
       revision), then re-open a previously uploaded file → still served (proves
       Azure Files persistence, not ephemeral disk). *This is the key migration

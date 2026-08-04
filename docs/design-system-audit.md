@@ -1,5 +1,10 @@
 # Design system — rollout map
 
+> **Current status — 4 August 2026:** Rollout is complete and the system now
+> also covers billing, settings sidebars, mobile navigation, batch upload, and
+> batch progress. The current product phase is production hardening; new work
+> should reuse these established patterns.
+
 The waitlist page was the source of truth for the new visual identity:
 pure black, glass nav pill, Bebas Neue display headlines, red `#ed072c`
 accent, single-glyph numerals, `min-height: 100vh` sections that own a
@@ -37,9 +42,10 @@ Every route in the app now flows through the unified system:
 **Public:** `/`, `/waitlist`
 **Auth:** `/login`, `/signup`
 **Authenticated:** `/dashboard`, `/onboarding`, `/beats`, `/beats/new`,
+`/beats/batch`, `/beats/batch/[id]`,
 `/beats/[id]/edit`, `/calendar`, `/analytics`, `/profile`,
-`/packages/[id]` (+ PackageEditor, ThumbnailBuilder, VideoGenerator,
-YouTubeUploader components)
+`/settings`, `/billing`, `/packages/[id]` (+ PackageEditor,
+ThumbnailBuilder, VideoGenerator, YouTubeUploader components)
 **Errors:** 404 (`app/not-found.tsx`), route error (`app/error.tsx`)
 
 ## Follow-ups
@@ -55,3 +61,8 @@ YouTubeUploader components)
   raster. Swap for a true SVG export if one becomes available so the
   badge stays crisp at every density. No urgency — JPG looks fine at the
   badge size today.
+- ✅ **Mobile navigation lifecycle** — selecting a destination closes the
+  drawer before/while navigation completes, so it never remains over the next
+  screen.
+- ✅ **Paid batch affordance** — `Batch upload` is shown as a paid action and
+  resolves to an upgrade screen for Free users; the single action is `Upload`.

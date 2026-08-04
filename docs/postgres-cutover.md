@@ -1,93 +1,78 @@
-# Neon PostgreSQL production setup
+# Neon PostgreSQL production operations
 
-TypeBeatOS uses two Prisma schemas intentionally:
+**Status: production is already on Neon. Updated 4 August 2026.** This document
+is now the migration-safety runbook, not an unfinished cutover plan.
 
-- `prisma/schema.prisma` uses SQLite for local development (`prisma/dev.db`).
-- `prisma/schema.postgres.prisma` uses PostgreSQL for production on Neon.
+## Dual-schema rule
 
-The model blocks must remain identical. Production migrations live under
-`prisma/migrations/` and must always be run with the Postgres schema explicitly.
-Never run `prisma migrate reset`, `prisma db push --force-reset`, or the dev seed
-against the Neon production branch.
+TypeBeatOS deliberately has two Prisma schemas:
 
-## 1. Copy the two Neon connection strings
+- `prisma/schema.prisma` — SQLite for local development;
+- `prisma/schema.postgres.prisma` — PostgreSQL for Neon production.
 
-In the Neon Console, open the production project and click **Connect**. Select
-the production branch, database, and role, then copy both connection strings:
+Keep their application models synchronized. Production migrations live in
+`prisma/migrations/` and must be executed with the PostgreSQL schema. CI runs
+`npm run db:validate-postgres`, but an agent must still review every migration's
+SQL for destructive changes.
 
-1. Enable **Connection pooling** and copy the URL to `DATABASE_URL`. Its hostname
-   contains `-pooler`. The running app uses this URL.
-2. Disable **Connection pooling** and copy the URL to `DIRECT_URL`. Its hostname
-   does not contain `-pooler`. Prisma migrations use this direct URL.
+## Connection roles
 
-Both URLs should use the same branch, database, and role and include
-`sslmode=require`. Do not commit either value. Neon documents pooled runtime and
-direct migration connections in its [Prisma guide](https://neon.com/docs/guides/prisma)
-and [connection guide](https://neon.com/docs/get-started-with-neon/connect-neon).
+- `DATABASE_URL`: pooled Neon URL (hostname normally contains `-pooler`) used by
+  the running application and Prisma verification.
+- `DIRECT_URL`: non-pooled URL for Prisma migrations.
 
-For a one-off local migration command, export them only in the current shell:
+The two URLs must point to the same production branch/database/role and require
+TLS. They belong in the Azure/Neon secret stores or a protected local shell,
+never in git, Markdown, command output, or a committed `.env` file.
 
-```bash
-export DATABASE_URL='postgresql://...-pooler.../neondb?sslmode=require'
-export DIRECT_URL='postgresql://......../neondb?sslmode=require'
-```
+## Safe release procedure
 
-For deployment, store both values in the platform secret manager. Do not place
-production credentials in `.env`.
+1. Review pending migrations:
 
-## 2. Validate before changing Neon
+   ```bash
+   git diff <production-commit>...HEAD -- prisma/migrations prisma/schema.postgres.prisma
+   npm run db:validate-postgres
+   DIRECT_URL="$DIRECT_URL" DATABASE_URL="$DATABASE_URL" npm run db:migrate:status
+   ```
 
-```bash
-npm ci
-npm run db:validate-postgres
-DIRECT_URL="$DIRECT_URL" DATABASE_URL="$DATABASE_URL" npm run db:migrate:status
-```
+2. Back up or confirm Neon point-in-time recovery before any destructive
+   migration. Additive tables/columns still require review.
+3. Apply migrations **before** deploying code that reads required new schema:
 
-Review the migration SQL in `prisma/migrations/` before deployment. `migrate
-deploy` applies pending migrations and does not reset the database, but a new
-migration can still contain destructive SQL and must be reviewed.
+   ```bash
+   DIRECT_URL="$DIRECT_URL" DATABASE_URL="$DATABASE_URL" npm run db:migrate:deploy
+   ```
 
-## 3. Apply committed migrations
+4. Verify:
 
-```bash
-DIRECT_URL="$DIRECT_URL" DATABASE_URL="$DATABASE_URL" npm run db:migrate:deploy
-```
+   ```bash
+   DIRECT_URL="$DIRECT_URL" DATABASE_URL="$DATABASE_URL" npm run db:migrate:status
+   DATABASE_URL="$DATABASE_URL" npm run db:verify:postgres
+   ```
 
-Do not use `prisma migrate dev` against production. New migrations should be
-created and reviewed on a disposable Neon development branch, committed, and
-then applied to production with `db:migrate:deploy`.
+5. Restore the local SQLite client after production-oriented generation:
 
-## 4. Verify connectivity and tables
+   ```bash
+   npm run db:generate:sqlite
+   ```
 
-```bash
-DIRECT_URL="$DIRECT_URL" DATABASE_URL="$DATABASE_URL" npm run db:migrate:status
-DATABASE_URL="$DATABASE_URL" npm run db:verify:postgres
-```
+## Current batch migration
 
-The verification script runs `SELECT 1`, lists the `public` schema tables, and
-fails if any application table or `_prisma_migrations` is missing. It does not
-write application data.
+The batch-upload release introduces `UploadBatch` and `UploadBatchItem` through
+`prisma/migrations/20260801000000_add_upload_batches/migration.sql`. It is an
+additive migration. Apply it to Neon before deploying the batch API/pages. The
+final schema intentionally has no `videoStyle` field because waveform rendering
+was removed before release.
 
-After this command, restore the local SQLite Prisma client before local work:
+## Prohibited production operations
 
-```bash
-npm run db:generate:sqlite
-npm run db:push
-```
+Never run any of these against the Neon production branch:
 
-## 5. Deploy
-
-The Dockerfile explicitly generates Prisma Client from
-`schema.postgres.prisma`. Set both secrets in Fly.io:
-
-```bash
-fly secrets set \
-  DATABASE_URL="$DATABASE_URL" \
-  DIRECT_URL="$DIRECT_URL"
-fly deploy --remote-only
-```
-
-Then follow `docs/deploy-runbook.md` for application smoke tests.
+- `prisma migrate reset`;
+- `prisma db push --force-reset`;
+- `prisma migrate dev`;
+- the development seed or cleanup scripts; or
+- an ad-hoc reverse migration without a tested recovery plan.
 
 ## Local SQLite workflow
 
@@ -99,19 +84,16 @@ npm run db:push
 npm run dev
 ```
 
-The dev seed is intentionally destructive for its fixed test account and is
-blocked when `NODE_ENV=production`. Run it only against local SQLite:
+`npm run seed:dev` is intentionally blocked in production and may overwrite its
+fixed local test accounts. Point it only at disposable SQLite data.
 
-```bash
-npm run seed:dev
-```
+## Rollback
 
-## Data migration and rollback
+- For a bad application image, reactivate the previous Azure Container Apps
+  revision.
+- For a bad database migration, stop writes and use Neon point-in-time restore
+  or branch recovery. Coordinate application rollback with the restored schema.
+- Do not improvise a production reset.
 
-This setup creates the production schema; it does not copy rows from
-`prisma/dev.db`. Any data transfer must be planned separately, tested on a Neon
-branch, and backed up before production import.
-
-For a bad application release, roll back the application image. For a bad
-database migration, stop writes and use Neon's restore/branch recovery workflow.
-Do not attempt an ad-hoc reverse migration or reset on production.
+Application deployment and health verification are documented in
+`docs/azure-deployment.md`.

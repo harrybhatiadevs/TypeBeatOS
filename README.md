@@ -1,75 +1,166 @@
 # TypeBeatOS
 
-The YouTube growth system for type-beat producers.
+TypeBeatOS is a full-stack publishing workspace for type-beat producers. It
+turns beat audio and artwork into a complete YouTube upload package, schedules
+the release, publishes it, and tracks performance.
 
-> Upload a month of type beats in one sitting. TypeBeatOS handles the SEO, visuals, descriptions, tags, and schedule.
+## Current stage — production hardening and faster publishing
 
-## What's built (Stages 2–5 of the roadmap)
+**Updated 4 August 2026.** The core producer journey (roadmap stages 2–5) is
+live: package generation, video rendering, YouTube publishing, scheduling, and
+analytics. The current work is post-MVP hardening and reducing the time from
+files to a queued release.
 
-- **Landing page** at `/` — the validation page, now driving signups
-- **Auth** — email/password accounts via [Better-Auth](https://better-auth.com); email verification on signup (soft gate + in-app resend banner) and a full password-reset flow (`/forgot` → email → `/reset`)
-- **Producer profile** — store links, license text, description footer, default posting schedule
-- **Beat upload** — beat details + optional audio file
-- **Batch upload queue** — Pro/Serious users can pair 2–5 audio files with artwork, apply shared metadata and publishing defaults, automatically schedule the next open slots, render every video, and optionally send the completed queue directly to YouTube from one progress screen
-- **Upload package generation** — SEO title options (type-beat structures), description with your links, tags (capped at YouTube's 500-char limit), hashtags, pinned comment
-- **Thumbnail builder** — canvas-based: gradient/image backgrounds, title text, producer name, parental advisory sticker; save or download as PNG
-- **Upload calendar** — set posting days/time once, ⚡ auto-schedule spreads the queue across your next free slots
-- **Export** — download a `.txt` upload pack + thumbnail PNG, with copy buttons for every field (paste into YouTube Studio)
-- **Video generation (Stage 3)** — render YouTube-ready MP4s (1280×720 h264 + AAC) from the saved thumbnail + beat audio via bundled ffmpeg. Renders use a clean static artwork visual and run in a background queue with live status on the package page.
-- **YouTube direct upload (Stage 4)** — connect a channel via Google OAuth (profile page), then upload any rendered package straight from the editor. Uploads go up private with `publishAt` set from the package schedule, including title/description/tags metadata (category: Music) and the custom thumbnail (best-effort). Status tracked per package with links to YouTube Studio when done. Verified end to end against the live API.
-- **Analytics (Stage 5)** — views, likes, and comments per upload pulled from the YouTube Data API on demand (1 quota unit per 50 videos), plus aggregations: best performing artist keywords and best upload days. CTR/impressions need the YouTube Analytics API scope — future work.
-- **Onboarding** — new signups land in a 3-step wizard (brand & store link → posting schedule → connect YouTube), every step skippable. The dashboard shows a setup checklist until the core steps are done.
-- **Auto BPM & key detection** — leave BPM/key blank when adding a beat with audio and TypeBeatOS detects them from the file (ffmpeg decode → onset-based tempo via music-tempo → Krumhansl-Schmuckler chromagram key matching). Detected values flow into titles, tags, and the description.
+The latest release adds:
 
-### Optional AI enhancement
+- a Pro/Serious-only batch queue for **2–5 beats plus 2–5 artworks**;
+- two concurrent browser uploads, automatic artwork pairing/cropping, shared
+  metadata, automatic scheduling, static-artwork video rendering, optional
+  YouTube upload, and a persisted progress screen;
+- plan-aware batch paywalls and correct single-upload labels;
+- mobile navigation that closes after route selection;
+- a seven-day inactivity session window, renewed at most once per day while the
+  producer remains active;
+- simplified marketing CTAs (`Get Pro`, `Get Serious`); and
+- removal of waveform rendering. All videos now use the producer's artwork as
+  a clean static visual.
 
-Metadata generation works offline. Set an AI key in `.env.local` to unlock AI features — 4 extra title options per beat, and AI-generated SEO upload templates (Settings → Templates). Provider is auto-selected: `GEMINI_API_KEY` (Google Gemini, has a free tier — checked first) or `ANTHROPIC_API_KEY` (Claude). Defaults to `gemini-2.5-flash` / `claude-haiku-4-5`; override with `GEMINI_MODEL` / `ANTHROPIC_MODEL`.
+The next product priorities are Google OAuth verification/quota approval,
+upload retry and reconnect UX, durable background jobs, and automated analytics
+refreshes. See [the current workflow roadmap](docs/core-workflow-roadmap.md).
 
-### Enabling YouTube upload
+## Product capabilities
 
-1. In [Google Cloud Console](https://console.cloud.google.com): create a project, enable **YouTube Data API v3**, configure the OAuth consent screen (scopes: `youtube.upload`, `youtube.readonly`), and create an **OAuth client ID** (web application) with authorized redirect URI `{APP_URL}/api/youtube/callback`.
-2. Set `APP_URL`, `GOOGLE_CLIENT_ID`, and `GOOGLE_CLIENT_SECRET` in `.env` and restart.
-3. Connect your channel from the profile page.
-
-Quota note: `videos.insert` costs ~1600 units of the default 10,000/day quota — roughly **6 uploads/day** per Google Cloud project until you request a quota increase. Unverified OAuth apps are limited to test users and show a warning screen; plan for Google's app verification before opening this to real users.
-
-## Run it
-
-```bash
-npm install
-npm run db:push      # creates prisma/dev.db (SQLite)
-npm run dev          # → http://localhost:3000
-```
+| Area | Current behaviour |
+| --- | --- |
+| Accounts | Better Auth email/password, verification, reset flow, seven-day renewable inactivity window |
+| Plans | Stripe-backed Free, Pro, and Serious tiers with monthly package limits and feature gates |
+| Single upload | Audio/details form, BPM/key analysis, metadata package, thumbnail, static video, schedule, YouTube upload |
+| Batch upload | Pro/Serious users pair 2–5 audio files and images, apply shared settings, then queue the run |
+| Metadata | Offline templates plus optional Gemini or Claude title/template enhancement |
+| Thumbnails | Canvas editor with persisted editor state and source artwork |
+| Video | 1280×720 H.264/AAC MP4 using static artwork; in-process render queue |
+| Publishing | Google OAuth, YouTube Data API v3, custom thumbnail, privacy/audience settings, `publishAt` scheduling |
+| Analytics | Manual refresh of views, likes, and comments plus artist/day summaries |
+| Operations | CI tests/build/schema/audit gates; Azure Container Apps, Neon, Azure Files, Resend |
 
 ## Stack
 
-Next.js 15 (App Router, server actions) · TypeScript · Prisma with SQLite locally and Neon PostgreSQL in production · plain CSS (no Tailwind). Beat audio and thumbnails are stored on disk under `uploads/` and served via `/api/files/*`.
+| Layer | Technology |
+| --- | --- |
+| Web application | Next.js 15 App Router, React 19, TypeScript, server actions |
+| UI | Plain CSS, Bebas Neue + Schibsted Grotesk, dark/light themes; no Tailwind |
+| Authentication | Better Auth, HTTP-only `tbos_session` cookie, bcrypt credentials |
+| Data | Prisma 6; SQLite locally, Neon PostgreSQL in production |
+| Billing | Stripe Checkout, Billing Portal, webhooks, plan/quota enforcement |
+| Media | `ffmpeg-static`, Canvas thumbnail generation, `music-tempo`, `fft.js` |
+| Integrations | YouTube Data API v3, Google OAuth, Resend, optional Gemini/Anthropic |
+| Tests and CI | Vitest, TypeScript, Prisma validation, Next.js build, `npm audit` in GitHub Actions |
+| Production | Docker, Azure Container Registry, Azure Container Apps, Azure Files |
 
-Production database setup, migration, and verification instructions are in
-[`docs/postgres-cutover.md`](docs/postgres-cutover.md). Production uses a pooled
-`DATABASE_URL` for application traffic and a direct `DIRECT_URL` for migrations;
-neither credential belongs in git.
+Production is intentionally pinned to one application replica because video
+and YouTube jobs use in-process queues. Do not scale horizontally until durable
+queues and shared object storage replace that assumption.
 
-## Deployment
+## Repository map
 
-Production runs on **Azure Container Apps** (single replica), built from the
-[`Dockerfile`](Dockerfile) as a Next.js standalone server.
+```text
+app/                         Next.js routes, pages, API handlers, and UI
+lib/                         auth, billing, generation, media, YouTube, queues
+prisma/schema.prisma         SQLite development schema
+prisma/schema.postgres.prisma PostgreSQL production schema
+prisma/migrations/           reviewed production migrations
+uploads/                     local media in development (gitignored)
+infra/azure/                 Azure Container Apps declarative spec
+docs/                        operational guides and implementation history
+```
 
-- **Database** — Neon PostgreSQL (pooled `DATABASE_URL` for the app, direct `DIRECT_URL` for migrations)
-- **File storage** — Azure Files share mounted at `/app/uploads` (audio, thumbnails, rendered MP4s persist across restarts)
-- **Email** — Resend (`RESEND_API_KEY`); falls back to a console stub when unset
-- **Registry / build** — Azure Container Registry; image built locally for `linux/amd64` and pushed (ACR Tasks is unavailable on credit subscriptions)
-- **Ingress** — external HTTPS on the auto-provisioned `*.azurecontainerapps.io` FQDN; health probed at `/api/health`
-- **Secrets** — held in the Container App secret store, never in git (a local `containerapp.filled.yaml` is gitignored)
+Any model change must be mirrored in both Prisma schemas and accompanied by a
+reviewed PostgreSQL migration.
 
-Full runbook (exact `az` commands, cost budget, probe design, smoke-test checklist):
-[`docs/azure-deployment.md`](docs/azure-deployment.md). The declarative app spec
-is [`infra/azure/containerapp.yaml`](infra/azure/containerapp.yaml). The retired
-Fly.io files (`fly.toml`, `docs/deploy-runbook.md`) are kept as a fallback.
+## Run locally
 
-## Roadmap (from the product report)
+Requirements: Node.js 22 and npm.
 
-- Plan limits + Stripe billing for the Free/$9/$19/$29 tiers
-- Google OAuth app verification + quota increase before public launch
-- CTR/impressions via the YouTube Analytics API (needs an extra OAuth scope)
-- Beat store click tracking (link redirect service)
+```bash
+npm install
+cp .env.example .env
+npm run db:generate:sqlite
+npm run db:push
+npm run dev
+```
+
+Open `http://localhost:3000`. The minimum local environment is:
+
+```dotenv
+DATABASE_URL="file:./dev.db"
+APP_URL="http://localhost:3000"
+BETTER_AUTH_SECRET="replace-with-at-least-32-random-characters"
+```
+
+Optional integrations are configured with `GOOGLE_CLIENT_ID`,
+`GOOGLE_CLIENT_SECRET`, `RESEND_API_KEY`, `EMAIL_FROM`, `GEMINI_API_KEY`, and/or
+`ANTHROPIC_API_KEY`. Never commit real credentials.
+
+Useful local commands:
+
+```bash
+npm test
+npx tsc --noEmit
+npm run db:validate-postgres
+npm audit --audit-level=high --omit=dev
+npm run build
+```
+
+Do not run `npm run build` while `npm run dev` is using the same checkout; both
+write `.next/`. Stop the development server first.
+
+## Production architecture and release order
+
+Production runs at `https://typebeatos.com` on Azure Container Apps:
+
+- app: `ca-typebeatos` in resource group `rg-typebeatos-eastus`;
+- registry: `crtypebeatos5c46ce.azurecr.io`;
+- database: Neon PostgreSQL (pooled runtime URL, direct migration URL);
+- media: Azure Files mounted at `/app/uploads`;
+- email: Resend; and
+- health check: `/api/health`.
+
+Release order:
+
+1. Run all checks and review migration SQL.
+2. Merge the approved feature branch into `main` and push GitHub.
+3. Apply pending Neon migrations with `npm run db:migrate:deploy`.
+4. Build and push a new `linux/amd64` image tag.
+5. Update the Container App to that immutable image.
+6. Verify health, active revision/image, landing page, auth, uploads, batch gate,
+   static rendering, and persisted media.
+
+Exact commands and rollback steps are in
+[docs/azure-deployment.md](docs/azure-deployment.md). Database safety rules are
+in [docs/postgres-cutover.md](docs/postgres-cutover.md). The Fly.io runbook is a
+retired fallback, not the current production path.
+
+## Handoff rules for another agent
+
+- Start with this README and `docs/core-workflow-roadmap.md`.
+- Preserve unrelated changes and never stage local database/media files.
+- Keep both Prisma schemas synchronized.
+- Batch upload is paid-only (Pro and Serious); single upload remains available
+  to Free users within quota.
+- The single-upload button says `Upload`; the paid action says `Batch upload`.
+- Do not restore waveform choices; static artwork is the only supported video
+  format.
+- Keep `BETTER_AUTH_SECRET` unchanged across releases or every user is logged
+  out. Active sessions renew daily and expire after seven days without renewal.
+- Keep Azure Container Apps at one replica until the render/upload queues become
+  durable.
+- Migrate Neon before deploying code that reads a new required table/column.
+- Never commit `.env*`, filled Azure manifests, databases, uploads, or secrets.
+
+## YouTube launch constraints
+
+Google OAuth must be verified before arbitrary producer accounts can connect.
+The default YouTube API quota only supports a small number of `videos.insert`
+calls per day, so production growth also requires a quota increase. The exact
+OAuth redirect is `{APP_URL}/api/youtube/callback`.
