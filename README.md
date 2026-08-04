@@ -120,6 +120,8 @@ write `.next/`. Stop the development server first.
 Production runs at `https://typebeatos.com` on Azure Container Apps:
 
 - app: `ca-typebeatos` in resource group `rg-typebeatos-eastus`;
+- current release: image `typebeatos:v46`, revision
+  `ca-typebeatos--0000047`, deployed 4 August 2026;
 - registry: `crtypebeatos5c46ce.azurecr.io`;
 - database: Neon PostgreSQL (pooled runtime URL, direct migration URL);
 - media: Azure Files mounted at `/app/uploads`;

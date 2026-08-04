@@ -2,9 +2,10 @@
 
 > **Active production runbook — updated 4 August 2026.** Production is live at
 > `https://typebeatos.com` in `rg-typebeatos-eastus`, app `ca-typebeatos`, ACR
-> `crtypebeatos5c46ce.azurecr.io`. The live image before the August batch release
-> is `typebeatos:v45`. Always query the app first and deploy the next unused
-> immutable tag; do not blindly reuse the examples below.
+> `crtypebeatos5c46ce.azurecr.io`. The August batch release is live as
+> `typebeatos:v46` on healthy revision `ca-typebeatos--0000047` with 100% traffic.
+> Always query the app first and deploy the next unused immutable tag; do not
+> blindly reuse the examples below.
 
 **Current application stage:** roadmap stages 2–5 are live. The active release
 adds paid 2–5 beat batch upload, static-only videos, seven-day renewable
