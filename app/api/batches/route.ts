@@ -72,7 +72,6 @@ export async function POST(request: Request) {
   const batch = await db.uploadBatch.create({
     data: {
       userId: user.id,
-      videoStyle: parsed.value.videoStyle,
       autoUpload: parsed.value.autoUpload,
       autoSchedule: parsed.value.autoSchedule,
       privacyStatus: parsed.value.privacyStatus,

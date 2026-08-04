@@ -1,7 +1,7 @@
 import "server-only";
 
 import { db } from "@/lib/db";
-import { enqueueRender, type VideoStyle } from "@/lib/video";
+import { enqueueRender } from "@/lib/video";
 import { enqueueYouTubeUpload } from "@/lib/youtube";
 import { TERMINAL_BATCH_ITEM_STATUSES } from "@/lib/batch-types";
 import { loggerFor } from "@/lib/logger";
@@ -59,7 +59,6 @@ export async function startBatchPipeline(input: {
   itemId: string;
   batchId: string;
   packageId: string;
-  videoStyle: VideoStyle;
   autoUpload: boolean;
 }) {
   const claimed = await db.uploadBatchItem.updateMany({
@@ -74,7 +73,7 @@ export async function startBatchPipeline(input: {
   });
   await refreshBatchStatus(input.batchId);
 
-  enqueueRender(input.packageId, input.videoStyle, async (result) => {
+  enqueueRender(input.packageId, async (result) => {
     if (!result.ok) {
       await finishItem(input.itemId, input.batchId, "failed", result.error);
       return;

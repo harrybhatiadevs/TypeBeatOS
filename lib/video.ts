@@ -7,8 +7,6 @@ import { loggerFor } from "./logger";
 
 const log = loggerFor("video-render");
 
-export type VideoStyle = "static" | "waveform";
-
 /** Resolve a stored "/api/files/..." URL back to its path on disk. */
 function diskPath(fileUrl: string) {
   const rel = fileUrl.replace(/^\/api\/files\//, "");
@@ -27,7 +25,7 @@ function runFfmpeg(args: string[]): Promise<void> {
     const timer = setTimeout(() => {
       proc.kill("SIGKILL");
       reject(
-        new Error("Render timed out. The audio may be unusually long — try the static style."),
+        new Error("Render timed out. The audio may be unusually long — please try again."),
       );
     }, RENDER_TIMEOUT_MS);
     proc.stderr.on("data", (d) => {
@@ -46,31 +44,7 @@ function runFfmpeg(args: string[]): Promise<void> {
   });
 }
 
-function buildArgs(imagePath: string, audioPath: string, outPath: string, style: VideoStyle) {
-  if (style === "waveform") {
-    return [
-      "-y",
-      "-loop", "1",
-      "-i", imagePath,
-      "-i", audioPath,
-      "-filter_complex",
-      "[0:v]scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,setsar=1[bg];" +
-        "[1:a]showwaves=s=1280x160:mode=line:colors=white@0.75:rate=25[w];" +
-        "[bg][w]overlay=0:540:format=auto,format=yuv420p[v]",
-      "-map", "[v]",
-      "-map", "1:a",
-      "-c:v", "libx264",
-      "-preset", "veryfast",
-      "-crf", "23",
-      "-r", "25",
-      "-c:a", "aac",
-      "-b:a", "192k",
-      "-shortest",
-      "-fflags", "+shortest",
-      "-max_interleave_delta", "100M",
-      outPath,
-    ];
-  }
+function buildArgs(imagePath: string, audioPath: string, outPath: string) {
   return [
     "-y",
     "-loop", "1",
@@ -121,11 +95,10 @@ export type QueueResult = { ok: true } | { ok: false; error: string };
 
 export function enqueueRender(
   packageId: string,
-  style: VideoStyle,
   onComplete?: (result: QueueResult) => void | Promise<void>,
 ) {
   globalForQueue.videoQueue = globalForQueue.videoQueue!.then(async () => {
-    const result = await renderVideo(packageId, style).catch((err) => ({
+    const result = await renderVideo(packageId).catch((err) => ({
       ok: false as const,
       error: err instanceof Error ? err.message : "Render failed",
     }));
@@ -135,8 +108,8 @@ export function enqueueRender(
   });
 }
 
-async function renderVideo(packageId: string, style: VideoStyle): Promise<QueueResult> {
-  const jobLog = log.child({ packageId, style });
+async function renderVideo(packageId: string): Promise<QueueResult> {
+  const jobLog = log.child({ packageId });
   const pkg = await db.package.findUnique({
     where: { id: packageId },
     include: { beat: true },
@@ -157,7 +130,7 @@ async function renderVideo(packageId: string, style: VideoStyle): Promise<QueueR
     const outPath = path.join(dir, `${packageId}.mp4`);
 
     await runFfmpeg(
-      buildArgs(diskPath(pkg.thumbnailPath), diskPath(pkg.beat.audioPath), outPath, style)
+      buildArgs(diskPath(pkg.thumbnailPath), diskPath(pkg.beat.audioPath), outPath)
     );
 
     await db.package.update({

@@ -39,7 +39,6 @@ export async function GET(
   return NextResponse.json({
     id: batch.id,
     status: batch.status,
-    videoStyle: batch.videoStyle,
     autoUpload: batch.autoUpload,
     createdAt: batch.createdAt,
     items: batch.items.map((item) => ({

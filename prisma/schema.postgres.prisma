@@ -197,7 +197,6 @@ model UploadBatch {
   userId        String
   user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   status        String            @default("creating")
-  videoStyle    String            @default("static")
   autoUpload    Boolean           @default(true)
   autoSchedule  Boolean           @default(true)
   privacyStatus String            @default("private")

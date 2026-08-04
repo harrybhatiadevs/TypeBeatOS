@@ -2,7 +2,6 @@ CREATE TABLE "UploadBatch" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'creating',
-    "videoStyle" TEXT NOT NULL DEFAULT 'static',
     "autoUpload" BOOLEAN NOT NULL DEFAULT true,
     "autoSchedule" BOOLEAN NOT NULL DEFAULT true,
     "privacyStatus" TEXT NOT NULL DEFAULT 'private',

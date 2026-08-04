@@ -55,7 +55,6 @@ export async function POST(
       itemId: item.id,
       batchId: item.batchId,
       packageId: result.packageId,
-      videoStyle: item.batch.videoStyle === "waveform" ? "waveform" : "static",
       autoUpload: item.batch.autoUpload,
     });
 

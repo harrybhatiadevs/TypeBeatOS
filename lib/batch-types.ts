@@ -1,6 +1,5 @@
 export const MAX_BATCH_ITEMS = 5;
 
-export type BatchVideoStyle = "static" | "waveform";
 export type BatchPrivacyStatus = "private" | "unlisted" | "public";
 
 export type BatchDraftItem = {
@@ -10,7 +9,6 @@ export type BatchDraftItem = {
 
 export type CreateBatchInput = {
   items: BatchDraftItem[];
-  videoStyle: BatchVideoStyle;
   autoUpload: boolean;
   autoSchedule: boolean;
   privacyStatus: BatchPrivacyStatus;
@@ -37,9 +35,6 @@ export function validateCreateBatchInput(value: unknown):
     return { ok: false, error: "Every beat needs one audio file and one image." };
   }
 
-  if (input.videoStyle !== "static" && input.videoStyle !== "waveform") {
-    return { ok: false, error: "Choose a valid video style." };
-  }
   if (!["private", "unlisted", "public"].includes(String(input.privacyStatus))) {
     return { ok: false, error: "Choose a valid YouTube visibility." };
   }
@@ -48,7 +43,6 @@ export function validateCreateBatchInput(value: unknown):
     ok: true,
     value: {
       items,
-      videoStyle: input.videoStyle,
       autoUpload: input.autoUpload !== false,
       autoSchedule: input.autoSchedule !== false,
       privacyStatus: input.privacyStatus as BatchPrivacyStatus,

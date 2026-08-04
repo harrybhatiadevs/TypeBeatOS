@@ -2,9 +2,9 @@
 
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
-import { enqueueRender, type VideoStyle } from "@/lib/video";
+import { enqueueRender } from "@/lib/video";
 
-export async function generateVideo(packageId: string, style: VideoStyle) {
+export async function generateVideo(packageId: string) {
   const user = await requireUser();
   const pkg = await db.package.findUnique({
     where: { id: packageId },
@@ -32,7 +32,7 @@ export async function generateVideo(packageId: string, style: VideoStyle) {
     where: { id: packageId },
     data: { videoStatus: "rendering", videoError: "" },
   });
-  enqueueRender(packageId, style === "waveform" ? "waveform" : "static");
+  enqueueRender(packageId);
 }
 
 export async function getVideoStatus(packageId: string) {

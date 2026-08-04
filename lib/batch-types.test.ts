@@ -6,7 +6,6 @@ const valid = {
     { audioName: "one.wav", imageName: "one.png" },
     { audioName: "two.wav", imageName: "two.png" },
   ],
-  videoStyle: "static",
   autoUpload: true,
   autoSchedule: true,
   privacyStatus: "private",

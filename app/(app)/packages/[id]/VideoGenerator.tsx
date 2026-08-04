@@ -24,7 +24,6 @@ export default function VideoGenerator({
   const [status, setStatus] = useState(initialStatus);
   const [videoPath, setVideoPath] = useState(initialVideoPath);
   const [error, setError] = useState(initialError);
-  const [style, setStyle] = useState<"static" | "waveform">("static");
   const [starting, setStarting] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -57,7 +56,7 @@ export default function VideoGenerator({
     setStatus("rendering");
     setError("");
     try {
-      await generateVideo(packageId, style);
+      await generateVideo(packageId);
       const s = await getVideoStatus(packageId);
       setStatus(s.status);
       setVideoPath(s.videoPath);
@@ -102,13 +101,6 @@ export default function VideoGenerator({
             </p>
           )}
           {error && <div className="form-error">{error}</div>}
-          <div className="form-field" style={{ marginBottom: 14 }}>
-            <label>Style</label>
-            <select value={style} onChange={(e) => setStyle(e.target.value as "static" | "waveform")}>
-              <option value="static">Static image (fast render)</option>
-              <option value="waveform">Image + waveform visualizer</option>
-            </select>
-          </div>
           <button type="button" className="btn btn-primary btn-sm" disabled={!ready || starting} onClick={start}>
             {starting ? "Starting..." : "🎬 Generate video"}
           </button>

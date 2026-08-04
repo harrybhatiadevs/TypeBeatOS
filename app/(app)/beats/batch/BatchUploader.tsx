@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { AUDIO_ACCEPT, audioUploadError } from "@/lib/audio-upload";
 import { beatNameFromFilename, pairFileNames } from "@/lib/batch-files";
-import { MAX_BATCH_ITEMS, type BatchPrivacyStatus, type BatchVideoStyle } from "@/lib/batch-types";
+import { MAX_BATCH_ITEMS, type BatchPrivacyStatus } from "@/lib/batch-types";
 
 type LocalStage = "ready" | "preparing" | "uploading" | "queued" | "failed";
 
@@ -107,7 +107,6 @@ export default function BatchUploader({
   const [storeLink, setStoreLink] = useState(profileDefaults.storeLink);
   const [licensePrice, setLicensePrice] = useState("");
   const [exclusivePrice, setExclusivePrice] = useState("");
-  const [videoStyle, setVideoStyle] = useState<BatchVideoStyle>("static");
   const [privacyStatus, setPrivacyStatus] = useState<BatchPrivacyStatus>("public");
   const [madeForKids, setMadeForKids] = useState(false);
   const [autoSchedule, setAutoSchedule] = useState(true);
@@ -183,7 +182,6 @@ export default function BatchUploader({
             audioName: audio.name,
             imageName: imageFiles[imagePairs[index]].name,
           })),
-          videoStyle,
           autoUpload,
           autoSchedule,
           privacyStatus,
@@ -320,9 +318,8 @@ export default function BatchUploader({
       </section>
 
       <section className="card batch-step-card">
-        <div className="batch-step-head"><span>3</span><div><h2>Render and publish</h2><p>Static videos are the fastest option for a five-beat run.</p></div></div>
+        <div className="batch-step-head"><span>3</span><div><h2>Render and publish</h2><p>Each beat becomes a clean artwork video, ready for YouTube.</p></div></div>
         <div className="form-grid">
-          <div className="form-field"><label htmlFor="batchStyle">Video style</label><select id="batchStyle" value={videoStyle} onChange={(event) => setVideoStyle(event.target.value as BatchVideoStyle)}><option value="static">Static image — fastest</option><option value="waveform">Animated waveform — slower</option></select></div>
           <div className="form-field"><label htmlFor="batchVisibility">YouTube visibility</label><select id="batchVisibility" value={privacyStatus} onChange={(event) => setPrivacyStatus(event.target.value as BatchPrivacyStatus)}><option value="public">Public / scheduled</option><option value="private">Private</option><option value="unlisted">Unlisted</option></select></div>
           <div className="form-field"><label htmlFor="batchAudience">Audience</label><select id="batchAudience" value={madeForKids ? "yes" : "no"} onChange={(event) => setMadeForKids(event.target.value === "yes")}><option value="no">Not made for kids</option><option value="yes">Made for kids</option></select></div>
           <div className="batch-toggle-field"><label><input type="checkbox" checked={autoSchedule} onChange={(event) => setAutoSchedule(event.target.checked)} /><span><strong>Use my posting schedule</strong><small>Next available slots at {profileDefaults.scheduleTime}</small></span></label></div>
