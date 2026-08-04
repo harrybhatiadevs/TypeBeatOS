@@ -3,22 +3,29 @@ import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { deleteBeat } from "@/lib/actions/beats";
 import { effectiveStatus } from "@/lib/package-status";
+import { getPlanState } from "@/lib/billing";
 
 export default async function BeatsPage() {
   const user = await requireUser();
-  const beats = await db.beat.findMany({
-    where: { userId: user.id },
-    include: { package: true },
-    orderBy: { createdAt: "desc" },
-  });
+  const [beats, plan] = await Promise.all([
+    db.beat.findMany({
+      where: { userId: user.id },
+      include: { package: true },
+      orderBy: { createdAt: "desc" },
+    }),
+    getPlanState(user),
+  ]);
+  const canBatchUpload = plan.isAdmin || plan.planId !== "free";
 
   return (
     <>
       <div className="batch-page-heading">
         <h1 className="page-title">Beats</h1>
         <div className="batch-page-actions">
-          <Link href="/beats/batch" className="btn btn-primary btn-sm">Batch upload</Link>
-          <Link href="/beats/new" className="btn btn-ghost btn-sm">+ One beat</Link>
+          {canBatchUpload ? (
+            <Link href="/beats/batch" className="btn btn-primary btn-sm">Batch upload</Link>
+          ) : null}
+          <Link href="/beats/new" className="btn btn-ghost btn-sm">Upload</Link>
         </div>
       </div>
       <p className="page-sub">Every beat you&apos;ve added, with its upload package.</p>
