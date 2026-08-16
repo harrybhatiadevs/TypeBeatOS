@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import PublicNav from "./PublicNav";
 import "./marketing.css";
 
 export const metadata: Metadata = {
   title: "Not found — TypeBeatOS",
+  robots: { index: false, follow: false },
 };
 
 export default function NotFound() {
@@ -15,15 +17,7 @@ export default function NotFound() {
       </div>
       <div className="tb-grain" aria-hidden="true" />
 
-      <nav className="tb-nav">
-        <Link href="/" className="tb-brand" aria-label="TypeBeatOS home">
-          <span className="tb-badge" aria-hidden="true" />
-          <span className="tb-wordmark">
-            TYPEBEAT<span>OS</span>
-          </span>
-        </Link>
-        <Link href="/" className="tb-nav-cta">Back home</Link>
-      </nav>
+      <PublicNav action={{ href: "/", label: "Back home" }} />
 
       <section className="tb-final">
         <h1 className="tb-final-h2">
@@ -34,8 +28,8 @@ export default function NotFound() {
           className="tb-hero-sub"
           style={{ marginTop: "2rem", marginBottom: "1.5rem", textAlign: "center", maxWidth: "32rem" }}
         >
-          This page isn&apos;t in the catalog. Head back to the dashboard or open
-          the waitlist — everything else is exactly where you left it.
+          This page isn&apos;t in the catalog. Head back home or open the
+          waitlist — everything else is exactly where you left it.
         </p>
         <div className="tb-hero-actions" style={{ justifyContent: "center" }}>
           <Link href="/" className="tb-final-btn">Back home</Link>

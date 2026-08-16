@@ -6,7 +6,6 @@ import { getTemplateState } from "@/lib/actions/packages";
 import { youtubeConfigured } from "@/lib/youtube";
 import { updateAccountName } from "@/lib/actions/account";
 import FormSubmitButton from "@/app/FormSubmitButton";
-import ThemeToggle from "@/app/ThemeToggle";
 import DeleteAccount from "./DeleteAccount";
 import SettingsSidebar, { SETTINGS_TABS, type SettingsTab } from "./SettingsSidebar";
 import ProfileSection from "./ProfileSection";
@@ -137,19 +136,6 @@ export default async function SettingsPage({
                 </div>
               </div>
             </form>
-          )}
-
-          {tab === "appearance" && (
-            <div className="card">
-              <h3>Appearance</h3>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
-                <p style={{ fontSize: "0.95rem", color: "var(--muted)", maxWidth: "34rem" }}>
-                  After-hours dark is the TypeBeatOS default. Flip to daylight if you work in the sun —
-                  your choice sticks on this device.
-                </p>
-                <ThemeToggle />
-              </div>
-            </div>
           )}
 
           {tab === "billing" && planState && (

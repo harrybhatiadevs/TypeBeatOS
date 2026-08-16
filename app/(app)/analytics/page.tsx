@@ -53,7 +53,10 @@ export default async function AnalyticsPage({
                 ? "Upload a package to YouTube and stats will show up here."
                 : "Connect your YouTube channel in your profile, then upload a package."}
             </p>
-            <Link href={connected ? "/beats" : "/profile"} className="btn btn-primary">
+            <Link
+              href={connected ? "/beats" : "/settings?tab=profile"}
+              className="btn btn-primary"
+            >
               {connected ? "Go to beats" : "Open profile"}
             </Link>
           </div>

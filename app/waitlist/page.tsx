@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import WaitlistForm from "./WaitlistForm";
 import TbPageEffects from "../TbPageEffects";
+import PublicNav from "../PublicNav";
 import "../marketing.css";
 
 export const metadata: Metadata = {
   title: "TypeBeatOS — The YouTube Upload System for Type-Beat Producers",
   description:
     "Turn finished beats into SEO-optimised, scheduled YouTube uploads. Join the waitlist for early access to TypeBeatOS.",
+  alternates: { canonical: "/waitlist" },
 };
 
 const STEPS = [
@@ -43,20 +45,31 @@ export default function WaitlistPage() {
       </div>
       <div className="tb-grain" aria-hidden="true" />
 
-      {/* NAV — floating glass pill */}
-      <nav className="tb-nav" data-testid="waitlist-nav">
-        <Link href="/waitlist" className="tb-brand" aria-label="TypeBeatOS home" data-testid="waitlist-brand">
-          <span className="tb-badge" aria-hidden="true" />
-          <span className="tb-wordmark">
-            TYPEBEAT<span>OS</span>
-          </span>
-        </Link>
-        <div className="tb-nav-links">
-          <a href="#how" className="tb-nav-link" data-testid="nav-link-how">How it works</a>
-          <a href="#beta" className="tb-nav-link" data-testid="nav-link-beta">Beta access</a>
-        </div>
-        <a href="#join" className="tb-nav-cta" data-testid="nav-cta-join">Join waitlist</a>
-      </nav>
+      <PublicNav
+        testId="waitlist-nav"
+        homeHref="/"
+        trackSections
+        links={[
+          {
+            href: "#how",
+            label: "How it works",
+            sectionId: "how",
+            testId: "nav-link-how",
+          },
+          {
+            href: "#beta",
+            label: "Beta access",
+            sectionId: "beta",
+            testId: "nav-link-beta",
+          },
+        ]}
+        action={{
+          href: "#join",
+          label: "Join waitlist",
+          tone: "primary",
+          testId: "nav-cta-join",
+        }}
+      />
 
       {/* HERO */}
       <section className="tb-hero tb-hero-center">

@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { signup } from "@/lib/actions/auth";
 import FormSubmitButton from "../FormSubmitButton";
+import PublicNav from "../PublicNav";
 import "../marketing.css";
 
 export const metadata: Metadata = {
   title: "Sign up — TypeBeatOS",
+  robots: { index: false, follow: true },
 };
 
 export default async function SignupPage({
@@ -23,15 +25,7 @@ export default async function SignupPage({
       </div>
       <div className="tb-grain" aria-hidden="true" />
 
-      <nav className="tb-nav tb-nav-auth">
-        <Link href="/" className="tb-brand" aria-label="TypeBeatOS home">
-          <span className="tb-badge" aria-hidden="true" />
-          <span className="tb-wordmark">
-            TYPEBEAT<span>OS</span>
-          </span>
-        </Link>
-        <Link href="/login" className="tb-nav-cta">Log in</Link>
-      </nav>
+      <PublicNav action={{ href: "/login", label: "Log in" }} />
 
       <main className="tb-auth-wrap">
         <div className="tb-auth-card">

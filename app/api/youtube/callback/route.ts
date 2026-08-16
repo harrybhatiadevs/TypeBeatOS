@@ -3,6 +3,9 @@ import { db } from "@/lib/db";
 import { getUser } from "@/lib/auth";
 import { appUrl, exchangeCode, fetchChannel } from "@/lib/youtube";
 import { oauthLimiter } from "@/lib/rate-limit";
+import { safeReturnPath } from "@/lib/safe-return-path";
+
+const DEFAULT_RETURN_PATH = "/settings?tab=profile";
 
 function clientIp(req: NextRequest): string {
   const xff = req.headers.get("x-forwarded-for");
@@ -14,8 +17,10 @@ function clientIp(req: NextRequest): string {
 }
 
 export async function GET(req: NextRequest) {
-  const ret = req.cookies.get("yt_return")?.value || "";
-  const returnPath = ret.startsWith("/") && !ret.startsWith("//") ? ret : "/profile";
+  const returnPath = safeReturnPath(
+    req.cookies.get("yt_return")?.value,
+    DEFAULT_RETURN_PATH,
+  );
   const withParam = (param: string) =>
     new URL(`${returnPath}${returnPath.includes("?") ? "&" : "?"}${param}`, appUrl());
 

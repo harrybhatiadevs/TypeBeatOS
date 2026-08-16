@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { login } from "@/lib/actions/auth";
 import FormSubmitButton from "../FormSubmitButton";
+import PublicNav from "../PublicNav";
 import "../marketing.css";
 
 export const metadata: Metadata = {
   title: "Log in — TypeBeatOS",
+  robots: { index: false, follow: true },
 };
 
 export default async function LoginPage({
@@ -23,15 +25,7 @@ export default async function LoginPage({
       </div>
       <div className="tb-grain" aria-hidden="true" />
 
-      <nav className="tb-nav tb-nav-auth">
-        <Link href="/" className="tb-brand" aria-label="TypeBeatOS home">
-          <span className="tb-badge" aria-hidden="true" />
-          <span className="tb-wordmark">
-            TYPEBEAT<span>OS</span>
-          </span>
-        </Link>
-        <Link href="/signup" className="tb-nav-cta">Sign up</Link>
-      </nav>
+      <PublicNav action={{ href: "/signup", label: "Sign up" }} />
 
       <main className="tb-auth-wrap">
         <div className="tb-auth-card">
@@ -83,12 +77,14 @@ export default async function LoginPage({
             </FormSubmitButton>
           </form>
 
-          <p className="tb-auth-alt" style={{ marginBottom: "0.4rem" }}>
-            Forgot your password? <Link href="/forgot">Reset it</Link>
-          </p>
-          <p className="tb-auth-alt" style={{ marginTop: 0 }}>
-            New here? <Link href="/signup">Create a free account</Link>
-          </p>
+          <div className="tb-auth-links">
+            <p className="tb-auth-alt">
+              Forgot your password? <Link href="/forgot">Reset it</Link>
+            </p>
+            <p className="tb-auth-alt">
+              New here? <Link href="/signup">Create a free account</Link>
+            </p>
+          </div>
         </div>
       </main>
     </div>

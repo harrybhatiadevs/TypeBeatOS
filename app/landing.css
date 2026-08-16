@@ -29,13 +29,21 @@
   --accent-hover: #ff3556;
   --accent-tint: rgba(255, 29, 63, 0.16);
   --card-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 18px 48px rgba(0, 0, 0, 0.28);
+  /* Keep every full-screen landing section on the same viewport model.
+     `vh` is the compatibility fallback; modern browsers use the live
+     viewport so display scaling/browser chrome cannot expose a bottom gap. */
+  --lp-viewport-height: 100vh;
   position: relative;
-  min-height: 100vh;
+  min-height: var(--lp-viewport-height);
   background: #050505;
   color: var(--ink);
   font-family: Inter, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow-x: clip;
+}
+
+@supports (height: 100dvh) {
+  .lp { --lp-viewport-height: 100dvh; }
 }
 
 .lp *,
@@ -56,7 +64,7 @@
   display: none;
 }
 
-.lp > *:not(.lp-glow):not(.lp-nav) { position: relative; z-index: 1; }
+.lp > *:not(.lp-glow):not(.public-nav) { position: relative; z-index: 1; }
 
 .lp-wrap { max-width: 1140px; margin: 0 auto; padding-inline: 1.5rem; }
 
@@ -215,7 +223,7 @@
 
 /* ---------- Section scaffold ---------- */
 .lp-section {
-  min-height: 100svh;
+  min-height: var(--lp-viewport-height);
   padding-block: clamp(6rem, 11vh, 8rem);
   display: grid;
   align-content: center;
@@ -261,7 +269,7 @@
 
 /* ---------- Hero ---------- */
 .lp-hero {
-  min-height: 100svh;
+  min-height: var(--lp-viewport-height);
   padding-top: 5.5rem;
   padding-bottom: clamp(2rem, 4vh, 3rem);
   display: grid;
@@ -542,7 +550,7 @@
 
 /* ---------- Final CTA ---------- */
 .lp-final {
-  min-height: 100svh;
+  min-height: var(--lp-viewport-height);
   text-align: center;
   padding-block: clamp(6rem, 14vh, 10rem);
   display: grid;
@@ -737,7 +745,7 @@
     white-space: normal;
   }
   .lp-section {
-    min-height: 100svh;
+    min-height: var(--lp-viewport-height);
     padding-block: 5.5rem;
   }
 }

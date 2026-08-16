@@ -5,7 +5,6 @@ export const SETTINGS_TABS = [
   { id: "profile", label: "Producer profile" },
   { id: "templates", label: "Templates" },
   { id: "security", label: "Security" },
-  { id: "appearance", label: "Appearance" },
   { id: "billing", label: "Billing" },
   { id: "privacy", label: "Privacy" },
   { id: "delete", label: "Delete account" },

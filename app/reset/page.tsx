@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { completePasswordReset } from "@/lib/actions/password-reset";
 import FormSubmitButton from "../FormSubmitButton";
+import PublicNav from "../PublicNav";
 import "../marketing.css";
 
 export const metadata: Metadata = {
   title: "Reset your password — TypeBeatOS",
+  robots: { index: false, follow: true },
 };
 
 export default async function ResetPage({
@@ -23,15 +25,7 @@ export default async function ResetPage({
       </div>
       <div className="tb-grain" aria-hidden="true" />
 
-      <nav className="tb-nav tb-nav-auth">
-        <Link href="/" className="tb-brand" aria-label="TypeBeatOS home">
-          <span className="tb-badge" aria-hidden="true" />
-          <span className="tb-wordmark">
-            TYPEBEAT<span>OS</span>
-          </span>
-        </Link>
-        <Link href="/login" className="tb-nav-cta">Log in</Link>
-      </nav>
+      <PublicNav action={{ href: "/login", label: "Log in" }} />
 
       <main className="tb-auth-wrap">
         <div className="tb-auth-card">

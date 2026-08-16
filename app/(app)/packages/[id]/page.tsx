@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { youtubeConfigured } from "@/lib/youtube";
 import { getTemplateState } from "@/lib/actions/packages";
+import { formatTitleRecommendation } from "@/lib/generate";
 import PackageEditor from "./PackageEditor";
 
 export default async function PackagePage({ params }: { params: Promise<{ id: string }> }) {
@@ -19,13 +20,20 @@ export default async function PackagePage({ params }: { params: Promise<{ id: st
     db.youTubeAccount.findUnique({ where: { userId: user.id } }),
     getTemplateState(),
   ]);
+  const storedTitleOptions = JSON.parse(pkg.titleOptions) as string[];
+  const titleOptions = storedTitleOptions.map((title) =>
+    formatTitleRecommendation(title, pkg.beat.name),
+  );
+  const selectedOptionIndex = storedTitleOptions.indexOf(pkg.selectedTitle);
+  const selectedTitle =
+    selectedOptionIndex >= 0 ? titleOptions[selectedOptionIndex] : pkg.selectedTitle;
 
   return (
     <PackageEditor
       pkg={{
         id: pkg.id,
-        titleOptions: JSON.parse(pkg.titleOptions) as string[],
-        selectedTitle: pkg.selectedTitle,
+        titleOptions,
+        selectedTitle,
         description: pkg.description,
         tags: pkg.tags,
         hashtags: pkg.hashtags,
