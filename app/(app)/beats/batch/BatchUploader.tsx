@@ -242,12 +242,38 @@ export default function BatchUploader({
   if (!allowed) {
     return (
       <div className="card batch-upgrade-card">
-        <span className="badge badge-scheduled">Pro feature</span>
-        <h2>Upload several beats in one run</h2>
-        <p className="tb-helper">
-          Batch upload pairs your audio and artwork, applies shared settings, renders every video, and queues YouTube automatically.
-        </p>
-        <Link href="/billing?upgrade=batch" className="btn btn-primary">Upgrade to Pro</Link>
+        <div className="batch-upgrade-copy">
+          <span className="badge badge-scheduled">Pro workflow</span>
+          <h2>Turn five uploads into one workflow.</h2>
+          <p className="tb-helper">
+            Add your beats and artwork once. TypeBeatOS pairs the files, applies your shared details, renders every video, and lines up the release run.
+          </p>
+          <ul className="batch-upgrade-benefits">
+            <li><span>01</span><strong>Pair 2–5 beats with artwork automatically</strong></li>
+            <li><span>02</span><strong>Set artist, pricing, and visibility once</strong></li>
+            <li><span>03</span><strong>Render, schedule, and upload as one queue</strong></li>
+          </ul>
+          <div className="batch-upgrade-actions">
+            <Link href="/billing?upgrade=batch" className="btn btn-primary">Unlock Batch Upload</Link>
+            <Link href="/billing" className="copy-btn">Compare plans</Link>
+          </div>
+        </div>
+        <div className="batch-upgrade-preview" aria-hidden="true">
+          <div className="batch-upgrade-preview-head">
+            <span>Release queue</span>
+            <small>3 beats</small>
+          </div>
+          <div className="batch-upgrade-preview-row is-ready">
+            <span>01</span><div><strong>Late Night</strong><small>Audio + artwork paired</small></div><em>Ready</em>
+          </div>
+          <div className="batch-upgrade-preview-row is-rendering">
+            <span>02</span><div><strong>Midnight Drive</strong><small>Building YouTube video</small></div><em>64%</em>
+          </div>
+          <div className="batch-upgrade-preview-row">
+            <span>03</span><div><strong>Free Throws</strong><small>Queued for the next slot</small></div><em>Next</em>
+          </div>
+          <div className="batch-upgrade-preview-lock">Pro</div>
+        </div>
       </div>
     );
   }

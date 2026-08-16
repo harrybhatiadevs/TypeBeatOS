@@ -12,15 +12,16 @@ export default async function NewBeatPage({
   const user = await requireUser();
   const { used, limit, isAdmin, planId } = await getPlanState(user);
   const atLimit = !isAdmin && used >= limit;
-  const canBatchUpload = isAdmin || planId !== "free";
+  const batchUploadLocked = !isAdmin && planId === "free";
 
   return (
     <>
       <div className="batch-page-heading">
         <h1 className="page-title">New beat</h1>
-        {canBatchUpload ? (
-          <Link href="/beats/batch" className="btn btn-ghost btn-sm">Batch upload</Link>
-        ) : null}
+        <Link href="/beats/batch" className="btn btn-ghost btn-sm batch-pro-link">
+          Batch upload
+          {batchUploadLocked ? <span className="batch-pro-pill">Pro</span> : null}
+        </Link>
       </div>
       <p className="page-sub">
         Fill in the beat details — TypeBeatOS generates the full YouTube upload package from them.

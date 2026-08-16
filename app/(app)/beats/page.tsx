@@ -15,16 +15,17 @@ export default async function BeatsPage() {
     }),
     getPlanState(user),
   ]);
-  const canBatchUpload = plan.isAdmin || plan.planId !== "free";
+  const batchUploadLocked = !plan.isAdmin && plan.planId === "free";
 
   return (
     <>
       <div className="batch-page-heading">
         <h1 className="page-title">Beats</h1>
         <div className="batch-page-actions">
-          {canBatchUpload ? (
-            <Link href="/beats/batch" className="btn btn-primary btn-sm">Batch upload</Link>
-          ) : null}
+          <Link href="/beats/batch" className="btn btn-primary btn-sm batch-pro-link">
+            Batch upload
+            {batchUploadLocked ? <span className="batch-pro-pill">Pro</span> : null}
+          </Link>
           <Link href="/beats/new" className="btn btn-ghost btn-sm">Upload</Link>
         </div>
       </div>
