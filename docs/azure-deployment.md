@@ -1,9 +1,10 @@
 # Azure Container Apps deployment runbook — TypeBeatOS
 
-> **Active production runbook — updated 4 August 2026.** Production is live at
+> **Active production runbook — updated 16 August 2026.** Production is live at
 > `https://typebeatos.com` in `rg-typebeatos-eastus`, app `ca-typebeatos`, ACR
-> `crtypebeatos5c46ce.azurecr.io`. The August batch release is live as
-> `typebeatos:v46` on healthy revision `ca-typebeatos--0000047` with 100% traffic.
+> `crtypebeatos5c46ce.azurecr.io`. The responsive UI and Batch Upload upsell
+> release is live as `typebeatos:v47` on healthy revision
+> `ca-typebeatos--0000048` with 100% traffic.
 > Always query the app first and deploy the next unused immutable tag; do not
 > blindly reuse the examples below.
 
