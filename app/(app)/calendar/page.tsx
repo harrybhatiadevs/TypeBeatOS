@@ -22,7 +22,8 @@ export default async function CalendarPage() {
     <>
       <h1 className="page-title">Upload calendar</h1>
       <p className="page-sub">
-        Your posting rhythm is set in your <Link href="/profile">profile</Link>. Auto-schedule
+        Your posting rhythm is set in your{" "}
+        <Link href="/settings?tab=profile">profile</Link>. Auto-schedule
         spreads the queue across your next free slots.
       </p>
 

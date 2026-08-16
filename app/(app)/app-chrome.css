@@ -8,6 +8,40 @@
 
 /* ---------- Page surface ---------- */
 .app-page {
+  /* The authenticated workspace is always the same dark brand canvas as the
+     landing page, even when another public page saved a light preference. */
+  color-scheme: dark;
+  --bg: #050505;
+  --bg-2: #0b0b0b;
+  --surface: #111111;
+  --surface-2: #161616;
+  --surface-3: #0b0b0b;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-2: rgba(255, 255, 255, 0.14);
+  --ink: #ffffff;
+  --text: #ffffff;
+  --muted: #a0a0a0;
+  --soft: #707070;
+  --faint: #5a5a5a;
+  --accent: #ff1d3f;
+  --accent-hover: #ff3556;
+  --accent-deep: #c70a27;
+  --accent-ink: #ff3556;
+  --field-bg: #0b0b0b;
+  --field-bg-focus: #111111;
+  --placeholder: #707070;
+  --card-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 18px 48px rgba(0, 0, 0, 0.28);
+  --float-shadow: 0 12px 40px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --ok-ink: #22c55e;
+  --ok-bg: rgba(34, 197, 94, 0.12);
+  --ok-border: rgba(34, 197, 94, 0.3);
+  --warn-ink: #f59e0b;
+  --warn-bg: rgba(245, 158, 11, 0.13);
+  --warn-border: rgba(245, 158, 11, 0.34);
+  --danger-ink: #ef4444;
+  --danger-bg: rgba(239, 68, 68, 0.12);
+  --danger-border: rgba(239, 68, 68, 0.4);
+  --accent-tint: rgba(255, 29, 63, 0.16);
   position: relative;
   min-height: 100vh;
   background: var(--bg);
@@ -17,84 +51,44 @@
   overflow-x: hidden;
 }
 
-/* Ambient red glow + grain — same vibe as the public surface, dialled
-   down so it doesn't fight with data-dense screens. */
+/* The signed-in workspace uses the same uninterrupted black canvas as
+   the landing page. Keep these pseudo-elements disabled so brand red is
+   reserved for controls and status accents, never ambient page light. */
 .app-page::before,
 .app-page::after {
-  content: "";
-  position: fixed;
-  pointer-events: none;
-  z-index: 0;
-  border-radius: 9999px;
-  filter: blur(170px);
-  background: radial-gradient(circle, rgba(255, 29, 63, 1) 0%, transparent 70%);
-}
-.app-page::before {
-  top: -14rem;
-  left: -18rem;
-  width: 520px;
-  height: 520px;
-  opacity: var(--glow-a);
-}
-.app-page::after {
-  top: 40%;
-  right: -20rem;
-  width: 620px;
-  height: 620px;
-  opacity: var(--glow-b);
-}
-
-[data-theme="light"] .app-page {
-  background:
-    linear-gradient(180deg, #fbfaf9 0%, #f7f4f2 100%);
-}
-
-[data-theme="light"] .app-page::before,
-[data-theme="light"] .app-page::after {
   display: none;
 }
 
 .app-page > *:not(.nav-floater) { position: relative; z-index: 1; }
 
-/* ---------- Nav — floating glass pill ---------- */
+/* ---------- Nav — fixed, flat application chrome ---------- */
 .app-page .nav {
   position: fixed;
-  top: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 0;
+  left: 0;
+  right: 0;
+  transform: none;
   display: flex;
-  width: auto;
-  max-width: calc(100vw - 1.5rem);
-  border: 1px solid var(--border);
-  background: var(--nav-glass);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
-  border-radius: 9999px;
-  box-shadow: var(--float-shadow);
+  width: 100%;
+  max-width: none;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  background: #050505;
+  border-radius: 0;
+  box-shadow: none;
   z-index: 50;
-  transition: transform 0.28s ease, opacity 0.24s ease;
-  will-change: transform, opacity;
-}
-.app-page .nav.is-hidden {
-  opacity: 0;
-  pointer-events: none;
-  transform: translate(-50%, -130%);
 }
 
-[data-theme="light"] .app-page .nav {
-  background: rgba(255, 255, 255, 0.88);
-  border-color: rgba(24, 22, 21, 0.08);
-  box-shadow: 0 14px 42px rgba(24, 22, 21, 0.09);
-}
 .app-page .nav-inner {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   gap: 1rem;
-  padding: 0.45rem 0.5rem 0.45rem 1.1rem;
+  padding: 0.62rem 1.5rem;
   width: 100%;
   min-width: 0;
-  max-width: none;
-  margin: 0;
+  max-width: 1140px;
+  margin: 0 auto;
 }
 .app-page .logo,
 .app-page .logo.marketing-logo {
@@ -110,23 +104,23 @@
   text-transform: uppercase;
   min-width: 0;
 }
-.app-page .logo-mark {
-  display: block;
-  width: 2rem;
-  height: 2rem;
-  background-image: url("/logo.png");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
-  font-size: 0;
-}
 .app-page .logo-word {
   color: var(--ink);
   font-weight: 900;
+  font-size: 1.15rem;
   letter-spacing: 0.14em;
 }
 .app-page .logo-word { white-space: nowrap; }
 .app-page .logo-word span { color: var(--accent); }
+
+.app-page .desktop-nav-cluster {
+  grid-column: 2;
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 0;
+}
 
 .app-page .nav-links {
   display: flex;
@@ -234,13 +228,6 @@
 }
 
 .app-page .mobile-nav-actions form { flex: 1; }
-
-[data-theme="light"] .app-page .mobile-nav-trigger,
-[data-theme="light"] .app-page .mobile-nav-panel {
-  background: #ffffff;
-  border-color: rgba(24, 22, 21, 0.1);
-  box-shadow: 0 16px 42px rgba(24, 22, 21, 0.1);
-}
 
 /* ---------- Buttons ---------- */
 .app-page .btn {
@@ -380,17 +367,20 @@
   letter-spacing: 0.04em;
   color: var(--muted);
 }
-.app-page input[type="text"],
-.app-page input[type="email"],
-.app-page input[type="password"],
-.app-page input[type="number"],
-.app-page input[type="time"],
-.app-page input[type="url"],
-.app-page input[type="datetime-local"],
-.app-page input[type="file"],
-.app-page input[type="color"],
-.app-page select,
-.app-page textarea {
+.app-page :where(
+  input:not(
+    [type="hidden"],
+    [type="checkbox"],
+    [type="radio"],
+    [type="range"],
+    [type="submit"],
+    [type="button"],
+    [type="reset"],
+    [type="image"]
+  ),
+  select,
+  textarea
+) {
   width: 100%;
   padding: 0.75rem 0.9rem;
   border-radius: 0.75rem;
@@ -399,14 +389,44 @@
   color: var(--ink);
   font-family: inherit;
   font-size: 0.92rem;
+  line-height: 1.35;
+  min-height: 2.75rem;
   outline: none;
-  transition: border-color 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 .app-page input::placeholder,
 .app-page textarea::placeholder { color: var(--placeholder); }
-.app-page input:focus,
-.app-page select:focus,
-.app-page textarea:focus {
+.app-page :where(
+  input:not(
+    [type="hidden"],
+    [type="checkbox"],
+    [type="radio"],
+    [type="range"],
+    [type="submit"],
+    [type="button"],
+    [type="reset"],
+    [type="image"]
+  ),
+  select,
+  textarea
+):hover {
+  border-color: var(--border-2);
+}
+.app-page :where(
+  input:not(
+    [type="hidden"],
+    [type="checkbox"],
+    [type="radio"],
+    [type="range"],
+    [type="submit"],
+    [type="button"],
+    [type="reset"],
+    [type="image"]
+  ),
+  select,
+  textarea
+):focus {
   border-color: rgba(255, 29, 63, 0.7);
   box-shadow: 0 0 0 4px rgba(255, 29, 63, 0.14);
   background: var(--field-bg-focus);
@@ -1139,71 +1159,63 @@
   z-index: 2;
   max-width: 1080px;
   margin: 6rem auto 0;
-  padding: 0.9rem 1rem;
+  padding: 0.9rem 1rem 0.9rem 0.9rem;
   display: flex;
   align-items: center;
   gap: 0.9rem;
-  border: 1px solid rgba(255, 29, 63, 0.24);
+  border: 1px solid var(--border);
   background:
-    linear-gradient(135deg, rgba(255, 29, 63, 0.08), transparent 40%),
+    linear-gradient(110deg, rgba(255, 29, 63, 0.075), transparent 38%),
     var(--surface);
-  border-radius: 1rem;
-  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  font-size: 0.9rem;
-  line-height: 1.45;
-  color: var(--text);
+  border-radius: 1.1rem;
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.035);
 }
 .app-page .tb-verify-banner code {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.85em;
-  padding: 0.12rem 0.42rem;
-  background: rgba(255, 29, 63, 0.08);
-  border: 1px solid rgba(255, 29, 63, 0.12);
-  border-radius: 0.45rem;
+  padding: 0.1rem 0.35rem;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
   color: var(--accent-ink);
 }
-.app-page .tb-verify-banner strong { color: var(--ink); }
-.app-page .tb-verify-dot {
+.app-page .tb-verify-icon {
   flex-shrink: 0;
-  width: 1.65rem;
-  height: 1.65rem;
+  width: 2.5rem;
+  height: 2.5rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 9999px;
+  border-radius: 0.8rem;
+  color: var(--accent-ink);
   background: var(--accent-tint);
-  border: 1px solid rgba(255, 29, 63, 0.18);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 29, 63, 0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055);
 }
-.app-page .tb-verify-dot::before {
-  content: "";
-  width: 0.45rem;
-  height: 0.45rem;
-  border-radius: 9999px;
-  background: var(--accent);
-  box-shadow: 0 0 0 4px rgba(255, 29, 63, 0.1);
+.app-page .tb-verify-copy {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 0.12rem;
 }
-.app-page .tb-verify-copy { flex: 1; }
+.app-page .tb-verify-copy strong {
+  color: var(--ink);
+  font-size: 0.9rem;
+  line-height: 1.3;
+}
+.app-page .tb-verify-copy > span {
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
 .app-page .tb-verify-action { flex-shrink: 0; }
+.app-page .tb-verify-action .copy-btn {
+  padding: 0.48rem 0.9rem;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.035);
+}
 .app-page .tb-verify-banner + .app-main { padding-top: 1.5rem; }
 
-[data-theme="light"] .app-page .tb-verify-banner {
-  background:
-    linear-gradient(135deg, rgba(255, 29, 63, 0.06), transparent 42%),
-    #ffffff;
-  border-color: rgba(199, 10, 39, 0.2);
-  box-shadow: 0 12px 32px rgba(24, 22, 21, 0.07);
-}
-
-[data-theme="light"] .app-page .tb-verify-banner code {
-  background: rgba(199, 10, 39, 0.055);
-  border-color: rgba(199, 10, 39, 0.1);
-}
-
-[data-theme="light"] .app-page .tb-verify-dot {
-  background: rgba(199, 10, 39, 0.075);
-  border-color: rgba(199, 10, 39, 0.14);
-}
 @media (max-width: 620px) {
   .app-page .tb-verify-banner {
     margin: 5rem 1rem 0;
@@ -1256,7 +1268,6 @@
     justify-content: flex-start;
   }
   .app-page .nav-inner { gap: 0.4rem; padding: 0.4rem 0.4rem 0.4rem 0.75rem; }
-  .app-page .logo-word { font-size: 0.85rem; letter-spacing: 0.1em; }
   .app-page .nav-link { padding: 0.35rem 0.6rem; font-size: 0.78rem; }
   .app-page .card { padding: 1.4rem; border-radius: 1rem; }
   .app-page .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -1275,31 +1286,33 @@
     background: var(--surface);
     box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04);
   }
-  .app-page .nav.is-hidden {
-    transform: translateY(-110%);
-  }
-  [data-theme="light"] .app-page .nav {
-    background: rgba(255, 255, 255, 0.96);
-    box-shadow: 0 1px 0 rgba(24, 22, 21, 0.06);
-  }
   .app-page .nav-inner {
+    width: 100%;
     max-width: none;
-    padding: 0.65rem 0.95rem;
+    padding: 0.62rem 1.5rem;
     gap: 0.75rem;
   }
-  .app-page .nav-links,
-  .app-page .desktop-nav-action {
+  .app-page .desktop-nav-cluster {
     display: none;
   }
   .app-page .mobile-nav-menu {
     display: block;
-    margin-left: auto;
+    grid-column: 3;
+    justify-self: end;
+    margin-left: 0;
   }
   .app-page .app-main {
     padding-top: 6rem;
   }
   .app-page .tb-verify-banner {
     margin: 5.25rem 1rem 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .app-page .nav-inner {
+    padding: 0.55rem 0.65rem 0.55rem 0.9rem;
+    gap: 0.7rem;
   }
 }
 
@@ -1391,16 +1404,6 @@
 }
 
 @media (max-width: 430px) {
-  .app-page .logo-word {
-    display: none;
-  }
-  .app-page .logo-mark {
-    width: 1.75rem;
-    height: 1.75rem;
-  }
-  .app-page .nav-inner {
-    padding-left: 0.45rem;
-  }
   .app-page .nav-inner > .btn-primary {
     font-size: 0.76rem;
     padding: 0.43rem 0.7rem;
@@ -1425,15 +1428,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .app-page * { animation: none !important; transition: none !important; }
-}
-
-/* Light theme: keep the mark transparent and tint the glyph to ink. */
-[data-theme="light"] .app-page .logo-mark {
-  background-color: transparent;
-  background-size: contain;
-  border-radius: 0;
-  filter: brightness(0) saturate(100%);
-  opacity: 0.88;
 }
 
 /* ---------- Settings: left-nav layout ---------- */

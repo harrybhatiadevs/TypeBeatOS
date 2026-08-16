@@ -2,19 +2,27 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomBytes } from "crypto";
 import { getUser } from "@/lib/auth";
 import { appUrl, youtubeAuthUrl, youtubeConfigured } from "@/lib/youtube";
+import { safeReturnPath } from "@/lib/safe-return-path";
+
+const DEFAULT_RETURN_PATH = "/settings?tab=profile";
 
 export async function GET(req: NextRequest) {
   const user = await getUser();
   if (!user) return NextResponse.redirect(new URL("/login", appUrl()));
   if (!youtubeConfigured()) {
     return NextResponse.redirect(
-      new URL("/profile?yt_error=Google+credentials+are+not+configured", appUrl())
+      new URL(
+        "/settings?tab=profile&yt_error=Google+credentials+are+not+configured",
+        appUrl(),
+      ),
     );
   }
 
   // Optional in-app path to land on after the OAuth round-trip (e.g. onboarding)
-  const ret = req.nextUrl.searchParams.get("return") || "";
-  const returnPath = ret.startsWith("/") && !ret.startsWith("//") ? ret : "/profile";
+  const returnPath = safeReturnPath(
+    req.nextUrl.searchParams.get("return"),
+    DEFAULT_RETURN_PATH,
+  );
 
   const state = randomBytes(16).toString("hex");
   const res = NextResponse.redirect(youtubeAuthUrl(state));

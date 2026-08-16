@@ -1,4 +1,4 @@
-import Link from "next/link";
+import PublicNav from "../PublicNav";
 import "../marketing.css";
 import "./legal.css";
 
@@ -28,15 +28,7 @@ export default function LegalShell({
       </div>
       <div className="tb-grain" aria-hidden="true" />
 
-      <nav className="tb-nav">
-        <Link href="/" className="tb-brand" aria-label="TypeBeatOS home">
-          <span className="tb-badge" aria-hidden="true" />
-          <span className="tb-wordmark">
-            TYPEBEAT<span>OS</span>
-          </span>
-        </Link>
-        <Link href="/" className="tb-nav-cta">Back home</Link>
-      </nav>
+      <PublicNav action={{ href: "/", label: "Back home" }} />
 
       <main className="tb-legal">
         <header className="tb-legal-header">

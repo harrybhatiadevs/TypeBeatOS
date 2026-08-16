@@ -58,9 +58,9 @@ const BEATS = [
 
 function fixtureTitles(beatName: string, artist: string): string[] {
   return [
-    `${artist} type beat "${beatName}"`,
-    `[FREE] ${artist} type beat - ${beatName}`,
-    `${beatName} | ${artist} type beat 2026`,
+    `${artist} Type Beat - "${beatName}"`,
+    `[FREE] ${artist} Type Beat - "${beatName}"`,
+    `"${beatName}" | ${artist} Type Beat 2026`,
   ];
 }
 

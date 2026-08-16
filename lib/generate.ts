@@ -126,6 +126,39 @@ function titleCasePhrase(value: string): string {
     .join(" ");
 }
 
+/** Keep YouTube recommendations consistent, including older stored packages. */
+export function formatTitleRecommendation(value: string, beatName: string): string {
+  const titleCaseWords = (input: string) =>
+    clean(input).replace(/[A-Za-z]+(?:[&'][A-Za-z]+)*/g, (word) => {
+      const lower = word.toLowerCase();
+      if (["bpm", "r&b", "uk", "ny", "atl"].includes(lower)) {
+        return lower.toUpperCase();
+      }
+      if (lower === "x") return lower;
+      return lower.charAt(0).toUpperCase() + lower.slice(1);
+    });
+
+  const casedBeatName = titleCaseWords(beatName);
+  let title = titleCaseWords(value)
+    .replace(/\s*[-–—]\s*/g, " - ")
+    .replace(/\s*\|\s*/g, " | ");
+
+  if (casedBeatName) {
+    const escapedBeatName = casedBeatName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    title = title.replace(
+      new RegExp(`["“”']?${escapedBeatName}["“”']?`, "gi"),
+      `"${casedBeatName}"`,
+    );
+  }
+
+  return title
+    .replace(/^\[Free\]/i, "[FREE]")
+    .replace(/^Free\b/i, "[FREE]")
+    .replace(/\b(Type Beat(?: \d{4})?)\s+(?=")/g, "$1 - ")
+    .replace(/[ \t]{2,}/g, " ")
+    .trim();
+}
+
 function pascalTag(value: string): string {
   return clean(value)
     .split(/[\s\-_/&+]+/)
@@ -173,11 +206,11 @@ function laneTitle(parts: string[]): string {
 }
 
 export function buildTitleOptions(beat: Beat): string[] {
-  const a = beat.targetArtist;
-  const b = beat.secondaryArtist;
-  const n = `"${beat.name}"`;
-  const g = beat.genre;
-  const m = beat.mood;
+  const a = titleCasePhrase(beat.targetArtist);
+  const b = titleCasePhrase(beat.secondaryArtist);
+  const n = `"${titleCasePhrase(beat.name)}"`;
+  const g = titleCasePhrase(beat.genre);
+  const m = titleCasePhrase(beat.mood);
 
   const options = [
     `[FREE] ${a} Type Beat - ${n}`,
@@ -193,7 +226,12 @@ export function buildTitleOptions(beat: Beat): string[] {
 }
 
 export function buildPackageTitleOptions(beat: Beat, aiTitles: string[] = []): string[] {
-  return dedupe([...buildTitleOptions(beat), ...aiTitles], 3);
+  return dedupe(
+    [...buildTitleOptions(beat), ...aiTitles].map((title) =>
+      formatTitleRecommendation(title, beat.name),
+    ),
+    3,
+  );
 }
 
 export function buildTags(beat: Beat): string {

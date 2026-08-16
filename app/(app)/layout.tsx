@@ -1,11 +1,15 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { logout } from "@/lib/actions/auth";
 import AppNav from "./AppNav";
 import NavLinks from "./NavLinks";
 import VerifyEmailBanner from "./VerifyEmailBanner";
-import ThemeToggle from "@/app/ThemeToggle";
 import "./app-chrome.css";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 export default async function AppLayout({
   children,
@@ -19,23 +23,23 @@ export default async function AppLayout({
       <AppNav>
         <div className="nav-inner">
           <Link href="/dashboard" className="logo" aria-label="TypeBeatOS dashboard">
-            <span className="logo-mark" aria-hidden="true" />
             <span className="logo-word">
               TYPEBEAT<span>OS</span>
             </span>
           </Link>
-          <div className="nav-links">
-            <NavLinks />
+          <div className="desktop-nav-cluster">
+            <div className="nav-links">
+              <NavLinks />
+            </div>
+            <Link href="/beats/new" className="btn btn-primary btn-sm desktop-nav-action">
+              + New beat
+            </Link>
+            <form action={logout} className="desktop-nav-action">
+              <button type="submit" className="nav-link nav-logout">
+                Log out
+              </button>
+            </form>
           </div>
-          <Link href="/beats/new" className="btn btn-primary btn-sm desktop-nav-action">
-            + New beat
-          </Link>
-          <ThemeToggle className="desktop-nav-action" />
-          <form action={logout} className="desktop-nav-action">
-            <button type="submit" className="nav-link nav-logout">
-              Log out
-            </button>
-          </form>
           <details className="mobile-nav-menu">
             <summary className="mobile-nav-trigger" aria-label="Open navigation menu">
               <span aria-hidden="true" />
@@ -50,7 +54,6 @@ export default async function AppLayout({
                 + New beat
               </Link>
               <div className="mobile-nav-actions">
-                <ThemeToggle />
                 <form action={logout}>
                   <button type="submit" className="nav-link nav-logout">
                     Log out

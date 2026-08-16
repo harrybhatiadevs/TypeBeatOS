@@ -10,11 +10,18 @@ import FormSubmitButton from "@/app/FormSubmitButton";
 export default function VerifyEmailBanner({ email }: { email: string }) {
   return (
     <div className="tb-verify-banner" role="status">
-      <span className="tb-verify-dot" aria-hidden="true" />
+      <span className="tb-verify-icon" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect width="18" height="14" x="3" y="5" rx="2" />
+          <path d="m3 7 9 6 9-6" />
+        </svg>
+      </span>
       <div className="tb-verify-copy">
-        <strong>Verify your email.</strong> We sent a link to{" "}
-        <code>{email}</code> when you signed up. It unlocks password
-        recovery and weekly digests.
+        <strong>Verify your email</strong>
+        <span>
+          Check <code>{email}</code> for your verification link. This secures
+          password recovery and email updates.
+        </span>
       </div>
       <form action={resendVerificationEmail} className="tb-verify-action">
         <FormSubmitButton className="copy-btn" pendingLabel="Sending...">

@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "Terms of service — TypeBeatOS",
   description:
     "Terms of service for TypeBeatOS — what producers can do with the service, what we provide, and the rules around YouTube and AI-generated assets.",
+  alternates: { canonical: "/terms" },
 };
 
 const UPDATED = "2026-07-06";
@@ -80,8 +81,9 @@ export default function TermsPage() {
       <p>
         Connecting your channel grants TypeBeatOS an OAuth token scoped to
         upload videos and read your channel + per-video stats. You can
-        disconnect any time from <Link href="/profile">profile</Link>, which
-        revokes the refresh token.
+        disconnect any time from your{" "}
+        <Link href="/settings?tab=profile">producer profile</Link>, which revokes
+        the Google authorization and removes the stored OAuth tokens.
       </p>
       <p>
         Once a video is published to YouTube, YouTube&apos;s terms govern
@@ -128,7 +130,7 @@ export default function TermsPage() {
       <ul>
         <li>
           You can delete your account any time from{" "}
-          <Link href="/profile">profile</Link>. Deletion removes your
+          <Link href="/settings?tab=delete">account settings</Link>. Deletion removes your
           producer profile, beats, packages, generated assets, and YouTube
           tokens. Videos already published to YouTube stay on your channel.
         </li>

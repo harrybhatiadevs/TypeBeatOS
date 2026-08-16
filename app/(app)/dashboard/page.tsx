@@ -21,13 +21,13 @@ export default async function Dashboard() {
     {
       label: "Set your producer brand & store link",
       done: !!(user.profile?.producerName && user.profile?.storeUrl),
-      href: "/profile",
+      href: "/settings?tab=profile",
       hint: "feeds every description",
     },
     {
       label: "Connect your YouTube channel",
       done: !!youtube,
-      href: "/profile",
+      href: "/settings?tab=profile",
       hint: "enables direct upload",
     },
     {

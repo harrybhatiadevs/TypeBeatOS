@@ -1,10 +1,17 @@
 "use client";
 
-import { useEffect, useRef, useState, type MouseEvent } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useRef, type MouseEvent } from "react";
 
 export default function AppNav({ children }: { children: React.ReactNode }) {
-  const lastY = useRef(0);
-  const [hidden, setHidden] = useState(false);
+  const pathname = usePathname();
+  const navRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    navRef.current
+      ?.querySelector<HTMLDetailsElement>("details[open]")
+      ?.removeAttribute("open");
+  }, [pathname]);
 
   const closeMobileMenuAfterSelection = (event: MouseEvent<HTMLElement>) => {
     if (!(event.target instanceof Element)) return;
@@ -15,22 +22,10 @@ export default function AppNav({ children }: { children: React.ReactNode }) {
       ?.removeAttribute("open");
   };
 
-  useEffect(() => {
-    const onScroll = () => {
-      const currentY = window.scrollY;
-      const scrollingDown = currentY > lastY.current;
-      setHidden(currentY > 120 && scrollingDown);
-      lastY.current = currentY;
-    };
-
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
   return (
     <nav
-      className={`nav${hidden ? " is-hidden" : ""}`}
+      ref={navRef}
+      className="nav"
       onClick={closeMobileMenuAfterSelection}
     >
       {children}

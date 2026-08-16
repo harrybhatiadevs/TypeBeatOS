@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import PublicNav from "../PublicNav";
 import "../marketing.css";
 
 export const metadata: Metadata = {
   title: "Email verified — TypeBeatOS",
+  robots: { index: false, follow: true },
 };
 
 /**
@@ -26,15 +28,9 @@ export default async function VerifyPage({
       </div>
       <div className="tb-grain" aria-hidden="true" />
 
-      <nav className="tb-nav tb-nav-auth">
-        <Link href="/" className="tb-brand" aria-label="TypeBeatOS home">
-          <span className="tb-badge" aria-hidden="true" />
-          <span className="tb-wordmark">
-            TYPEBEAT<span>OS</span>
-          </span>
-        </Link>
-        <Link href="/dashboard" className="tb-nav-cta">Open dashboard</Link>
-      </nav>
+      <PublicNav
+        action={{ href: "/dashboard", label: "Open dashboard" }}
+      />
 
       <main className="tb-auth-wrap">
         <div className="tb-auth-card">

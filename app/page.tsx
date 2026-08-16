@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getUser } from "@/lib/auth";
 import LpEffects from "./LpEffects";
+import PublicNav from "./PublicNav";
 import "./landing.css";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 const PROBLEMS = [
   "Export the beat",
@@ -81,24 +87,20 @@ export default async function Landing() {
     <div className="lp" data-testid="landing-page">
       <div className="lp-glow" aria-hidden="true" />
 
-      {/* NAV */}
-      <nav className="lp-nav" data-testid="landing-nav">
-        <div className="lp-nav-inner">
-          <Link href="/" className="lp-brand" aria-label="TypeBeatOS home">
-            <span className="lp-wordmark">TYPEBEAT<span>OS</span></span>
-          </Link>
-          <div className="lp-nav-links">
-            <a href="#home" className="lp-nav-link" data-section-link="home">Home</a>
-            <a href="#workflow" className="lp-nav-link" data-section-link="workflow">How it works</a>
-            <a href="#features" className="lp-nav-link" data-section-link="features">Features</a>
-            <a href="#pricing" className="lp-nav-link" data-section-link="pricing">Pricing</a>
-          </div>
-          <Link href={user ? "/dashboard" : "/login"} className="lp-btn lp-btn-ghost lp-btn-sm">
-            {user ? "Open app" : "Log in"}
-          </Link>
-        </div>
-        <span className="lp-nav-progress" aria-hidden="true" />
-      </nav>
+      <PublicNav
+        testId="landing-nav"
+        trackSections
+        links={[
+          { href: "#home", label: "Home", sectionId: "home" },
+          { href: "#workflow", label: "How it works", sectionId: "workflow" },
+          { href: "#features", label: "Features", sectionId: "features" },
+          { href: "#pricing", label: "Pricing", sectionId: "pricing" },
+        ]}
+        action={{
+          href: user ? "/dashboard" : "/login",
+          label: user ? "Open app" : "Log in",
+        }}
+      />
 
       {/* HERO */}
       <header id="home" className="lp-wrap lp-hero">
