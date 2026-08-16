@@ -41,7 +41,14 @@ export default async function BeatsPage() {
           </div>
         ) : (
           <div className="table-scroll">
-            <table className="table">
+            <table className="table beats-table">
+              <colgroup>
+                <col className="beats-col-name" />
+                <col className="beats-col-artist" />
+                <col className="beats-col-tempo" />
+                <col className="beats-col-package" />
+                <col className="beats-col-actions" />
+              </colgroup>
               <thead>
                 <tr>
                   <th>Beat</th>
