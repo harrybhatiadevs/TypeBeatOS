@@ -611,6 +611,20 @@
 .app-page .table-scroll .table {
   min-width: 560px;
 }
+.app-page .table-scroll .beats-table {
+  /* Column positions must not change with the user's beat-name lengths.
+     The production catalog has longer names than the local seed data, which
+     previously made the two pages look like different layouts. */
+  table-layout: fixed;
+  min-width: 760px;
+}
+.app-page .beats-table .beats-col-name { width: 16%; }
+.app-page .beats-table .beats-col-artist { width: 26%; }
+.app-page .beats-table .beats-col-tempo { width: 20%; }
+.app-page .beats-table .beats-col-package { width: 21%; }
+.app-page .beats-table .beats-col-actions { width: 17%; }
+.app-page .beats-table td:last-child,
+.app-page .beats-table th:last-child { white-space: nowrap; }
 .app-page .card:has(.table) {
   overflow-x: auto;
 }

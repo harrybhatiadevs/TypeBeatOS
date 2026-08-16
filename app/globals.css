@@ -137,6 +137,10 @@
 html {
   scroll-behavior: smooth;
   overflow-x: hidden;
+  min-height: 100%;
+  /* Match the permanent canvas used by public and signed-in surfaces so a
+     fractional viewport pixel can never reveal a contrasting root layer. */
+  background: #050505;
 }
 
 body {
@@ -146,6 +150,8 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 img,

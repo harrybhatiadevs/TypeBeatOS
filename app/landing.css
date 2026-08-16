@@ -42,6 +42,10 @@
   overflow-x: clip;
 }
 
+@supports (height: 100svh) {
+  .lp { --lp-viewport-height: 100svh; }
+}
+
 @supports (height: 100dvh) {
   .lp { --lp-viewport-height: 100dvh; }
 }
@@ -271,10 +275,13 @@
 .lp-hero {
   min-height: var(--lp-viewport-height);
   padding-top: 5.5rem;
-  padding-bottom: clamp(2rem, 4vh, 3rem);
+  padding-bottom: clamp(1rem, 2vh, 1.5rem);
   display: grid;
-  grid-template-rows: auto auto;
-  align-content: center;
+  /* The main composition owns the flexible space and the proof row owns the
+     bottom edge. Centering both rows as one block left a monitor-dependent
+     empty band below the proof row on taller/scaled viewports. */
+  grid-template-rows: minmax(min-content, 1fr) auto;
+  align-content: stretch;
   row-gap: clamp(2rem, 5vh, 3.5rem);
 }
 .lp-hero-grid {
@@ -282,6 +289,7 @@
   grid-template-columns: 1fr;
   gap: clamp(2.5rem, 5vw, 4.5rem);
   align-items: center;
+  align-self: center;
 }
 @media (min-width: 940px) {
   .lp-hero-grid { grid-template-columns: 1.05fr 0.95fr; }
