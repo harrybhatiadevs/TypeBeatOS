@@ -3,7 +3,7 @@
  * profile, sessions, beats, packages, YouTubeAccount) and creates a
  * predictable fixture so every dev session starts ready:
  *
- *   - 1 test user — test@typebeatos.local / review123!
+ *   - 1 Pro test user — test@typebeatos.local / review123!
  *   - Producer profile (Drake / Travis Scott focus)
  *   - 3 beats in three different states (raw, draft package, scheduled
  *     package) so every UI screen has something to render
@@ -128,6 +128,11 @@ async function main() {
       scheduleTime: "18:00",
     },
     update: {},
+  });
+  await db.subscription.upsert({
+    where: { userId },
+    create: { userId, plan: "pro", status: "active", interval: "month" },
+    update: { plan: "pro", status: "active", interval: "month" },
   });
   // Pull the full user back to keep the BEATS loop unchanged.
   const user = (await db.user.findUnique({ where: { id: userId } }))!;
