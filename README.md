@@ -126,7 +126,8 @@ Production runs at `https://typebeatos.com` on Azure Container Apps:
 - database: Neon PostgreSQL (pooled runtime URL, direct migration URL);
 - media: Azure Files mounted at `/app/uploads`;
 - email: Resend; and
-- health check: `/api/health`.
+- health checks: `/api/ready` (platform probes, DB-free) and `/api/health`
+  (DB-aware, for manual checks — do not poll it on a short interval).
 
 Release order:
 

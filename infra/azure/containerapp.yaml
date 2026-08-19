@@ -12,8 +12,12 @@
 #   - Single replica (min=max=1): render/upload queues are in-process and
 #     not durable yet. Raising maxReplicas requires roadmap C1 (Blob) + C2
 #     (durable queue) first.
-#   - Liveness = TCP:3000 (no DB) so a transient Neon outage does NOT restart
-#     the container; Readiness = /api/health (DB ping) controls traffic only.
+#   - Neither probe touches the database. Liveness = TCP:3000 so a transient
+#     Neon outage does NOT restart the container; Readiness = /api/ready, a
+#     process-only 200. A DB ping on the 15s readiness loop kept Neon awake
+#     24/7 (~5,760 queries/day) and could not act on the result anyway at
+#     min=max=1 — see app/api/ready/route.ts. /api/health stays DB-aware for
+#     manual checks and uptime monitors.
 #   - Azure Files volume "uploads" mounted at /app/uploads mirrors the Fly
 #     volume so the existing local-filesystem code runs unchanged.
 #   - DIRECT_URL is intentionally absent — it is migration-only (run from a
@@ -91,11 +95,13 @@ properties:
             initialDelaySeconds: 10
             periodSeconds: 30
             failureThreshold: 3
-          # Readiness: DB-aware. On a Neon outage this replica stops receiving
-          # traffic (503) but is NOT restarted.
+          # Readiness: process-only, NO database. Proves Node is up and routing
+          # HTTP (stricter than the TCP liveness check, which only proves the
+          # port is bound). Must stay DB-free: this runs 4x/minute forever, and
+          # querying Neon from here is what prevented it scaling to zero.
           - type: Readiness
             httpGet:
-              path: /api/health
+              path: /api/ready
               port: 3000
             initialDelaySeconds: 5
             periodSeconds: 15

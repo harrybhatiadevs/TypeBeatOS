@@ -27,12 +27,15 @@ primary_region = "syd"
   min_machines_running = 1
   processes = ["app"]
 
+  # /api/ready, not /api/health: this loop runs every 30s forever, and a probe
+  # that queries Postgres keeps Neon's scale-to-zero timer permanently reset
+  # (see "Probes must stay DB-free" in docs/azure-deployment.md).
   [[http_service.checks]]
     interval = "30s"
     timeout = "5s"
     grace_period = "20s"
     method = "GET"
-    path = "/api/health"
+    path = "/api/ready"
     protocol = "http"
 
 [[vm]]
