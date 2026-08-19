@@ -296,14 +296,39 @@ DIRECT_URL="<...>" DATABASE_URL="<...>" npm run db:migrate:status
 
 ## Probe behaviour (why it won't restart on a Neon hiccup)
 
-- **Readiness → `GET /api/health`** (`app/api/health/route.ts`): returns 503 if
-  the DB `SELECT 1` fails. ACA reacts by taking the replica **out of traffic**
-  until it recovers — it does **not** restart the container. So a transient Neon
-  outage degrades gracefully instead of cycling the app.
+**Neither probe touches the database.** That is deliberate and load-bearing —
+see "Probes must stay DB-free" below.
+
+- **Readiness → `GET /api/ready`** (`app/api/ready/route.ts`): returns 200 whenever
+  the Node process is up and routing HTTP. Stricter than the TCP liveness check
+  (which only proves the port is bound), but it makes no database call.
 - **Liveness → TCP connect on `:3000`**: proves the Node process is alive without
   touching the DB. Only an actual process hang/crash triggers a restart. This is
   what protects in-flight in-process render/upload jobs from being killed by a
   database blip.
+- **`GET /api/health`** (`app/api/health/route.ts`) is still DB-aware and returns
+  503 when `SELECT 1` fails. It is for humans and the smoke-test checklist — it is
+  **not** wired to any probe.
+
+### Probes must stay DB-free
+
+Readiness previously pointed at `/api/health`, so the 15-second probe loop ran
+~5,760 `SELECT 1`s a day against Neon. That permanently reset Neon's 5-minute
+scale-to-zero timer: the database billed ~24 hours of compute a day with zero
+users on the site (~220 compute-hours in the first 19 days of Aug 2026, ≈ $23).
+
+Two rules follow:
+
+1. **Never point a probe at a route that queries Postgres.** `tests/ready.test.ts`
+   guards `/api/ready` against picking up a `@/lib/db` import.
+2. **Don't poll `/api/health` on a short interval either.** An external uptime
+   monitor hitting it every 5 minutes re-creates the same bug in a new costume,
+   because Neon's idle timer is itself 5 minutes. Every 30–60 minutes is safe.
+
+Note that readiness is also nearly powerless here by design: we run
+`minReplicas == maxReplicas == 1`, so failing readiness cannot shift traffic to
+another replica — it just takes the site off the internet. A DB-aware readiness
+signal had nothing useful to do with its answer.
 
 ---
 
@@ -332,6 +357,7 @@ untouched, so sessions survive the deploy.
 
 Against `https://$FQDN`:
 
+- [ ] `curl https://$FQDN/api/ready` → `200`, `{"status":"ok",...}` (probe path).
 - [ ] `curl https://$FQDN/api/health` → `200`, `{"status":"ok","db":"ok"}`.
 - [ ] Landing page renders (logo + centered hero), padlock/HTTPS valid.
 - [ ] **Signup** → dashboard, verify-email banner shows.
