@@ -113,20 +113,24 @@
 .app-page .logo-word { white-space: nowrap; }
 .app-page .logo-word span { color: var(--accent); }
 
-.app-page .desktop-nav-cluster {
+/* Links own the centre column; the actions own the right edge. This mirrors
+   the public nav so the bar does not reshuffle across the sign-in boundary. */
+.app-page .nav-links {
   grid-column: 2;
   justify-self: center;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.15rem;
+  flex-wrap: nowrap;
   min-width: 0;
 }
 
-.app-page .nav-links {
+.app-page .desktop-nav-actions {
+  grid-column: 3;
+  justify-self: end;
   display: flex;
   align-items: center;
-  gap: 0.15rem;
-  flex-wrap: nowrap;
+  gap: 1rem;
   min-width: 0;
 }
 .app-page .nav-link {
@@ -1306,7 +1310,8 @@
     padding: 0.62rem 1.5rem;
     gap: 0.75rem;
   }
-  .app-page .desktop-nav-cluster {
+  .app-page .nav-links,
+  .app-page .desktop-nav-actions {
     display: none;
   }
   .app-page .mobile-nav-menu {

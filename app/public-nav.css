@@ -45,15 +45,21 @@
   max-width: 1140px;
   margin: 0 auto;
   padding: 0.62rem 1.5rem;
-  display: flex;
+  /* Equal side columns keep the link group on the true centre line no matter
+     how wide the wordmark or the action button get. Columns are assigned
+     explicitly because the link group is absent on link-less pages and
+     display:none under 780px. */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   gap: 1rem;
 }
 
 .public-nav-brand {
+  grid-column: 1;
+  justify-self: start;
   display: inline-flex;
   align-items: center;
-  margin-right: auto;
   color: var(--ink);
   text-decoration: none;
 }
@@ -72,6 +78,7 @@
 }
 
 .public-nav-links {
+  grid-column: 2;
   display: none;
   align-items: center;
   gap: 0.1rem;
@@ -120,6 +127,8 @@
 }
 
 .public-nav-action {
+  grid-column: 3;
+  justify-self: end;
   display: inline-flex;
   align-items: center;
   justify-content: center;
