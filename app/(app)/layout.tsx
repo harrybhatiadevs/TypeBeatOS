@@ -27,14 +27,14 @@ export default async function AppLayout({
               TYPEBEAT<span>OS</span>
             </span>
           </Link>
-          <div className="desktop-nav-cluster">
-            <div className="nav-links">
-              <NavLinks />
-            </div>
-            <Link href="/beats/new" className="btn btn-primary btn-sm desktop-nav-action">
+          <div className="nav-links">
+            <NavLinks />
+          </div>
+          <div className="desktop-nav-actions">
+            <Link href="/beats/new" className="btn btn-primary btn-sm">
               + New beat
             </Link>
-            <form action={logout} className="desktop-nav-action">
+            <form action={logout}>
               <button type="submit" className="nav-link nav-logout">
                 Log out
               </button>
