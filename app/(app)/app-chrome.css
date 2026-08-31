@@ -30,6 +30,11 @@
   --field-bg: #0b0b0b;
   --field-bg-focus: #111111;
   --placeholder: #707070;
+  /* Chrome tokens must be re-darkened here too: the floating bars that use
+     them sit inside .app-page, so a light preference saved on a public page
+     would otherwise leave them white on the dark workspace. */
+  --nav-glass: rgba(11, 11, 11, 0.72);
+  --nav-glass-strong: rgba(11, 11, 11, 0.88);
   --card-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 18px 48px rgba(0, 0, 0, 0.28);
   --float-shadow: 0 12px 40px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   --ok-ink: #22c55e;
@@ -1947,9 +1952,34 @@
   font-weight: 700;
 }
 .app-page .batch-pair-table { margin-top: 1rem; }
+.app-page .batch-pair-table .table {
+  /* Fixed layout so the long audio filenames can't win space from the other
+     columns — auto layout let them squeeze Status until its header and value
+     broke mid-word. Below the min-width the wrapper scrolls instead. */
+  table-layout: fixed;
+  min-width: 880px;
+}
+.app-page .batch-pair-table th:nth-child(1),
+.app-page .batch-pair-table td:nth-child(1) { width: 20%; }
+.app-page .batch-pair-table th:nth-child(2),
+.app-page .batch-pair-table td:nth-child(2) { width: 26%; }
+.app-page .batch-pair-table th:nth-child(3),
+.app-page .batch-pair-table td:nth-child(3) { width: 18%; }
+.app-page .batch-pair-table th:nth-child(4),
+.app-page .batch-pair-table td:nth-child(4) { width: 22%; }
+.app-page .batch-pair-table th:nth-child(5),
+.app-page .batch-pair-table td:nth-child(5) {
+  width: 14%;
+  /* Short status labels must never break mid-word the way "Paired" did. */
+  overflow-wrap: normal;
+  word-break: keep-all;
+}
 .app-page .batch-pair-table input,
 .app-page .batch-pair-table select {
-  min-width: 9rem;
+  /* Fill the column rather than holding a rigid min-width: the beat name was
+     being clipped inside its own field while the column had room to spare. */
+  width: 100%;
+  min-width: 0;
   padding: 0.55rem 0.65rem;
 }
 .app-page .batch-toggle-field label {

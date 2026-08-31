@@ -2,6 +2,7 @@ import { spawn } from "child_process";
 import { mkdir } from "fs/promises";
 import path from "path";
 import ffmpegPath from "ffmpeg-static";
+import { VIDEO_HEIGHT, VIDEO_WIDTH } from "./video-format";
 import { db } from "./db";
 import { loggerFor } from "./logger";
 
@@ -51,7 +52,10 @@ function buildArgs(imagePath: string, audioPath: string, outPath: string) {
     "-framerate", "2",
     "-i", imagePath,
     "-i", audioPath,
-    "-vf", "scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,setsar=1,format=yuv420p",
+    // Thumbnails are already written at exactly this size, so this is a no-op
+    // for new packages; it exists to normalize thumbnails saved before the
+    // frame size moved to 1080p rather than fail the encode on odd dimensions.
+    "-vf", `scale=${VIDEO_WIDTH}:${VIDEO_HEIGHT}:force_original_aspect_ratio=increase,crop=${VIDEO_WIDTH}:${VIDEO_HEIGHT},setsar=1,format=yuv420p`,
     "-c:v", "libx264",
     "-preset", "veryfast",
     "-tune", "stillimage",
@@ -75,20 +79,50 @@ const globalForQueue = globalThis as unknown as {
 globalForQueue.videoQueue ??= Promise.resolve();
 
 // On a fresh process nothing can legitimately be mid-render, so any package still
-// marked "rendering" was orphaned by a previous process exiting (or a hung render
-// from before timeouts existed). Reset them once so producers can retry instead of
-// being stuck on "Rendering…" forever.
+// marked "rendering" was orphaned by a previous process exiting. Resume those
+// renders rather than failing them: the work is fully repeatable from the stored
+// audio and thumbnail, and failing them stranded batch items on "Needs attention"
+// for what was only a restart. A render that genuinely cannot succeed still ends
+// up failed via the normal path (or the hard timeout), so this cannot loop
+// forever across restarts.
 if (!globalForQueue.videoRecovered) {
   globalForQueue.videoRecovered = true;
-  db.package
-    .updateMany({
+  void resumeOrphanedRenders();
+}
+
+async function resumeOrphanedRenders() {
+  try {
+    const orphaned = await db.package.findMany({
       where: { videoStatus: "rendering" },
-      data: { videoStatus: "failed", videoError: "Render was interrupted — please try again." },
-    })
-    .then((r) => {
-      if (r.count > 0) log.warn({ count: r.count }, "reset orphaned renders on startup");
-    })
-    .catch(() => {});
+      select: { id: true, thumbnailPath: true, beat: { select: { audioPath: true } } },
+    });
+    if (orphaned.length === 0) return;
+
+    // Missing inputs can never render, so those are the only real failures here.
+    const renderable = orphaned.filter((p) => p.thumbnailPath && p.beat.audioPath);
+    const unrenderable = orphaned.filter((p) => !p.thumbnailPath || !p.beat.audioPath);
+
+    if (unrenderable.length > 0) {
+      await db.package.updateMany({
+        where: { id: { in: unrenderable.map((p) => p.id) } },
+        data: {
+          videoStatus: "failed",
+          videoError: "Render was interrupted and the beat is missing its audio or thumbnail.",
+        },
+      });
+    }
+
+    // Batch items stay "rendering" and are reconciled by the batch poll once
+    // these land on "done", so the queue continuation survives the restart.
+    for (const pkg of renderable) enqueueRender(pkg.id);
+
+    log.warn(
+      { resumed: renderable.length, failed: unrenderable.length },
+      "resumed orphaned renders on startup",
+    );
+  } catch (err) {
+    log.error({ err: err instanceof Error ? err.message : err }, "orphaned render recovery failed");
+  }
 }
 
 export type QueueResult = { ok: true } | { ok: false; error: string };

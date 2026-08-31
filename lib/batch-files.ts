@@ -1,23 +1,7 @@
-const EXTENSION = /\.[^.]+$/;
+import { beatNameFromFilename, normalizedFileStem } from "./beat-name";
 
-/** Convert an uploaded filename into an editable beat name. */
-export function beatNameFromFilename(filename: string): string {
-  const base = filename.replace(EXTENSION, "").trim();
-  return base
-    .replace(/[_]+/g, " ")
-    .replace(/(?:\s*-\s*|\s+)(?:final|master(?:ed)?|mix(?:down)?|v\d+)$/i, "")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-/** Comparable stem used for the initial audio/image pairing. */
-export function normalizedFileStem(filename: string): string {
-  return beatNameFromFilename(filename)
-    .toLowerCase()
-    .replace(/\b(?:cover|art|artwork|thumbnail|thumb)\b/g, "")
-    .replace(/[^a-z0-9]+/g, "")
-    .trim();
-}
+// Re-exported so batch callers keep a single import for file handling.
+export { beatNameFromFilename, normalizedFileStem };
 
 /**
  * Pair each audio file with the most similar unused image. Exact normalized
