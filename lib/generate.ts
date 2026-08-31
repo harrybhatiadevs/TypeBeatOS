@@ -581,3 +581,68 @@ export async function aiGenerateTemplate(brief: string, profile: Profile | null 
   const terms = mergeLaneTerms(fallback, extracted);
   return buildTemplateFromTerms(brief, terms, profile);
 }
+
+/**
+ * Refine filename-derived beat names with the configured model.
+ *
+ * The deterministic parser in lib/beat-name.ts handles the shapes we know, but
+ * producers name files however they like, so this catches the long tail. It is
+ * strictly a *refinement*: the deterministic name is passed in as the fallback
+ * and is returned unchanged whenever AI is unconfigured, fails, times out, or
+ * returns something we can't verify.
+ *
+ * Guard: every word of an AI-proposed name must already appear in the original
+ * filename. The model can therefore only remove noise, never invent a title —
+ * which keeps a hallucination from silently becoming the published video name.
+ */
+export async function refineBeatNames(
+  items: { filename: string; fallback: string }[],
+): Promise<string[]> {
+  const fallbacks = items.map((i) => i.fallback);
+  if (items.length === 0 || !aiConfigured()) return fallbacks;
+
+  const prompt = [
+    "You clean up music producers' exported beat filenames to recover ONLY the track title.",
+    "",
+    "Remove: the target artist, \"type beat\", producer/collab handles (@name), prod. credits,",
+    "promo tags (FREE, untagged, exclusive), BPM values, musical keys (Amin, Ebmaj, F#m),",
+    "mix state (final, mastered, mixdown, v2), track numbers, years and file extensions.",
+    "Keep every word that is genuinely part of the title. Use Title Case.",
+    "Never invent words that do not appear in the filename.",
+    "If you are unsure, return the provided fallback unchanged.",
+    "",
+    "Return ONLY a JSON array of strings, one per input, in order.",
+    "",
+    "Inputs:",
+    JSON.stringify(items.map((i, n) => ({ n, filename: i.filename, fallback: i.fallback }))),
+  ].join("\n");
+
+  const raw = await callLlm(prompt, { maxTokens: 400, json: true, temperature: 0 });
+  if (!raw) return fallbacks;
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return fallbacks;
+  }
+  if (!Array.isArray(parsed) || parsed.length !== items.length) return fallbacks;
+
+  return items.map((item, index) => {
+    const candidate = parsed[index];
+    if (typeof candidate !== "string") return item.fallback;
+    const name = candidate.trim().replace(/\s+/g, " ");
+    if (!name || name.length > 80) return item.fallback;
+
+    // Every word must exist in the source filename — removal only, no invention.
+    const haystack = item.filename.toLowerCase().replace(/[^a-z0-9]+/g, " ");
+    const invented = name
+      .toLowerCase()
+      .split(/\s+/)
+      .some((word) => {
+        const bare = word.replace(/[^a-z0-9]+/g, "");
+        return bare.length > 0 && !haystack.includes(bare);
+      });
+    return invented ? item.fallback : name;
+  });
+}

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { AUDIO_ACCEPT, audioUploadError } from "@/lib/audio-upload";
+import { beatNameFromFilename } from "@/lib/beat-name";
 
 const GENRES = ["Trap", "R&B", "Drill", "Hip Hop", "Pop", "Afrobeats", "Boom Bap", "Hyperpop", "Lo-fi"];
 const MOODS = ["Dark", "Moody", "Hard", "Smooth", "Melodic", "Aggressive", "Chill", "Emotional", "Bouncy"];
@@ -25,6 +26,10 @@ export default function NewBeatForm({
 }) {
   const [clientError, setClientError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  // Auto-filled from the audio filename until the producer types their own
+  // name; after that the field is theirs and picking a new file won't clobber it.
+  const [name, setName] = useState("");
+  const [nameEdited, setNameEdited] = useState(false);
   const error = clientError || initialError;
 
   return (
@@ -90,11 +95,49 @@ export default function NewBeatForm({
           <div className="form-grid">
             <div className="form-field">
               <label htmlFor="name">Beat name *</label>
-              <input id="name" name="name" type="text" required placeholder="Late Night" />
+              <input
+                id="name"
+                name="name"
+                type="text"
+                required
+                placeholder="Late Night"
+                value={name}
+                onChange={(event) => {
+                  setName(event.target.value);
+                  setNameEdited(true);
+                }}
+              />
             </div>
             <div className="form-field">
               <label htmlFor="audio">Audio file (optional)</label>
-              <input id="audio" name="audio" type="file" accept={AUDIO_ACCEPT} />
+              <input
+                id="audio"
+                name="audio"
+                type="file"
+                accept={AUDIO_ACCEPT}
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (!file) return;
+                  if (nameEdited && name.trim()) return;
+                  const derived = beatNameFromFilename(file.name);
+                  if (!derived) return;
+                  setName(derived);
+                  setNameEdited(false);
+                  // Refine in the background; only replace if still untouched.
+                  void fetch("/api/beat-name", {
+                    method: "POST",
+                    headers: { "content-type": "application/json" },
+                    body: JSON.stringify({ filenames: [file.name] }),
+                  })
+                    .then((res) => (res.ok ? res.json() : null))
+                    .then((data) => {
+                      const refined = data?.names?.[0];
+                      if (typeof refined !== "string" || !refined.trim()) return;
+                      setName((current) => (current === derived ? refined.trim() : current));
+                    })
+                    .catch(() => {});
+                }}
+              />
             </div>
             <div className="form-field">
               <label htmlFor="targetArtist">Target artist *</label>

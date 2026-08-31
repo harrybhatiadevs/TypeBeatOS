@@ -2,9 +2,18 @@
 
 import { useEffect, useRef, useState } from "react";
 import { saveThumbnail } from "@/lib/actions/packages";
+import {
+  DESIGN_HEIGHT,
+  DESIGN_WIDTH,
+  THUMB_SCALE,
+  VIDEO_HEIGHT,
+  VIDEO_WIDTH,
+} from "@/lib/video-format";
 
-const W = 1280;
-const H = 720;
+// Compose in the 1280x720 design space so saved font sizes and offsets keep
+// meaning, then scale the context up to the delivered 1080p frame.
+const W = DESIGN_WIDTH;
+const H = DESIGN_HEIGHT;
 
 const FONT_OPTIONS = [
   { label: "Inter Tight", value: "\"Inter Tight\", Inter, sans-serif" },
@@ -85,6 +94,10 @@ export default function ThumbnailBuilder({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    // Map the design space onto the full-resolution canvas. Text and the
+    // vignette are re-rasterized at 1080p rather than upscaled from 720p.
+    ctx.setTransform(THUMB_SCALE, 0, 0, THUMB_SCALE, 0, 0);
+
     ctx.fillStyle = "#000000";
     ctx.fillRect(0, 0, W, H);
 
@@ -117,7 +130,9 @@ export default function ThumbnailBuilder({
       ctx.fillStyle = titleColor;
       ctx.font = `900 ${titleSize}px ${titleFont}`;
       ctx.shadowColor = "rgba(0,0,0,0.7)";
-      ctx.shadowBlur = 28;
+      // shadowBlur is in device pixels and is NOT scaled by the transform, so
+      // it has to be scaled by hand or the shadow shrinks relative to the text.
+      ctx.shadowBlur = 28 * THUMB_SCALE;
       ctx.fillText(`"${title}"`, W / 2, H / 2 + 50, W - 100);
       ctx.shadowBlur = 0;
     }
@@ -198,7 +213,7 @@ export default function ThumbnailBuilder({
   return (
     <div className="card">
       <h3>Thumbnail</h3>
-      <canvas ref={canvasRef} width={W} height={H} className="thumb-canvas" />
+      <canvas ref={canvasRef} width={VIDEO_WIDTH} height={VIDEO_HEIGHT} className="thumb-canvas" />
       <div className="thumb-controls">
         <div className="form-field full">
           <label>Background image</label>

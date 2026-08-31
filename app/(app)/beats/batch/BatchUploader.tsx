@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { AUDIO_ACCEPT, audioUploadError } from "@/lib/audio-upload";
 import { beatNameFromFilename, pairFileNames } from "@/lib/batch-files";
+import { VIDEO_HEIGHT, VIDEO_WIDTH } from "@/lib/video-format";
 import { MAX_BATCH_ITEMS, type BatchPrivacyStatus } from "@/lib/batch-types";
 
 type LocalStage = "ready" | "preparing" | "uploading" | "queued" | "failed";
@@ -24,12 +25,16 @@ function imageToThumbnail(file: File): Promise<File> {
     image.onload = () => {
       URL.revokeObjectURL(objectUrl);
       const canvas = document.createElement("canvas");
-      canvas.width = 1280;
-      canvas.height = 720;
+      canvas.width = VIDEO_WIDTH;
+      canvas.height = VIDEO_HEIGHT;
       const context = canvas.getContext("2d");
       if (!context) return reject(new Error("Could not prepare this image."));
 
-      const scale = Math.max(canvas.width / image.width, canvas.height / image.height);
+      // Contain, not cover — ThumbnailBuilder (the single-beat path) uses
+      // Math.min, so it letterboxes the whole artwork onto black. Cropping here
+      // instead made batch videos frame the art differently from every video
+      // rendered through the normal flow.
+      const scale = Math.min(canvas.width / image.width, canvas.height / image.height);
       const width = image.width * scale;
       const height = image.height * scale;
       context.fillStyle = "#000";
@@ -49,6 +54,29 @@ function imageToThumbnail(file: File): Promise<File> {
     };
     image.src = objectUrl;
   });
+}
+
+/**
+ * Ask the server to refine filename-derived names. Returns the deterministic
+ * names unchanged if the request fails, so this can never block an upload.
+ */
+async function fetchRefinedNames(filenames: string[], fallbacks: string[]): Promise<string[]> {
+  try {
+    const res = await fetch("/api/beat-name", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ filenames }),
+    });
+    if (!res.ok) return fallbacks;
+    const data = await res.json();
+    const names = data?.names;
+    if (!Array.isArray(names) || names.length !== fallbacks.length) return fallbacks;
+    return names.map((n: unknown, i: number) =>
+      typeof n === "string" && n.trim() ? n.trim() : fallbacks[i],
+    );
+  } catch {
+    return fallbacks;
+  }
 }
 
 function uploadForm(
@@ -116,6 +144,19 @@ export default function BatchUploader({
   const [stages, setStages] = useState<LocalStage[]>([]);
   const [progress, setProgress] = useState<number[]>([]);
 
+  /**
+   * Swap in AI-refined names for any entry the producer has not edited. The
+   * comparison against `derived` is what protects in-flight typing: an entry
+   * that no longer matches its deterministic guess is theirs, not ours.
+   */
+  const refineNames = useCallback((filenames: string[], derived: string[]) => {
+    void fetchRefinedNames(filenames, derived).then((refined) => {
+      setNames((current) =>
+        current.map((name, i) => (name === derived[i] ? refined[i] ?? name : name)),
+      );
+    });
+  }, []);
+
   const allowed = isAdmin || planId !== "free";
   const completePairs = audioFiles.length >= 2 && audioFiles.length === imageFiles.length;
   const pairNames = useMemo(
@@ -132,7 +173,11 @@ export default function BatchUploader({
     }
     setError("");
     setAudioFiles(selected);
-    setNames(selected.map((file) => beatNameFromFilename(file.name)));
+    const derived = selected.map((file) => beatNameFromFilename(file.name));
+    setNames(derived);
+    // Refine in the background. Only entries still exactly equal to the
+    // deterministic guess are replaced, so anything typed meanwhile survives.
+    refineNames(selected.map((file) => file.name), derived);
     setArtistOverrides(selected.map(() => ""));
     setImagePairs(pairFileNames(selected.map((file) => file.name), imageFiles.map((file) => file.name)));
     setStages(selected.map(() => "ready"));
@@ -293,7 +338,7 @@ export default function BatchUploader({
           </label>
           <label className="batch-drop-zone">
             <strong>Artwork</strong>
-            <span>JPG or PNG · automatically cropped to 1280×720</span>
+            <span>JPG or PNG · fitted to {VIDEO_WIDTH}×{VIDEO_HEIGHT}</span>
             <input type="file" accept="image/png,image/jpeg" multiple onChange={(event) => selectImages(event.target.files)} />
             <em>{imageFiles.length ? `${imageFiles.length} image${imageFiles.length === 1 ? "" : "s"} selected` : "Choose images"}</em>
           </label>

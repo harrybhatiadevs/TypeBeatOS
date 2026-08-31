@@ -1,17 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { beatNameFromFilename, normalizedFileStem, pairFileNames } from "./batch-files";
+import { pairFileNames } from "./batch-files";
 
+// Name extraction itself is covered in beat-name.test.ts.
 describe("batch file helpers", () => {
-  it("turns common export filenames into clean beat names", () => {
-    expect(beatNameFromFilename("late_night_FINAL.wav")).toBe("late night");
-    expect(beatNameFromFilename("Rainfall - mastered.mp3")).toBe("Rainfall");
-  });
-
-  it("normalizes artwork suffixes for matching", () => {
-    expect(normalizedFileStem("Late Night.wav")).toBe("latenight");
-    expect(normalizedFileStem("late-night-thumbnail.jpg")).toBe("latenight");
-  });
-
   it("pairs exact filename stems before falling back to order", () => {
     expect(
       pairFileNames(
@@ -19,5 +10,11 @@ describe("batch file helpers", () => {
         ["Gamma cover.png", "Alpha artwork.jpg", "misc.png"],
       ),
     ).toEqual([1, 2, 0]);
+  });
+
+  it("pairs a type-beat export with its plainly named artwork", () => {
+    expect(
+      pairFileNames(['[FREE] Drake Type Beat - "Midnight" 140bpm.mp3'], ["midnight cover.png"]),
+    ).toEqual([0]);
   });
 });
