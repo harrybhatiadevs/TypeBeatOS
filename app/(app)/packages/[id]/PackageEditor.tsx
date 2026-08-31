@@ -66,13 +66,23 @@ function errorMessage(err: unknown, fallback: string) {
   return err instanceof Error && err.message ? err.message : fallback;
 }
 
-function CopyButton({ value, label = "Copy" }: { value: string; label?: string }) {
+function CopyButton({
+  value,
+  label = "Copy",
+  ariaLabel,
+}: {
+  value: string;
+  label?: string;
+  ariaLabel?: string;
+}) {
   const [copied, setCopied] = useState(false);
   const [failed, setFailed] = useState(false);
   return (
     <button
       type="button"
       className="copy-btn"
+      aria-label={ariaLabel}
+      aria-live="polite"
       onClick={async () => {
         try {
           await navigator.clipboard.writeText(value);
@@ -521,10 +531,11 @@ export default function PackageEditor({
             ))}
             <div className="editor-field" style={{ marginTop: 14 }}>
               <div className="field-head">
-                <label>Final title</label>
-                <CopyButton value={selectedTitle} />
+                <label htmlFor="package-final-title">Final title</label>
+                <CopyButton value={selectedTitle} ariaLabel="Copy final title" />
               </div>
               <input
+                id="package-final-title"
                 type="text"
                 value={selectedTitle}
                 onChange={(e) => setSelectedTitle(e.target.value)}
@@ -533,12 +544,14 @@ export default function PackageEditor({
           </div>
 
           <div className="package-content-grid">
-            <div className="card">
-              <div className="field-head">
-                <h3>Description</h3>
-                <CopyButton value={description} />
+            <div className="card package-copy-field package-description-field">
+              <div className="field-head package-copy-field-head">
+                <label htmlFor="package-description">Description</label>
+                <CopyButton value={description} ariaLabel="Copy description" />
               </div>
               <textarea
+                id="package-description"
+                className="package-textarea package-textarea-description"
                 rows={14}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -546,31 +559,50 @@ export default function PackageEditor({
             </div>
 
             <div className="package-stack">
-              <div className="card package-meta-card">
-                <div className="field-head">
-                  <h3>Tags</h3>
-                  <CopyButton value={tags} />
+              <div className="card package-meta-card package-copy-field">
+                <div className="field-head package-copy-field-head">
+                  <label htmlFor="package-tags">Tags</label>
+                  <CopyButton value={tags} ariaLabel="Copy tags" />
                 </div>
-                <textarea rows={4} value={tags} onChange={(e) => setTags(e.target.value)} />
-                <p className="tb-helper" style={{ marginTop: 8, fontSize: "0.82rem" }}>
+                <textarea
+                  id="package-tags"
+                  className="package-textarea package-textarea-tags"
+                  rows={4}
+                  value={tags}
+                  spellCheck={false}
+                  onChange={(e) => setTags(e.target.value)}
+                />
+                <p
+                  className={`package-character-count${tags.length > 450 ? " is-near-limit" : ""}`}
+                  aria-live="polite"
+                >
                   {tags.length} / 500 characters
                 </p>
 
                 <div className="editor-field package-hashtags-field">
-                  <div className="field-head">
-                    <label>Hashtags</label>
-                    <CopyButton value={hashtags} />
+                  <div className="field-head package-copy-field-head">
+                    <label htmlFor="package-hashtags">Hashtags</label>
+                    <CopyButton value={hashtags} ariaLabel="Copy hashtags" />
                   </div>
-                  <textarea rows={3} value={hashtags} onChange={(e) => setHashtags(e.target.value)} />
+                  <input
+                    id="package-hashtags"
+                    className="package-hashtag-input"
+                    type="text"
+                    value={hashtags}
+                    spellCheck={false}
+                    onChange={(e) => setHashtags(e.target.value)}
+                  />
                 </div>
               </div>
 
-              <div className="card package-meta-card package-comment-card">
-                <div className="field-head">
-                  <h3>Pinned comment</h3>
-                  <CopyButton value={pinnedComment} />
+              <div className="card package-meta-card package-comment-card package-copy-field">
+                <div className="field-head package-copy-field-head">
+                  <label htmlFor="package-pinned-comment">Pinned comment</label>
+                  <CopyButton value={pinnedComment} ariaLabel="Copy pinned comment" />
                 </div>
                 <textarea
+                  id="package-pinned-comment"
+                  className="package-textarea package-textarea-comment"
                   rows={4}
                   value={pinnedComment}
                   onChange={(e) => setPinnedComment(e.target.value)}

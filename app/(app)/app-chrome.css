@@ -978,8 +978,82 @@
 .app-page .package-content-grid .package-stack {
   gap: 1rem;
 }
-.app-page .package-meta-card textarea {
-  flex: none;
+.app-page .package-copy-field {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.018), transparent 42%),
+    var(--surface);
+}
+.app-page .package-description-field {
+  display: flex;
+  flex-direction: column;
+}
+.app-page .package-copy-field-head {
+  margin-bottom: 0.75rem;
+}
+.app-page .package-copy-field-head label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.app-page .package-textarea,
+.app-page .package-hashtag-input {
+  border-color: rgba(255, 255, 255, 0.11);
+  border-radius: 0.95rem;
+  background: #0c0c0c;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.025),
+    0 1px 0 rgba(0, 0, 0, 0.2);
+  color: #f3f3f3;
+  font-size: 0.93rem;
+  line-height: 1.62;
+  padding: 0.95rem 1rem;
+  caret-color: var(--accent);
+  scrollbar-color: rgba(255, 255, 255, 0.24) transparent;
+  scrollbar-width: thin;
+}
+.app-page .package-textarea:hover,
+.app-page .package-hashtag-input:hover {
+  border-color: rgba(255, 255, 255, 0.19);
+  background: #0e0e0e;
+}
+.app-page .package-textarea:focus,
+.app-page .package-hashtag-input:focus {
+  border-color: rgba(255, 29, 63, 0.58);
+  background: #101010;
+  box-shadow:
+    0 0 0 3px rgba(255, 29, 63, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+.app-page .package-textarea::selection,
+.app-page .package-hashtag-input::selection {
+  background: rgba(255, 29, 63, 0.32);
+}
+.app-page .package-textarea::-webkit-scrollbar { width: 0.55rem; }
+.app-page .package-textarea::-webkit-scrollbar-track { background: transparent; }
+.app-page .package-textarea::-webkit-scrollbar-thumb {
+  border: 0.16rem solid transparent;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.24);
+  background-clip: padding-box;
+}
+.app-page .package-textarea-description {
+  min-height: 22rem;
+}
+.app-page .package-textarea-tags {
+  min-height: 8rem;
+  max-height: 15rem;
+}
+.app-page .package-character-count {
+  margin-top: 0.55rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.3;
+  text-align: right;
+}
+.app-page .package-character-count.is-near-limit {
+  color: var(--warn-ink);
 }
 .app-page .package-hashtags-field {
   margin-top: 1rem;
@@ -987,11 +1061,11 @@
   padding-top: 1rem;
   border-top: 1px solid var(--border);
 }
-.app-page .package-hashtags-field textarea {
-  min-height: 5rem;
+.app-page .package-hashtag-input {
+  min-height: 3.25rem;
 }
-.app-page .package-comment-card textarea {
-  min-height: 10.5rem;
+.app-page .package-textarea-comment {
+  min-height: 9rem;
 }
 @keyframes packagePanelIn {
   from { opacity: 0; transform: translateY(6px); }
@@ -1365,6 +1439,16 @@
   .app-page .form-actions a {
     width: 100%;
   }
+  .app-page .package-copy-field-head {
+    align-items: center;
+    flex-direction: row;
+  }
+  .app-page .package-copy-field-head .copy-btn {
+    width: auto;
+  }
+  .app-page .package-textarea-description { min-height: 18rem; }
+  .app-page .package-textarea-tags { min-height: 7.5rem; }
+  .app-page .package-textarea-comment { min-height: 8rem; }
   .app-page .cal-item {
     align-items: flex-start;
     flex-direction: column;
