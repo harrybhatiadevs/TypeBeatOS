@@ -68,6 +68,17 @@
   display: none;
 }
 
+/* Keep the landing canvas attached to the viewport as well as the document.
+   This covers the root canvas during external-display resize/scaling races. */
+.lp::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: #050505;
+  pointer-events: none;
+}
+
 .lp > *:not(.lp-glow):not(.public-nav) { position: relative; z-index: 1; }
 
 .lp-wrap { max-width: 1140px; margin: 0 auto; padding-inline: 1.5rem; }
@@ -168,7 +179,7 @@
 .lp-hero {
   min-height: var(--lp-viewport-height);
   padding-top: 5.5rem;
-  padding-bottom: clamp(1rem, 2vh, 1.5rem);
+  padding-bottom: clamp(5rem, 12vh, 8rem);
   display: grid;
   /* The main composition owns the flexible space and the proof row owns the
      bottom edge. Centering both rows as one block left a monitor-dependent

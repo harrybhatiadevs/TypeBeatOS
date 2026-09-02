@@ -49,6 +49,7 @@
   --accent-tint: rgba(255, 29, 63, 0.16);
   position: relative;
   min-height: 100vh;
+  min-height: 100dvh;
   background: var(--bg);
   color: var(--ink);
   font-family: Inter, system-ui, sans-serif;
@@ -56,10 +57,20 @@
   overflow-x: hidden;
 }
 
-/* The signed-in workspace uses the same uninterrupted black canvas as
-   the landing page. Keep these pseudo-elements disabled so brand red is
-   reserved for controls and status accents, never ambient page light. */
-.app-page::before,
+/* Keep the workspace canvas attached to the viewport as well as the document.
+   This prevents the root canvas from flashing through when a window moves to a
+   taller/scaled display and the page box is briefly measured at the old size. */
+.app-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  background: #050505;
+  pointer-events: none;
+}
+
+/* Brand red is reserved for controls and status accents, never ambient light. */
 .app-page::after {
   display: none;
 }
