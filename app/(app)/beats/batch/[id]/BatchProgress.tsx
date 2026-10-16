@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import RetryBatchItem from "./RetryBatchItem";
 
 type ItemStatus = "pending" | "preparing" | "rendering" | "uploading_youtube" | "completed" | "ready" | "failed";
 type BatchData = {
   id: string;
   status: string;
   autoUpload: boolean;
+  retryDefaults: Record<string, string>;
   items: Array<{
     id: string;
     name: string;
@@ -44,6 +46,7 @@ const PROGRESS: Record<ItemStatus, number> = {
 export default function BatchProgress({ batchId }: { batchId: string }) {
   const [batch, setBatch] = useState<BatchData | null>(null);
   const [error, setError] = useState("");
+  const [reload, setReload] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -70,7 +73,7 @@ export default function BatchProgress({ batchId }: { batchId: string }) {
       cancelled = true;
       if (timer) clearTimeout(timer);
     };
-  }, [batchId]);
+  }, [batchId, reload]);
 
   const summary = useMemo(() => {
     const items = batch?.items || [];
@@ -106,6 +109,7 @@ export default function BatchProgress({ batchId }: { batchId: string }) {
                     {item.packageId && <Link href={`/packages/${item.packageId}`} className="copy-btn">Open package</Link>}
                     {item.youtubeVideoId && <a href={`https://studio.youtube.com/video/${item.youtubeVideoId}/edit`} target="_blank" rel="noreferrer" className="copy-btn">Open in YouTube Studio ↗</a>}
                   </div>
+                  {item.status === "failed" && !item.packageId && <RetryBatchItem batchId={batchId} item={item} defaults={batch.retryDefaults} onQueued={() => setReload((value) => value + 1)} />}
                 </div>
               </article>
             ))}

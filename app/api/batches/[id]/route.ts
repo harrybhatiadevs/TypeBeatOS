@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { reconcileBatch } from "@/lib/batch-pipeline";
+import { beatNameFromFilename } from "@/lib/beat-name";
 
 export async function GET(
   _request: Request,
@@ -27,7 +28,7 @@ export async function GET(
               videoStatus: true,
               uploadStatus: true,
               youtubeVideoId: true,
-              beat: { select: { name: true } },
+              beat: { select: { name: true, targetArtist: true, secondaryArtist: true, genre: true, mood: true, storeLink: true, licensePrice: true, exclusivePrice: true } },
             },
           },
         },
@@ -35,16 +36,26 @@ export async function GET(
     },
   });
   if (!batch) return NextResponse.json({ error: "Batch not found." }, { status: 404 });
+  const example = batch.items.find((item) => item.package)?.package?.beat;
 
   return NextResponse.json({
     id: batch.id,
     status: batch.status,
     autoUpload: batch.autoUpload,
     createdAt: batch.createdAt,
+    retryDefaults: {
+      targetArtist: example?.targetArtist || "",
+      secondaryArtist: example?.secondaryArtist || "",
+      genre: example?.genre || "",
+      mood: example?.mood || "",
+      storeLink: example?.storeLink || user.profile?.storeUrl || "",
+      licensePrice: example?.licensePrice || "",
+      exclusivePrice: example?.exclusivePrice || "",
+    },
     items: batch.items.map((item) => ({
       id: item.id,
       position: item.position,
-      name: item.package?.beat.name || item.audioName.replace(/\.[^.]+$/, ""),
+      name: item.package?.beat.name || beatNameFromFilename(item.audioName),
       audioName: item.audioName,
       imageName: item.imageName,
       status: item.status,

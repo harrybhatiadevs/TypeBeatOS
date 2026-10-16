@@ -80,8 +80,8 @@ export function middleware(req: NextRequest) {
 export const config = {
   // Skip Next internals + static assets. Apply to everything else, incl. API routes.
   //
-  // Also skip the routes that receive multipart audio uploads via Server Actions
-  // (beat create + edit). When middleware runs on a route, Next clones the request
+  // Also skip single-beat and batch API routes that receive multipart audio.
+  // When middleware runs on a route, Next clones the request
   // body through PassThrough streams to hand it to the middleware; behind the
   // Cloudflare→Azure (HTTP/2) proxy that clone ends multi-MB multipart bodies
   // early, so React Flight reading the uploaded File throws "Connection closed"
@@ -89,6 +89,6 @@ export const config = {
   // to the handler. (Small/urlencoded actions survive the clone, which is why a
   // no-audio submit worked.)
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|beats/new|beats/[^/]+/edit|api/beats|api/stripe).*)",
+    "/((?!_next/static|_next/image|favicon.ico|beats/new|beats/[^/]+/edit|api/beats|api/batches/[^/]+/items/[^/]+(?:/|$)|api/stripe).*)",
   ],
 };

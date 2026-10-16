@@ -48,6 +48,9 @@ function runFfmpeg(args: string[]): Promise<void> {
 function buildArgs(imagePath: string, audioPath: string, outPath: string) {
   return [
     "-y",
+    // Leave CPU available for uploads and the HTTP server on the single replica.
+    "-threads", "1",
+    "-filter_threads", "1",
     "-loop", "1",
     "-framerate", "2",
     "-i", imagePath,
@@ -57,6 +60,7 @@ function buildArgs(imagePath: string, audioPath: string, outPath: string) {
     // frame size moved to 1080p rather than fail the encode on odd dimensions.
     "-vf", `scale=${VIDEO_WIDTH}:${VIDEO_HEIGHT}:force_original_aspect_ratio=increase,crop=${VIDEO_WIDTH}:${VIDEO_HEIGHT},setsar=1,format=yuv420p`,
     "-c:v", "libx264",
+    "-threads", "1",
     "-preset", "veryfast",
     "-tune", "stillimage",
     "-crf", "23",

@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { AUDIO_ACCEPT, audioUploadError } from "@/lib/audio-upload";
 import { beatNameFromFilename, pairFileNames } from "@/lib/batch-files";
 import { VIDEO_HEIGHT, VIDEO_WIDTH } from "@/lib/video-format";
+import { imageToThumbnail, uploadForm, runTwoAtATime } from "@/lib/batch-upload-client";
 import { MAX_BATCH_ITEMS, type BatchPrivacyStatus } from "@/lib/batch-types";
 
 type LocalStage = "ready" | "preparing" | "uploading" | "queued" | "failed";
+type CreatedBatch = { batchId: string; items: Array<{ id: string; position: number }> };
 
 type BatchUploaderProps = {
   planId: string;
@@ -17,44 +19,6 @@ type BatchUploaderProps = {
   connectedChannel: string;
   profileDefaults: { storeLink: string; scheduleTime: string };
 };
-
-function imageToThumbnail(file: File): Promise<File> {
-  return new Promise((resolve, reject) => {
-    const image = new Image();
-    const objectUrl = URL.createObjectURL(file);
-    image.onload = () => {
-      URL.revokeObjectURL(objectUrl);
-      const canvas = document.createElement("canvas");
-      canvas.width = VIDEO_WIDTH;
-      canvas.height = VIDEO_HEIGHT;
-      const context = canvas.getContext("2d");
-      if (!context) return reject(new Error("Could not prepare this image."));
-
-      // Contain, not cover — ThumbnailBuilder (the single-beat path) uses
-      // Math.min, so it letterboxes the whole artwork onto black. Cropping here
-      // instead made batch videos frame the art differently from every video
-      // rendered through the normal flow.
-      const scale = Math.min(canvas.width / image.width, canvas.height / image.height);
-      const width = image.width * scale;
-      const height = image.height * scale;
-      context.fillStyle = "#000";
-      context.fillRect(0, 0, canvas.width, canvas.height);
-      context.drawImage(image, (canvas.width - width) / 2, (canvas.height - height) / 2, width, height);
-      canvas.toBlob(
-        (blob) => blob
-          ? resolve(new File([blob], "thumbnail.png", { type: "image/png" }))
-          : reject(new Error("Could not prepare this image.")),
-        "image/png",
-        0.92,
-      );
-    };
-    image.onerror = () => {
-      URL.revokeObjectURL(objectUrl);
-      reject(new Error(`Could not read ${file.name}.`));
-    };
-    image.src = objectUrl;
-  });
-}
 
 /**
  * Ask the server to refine filename-derived names. Returns the deterministic
@@ -77,42 +41,6 @@ async function fetchRefinedNames(filenames: string[], fallbacks: string[]): Prom
   } catch {
     return fallbacks;
   }
-}
-
-function uploadForm(
-  url: string,
-  formData: FormData,
-  onProgress: (percent: number) => void,
-): Promise<{ packageId: string }> {
-  return new Promise((resolve, reject) => {
-    const request = new XMLHttpRequest();
-    request.open("POST", url);
-    request.responseType = "json";
-    request.upload.onprogress = (event) => {
-      if (event.lengthComputable) onProgress(Math.round((event.loaded / event.total) * 100));
-    };
-    request.onload = () => {
-      const response = request.response as { packageId?: string; error?: string } | null;
-      if (request.status >= 200 && request.status < 300 && response?.packageId) {
-        resolve({ packageId: response.packageId });
-      } else {
-        reject(new Error(response?.error || "Upload failed."));
-      }
-    };
-    request.onerror = () => reject(new Error("Network error while uploading this beat."));
-    request.send(formData);
-  });
-}
-
-async function runTwoAtATime(tasks: Array<() => Promise<void>>) {
-  let next = 0;
-  const worker = async () => {
-    while (next < tasks.length) {
-      const task = tasks[next++];
-      await task();
-    }
-  };
-  await Promise.all([worker(), worker()]);
 }
 
 export default function BatchUploader({
@@ -143,6 +71,9 @@ export default function BatchUploader({
   const [error, setError] = useState("");
   const [stages, setStages] = useState<LocalStage[]>([]);
   const [progress, setProgress] = useState<number[]>([]);
+  const [itemErrors, setItemErrors] = useState<string[]>([]);
+  const [createdBatch, setCreatedBatch] = useState<CreatedBatch | null>(null);
+  const submitLock = useRef(false);
 
   /**
    * Swap in AI-refined names for any entry the producer has not edited. The
@@ -201,6 +132,7 @@ export default function BatchUploader({
   };
 
   const submit = async () => {
+    if (submitLock.current) return;
     if (!allowed) return setError("Upgrade to Pro to use the batch upload queue.");
     if (!completePairs) return setError(`Choose the same number of audio files and images (2–${MAX_BATCH_ITEMS}).`);
     if (audioFiles.length > remaining && !isAdmin) {
@@ -216,34 +148,58 @@ export default function BatchUploader({
       return setError("Connect a YouTube channel or turn off automatic upload.");
     }
 
+    submitLock.current = true;
     setSubmitting(true);
     setError("");
     try {
-      const create = await fetch("/api/batches", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          items: audioFiles.map((audio, index) => ({
-            audioName: audio.name,
-            imageName: imageFiles[imagePairs[index]].name,
-          })),
-          autoUpload,
-          autoSchedule,
-          privacyStatus,
-          madeForKids,
-        }),
-      });
-      const created = (await create.json()) as {
-        batchId?: string;
-        items?: Array<{ id: string; position: number }>;
-        error?: string;
-      };
-      if (!create.ok || !created.batchId || !created.items) {
-        throw new Error(created.error || "Could not create this batch.");
+      // Paint the busy state before preparing artwork or dispatching requests.
+      await new Promise<void>((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)));
+      let created = createdBatch;
+      if (!created) {
+        const create = await fetch("/api/batches", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            items: audioFiles.map((audio, index) => ({
+              audioName: audio.name,
+              imageName: imageFiles[imagePairs[index]].name,
+            })),
+            autoUpload,
+            autoSchedule,
+            privacyStatus,
+            madeForKids,
+          }),
+        });
+        const result = (await create.json()) as {
+          batchId?: string;
+          items?: Array<{ id: string; position: number }>;
+          error?: string;
+        };
+        if (!create.ok || !result.batchId || !result.items) {
+          throw new Error(result.error || "Could not create this batch.");
+        }
+        created = { batchId: result.batchId, items: result.items };
+        setCreatedBatch(created);
       }
+      const batch = created;
+      // A lost HTTP response can still have created the package. Reconcile
+      // before retrying so those successful items are never uploaded twice.
+      let current: { items: Array<{ id: string; packageId: string | null; status: string }> } = { items: [] };
+      if (createdBatch) {
+        const snapshot = await fetch(`/api/batches/${batch.batchId}`, { cache: "no-store" });
+        if (!snapshot.ok) throw new Error("Could not check the queue. Keep this page open and try again.");
+        current = await snapshot.json();
+      }
+      const failures: number[] = [];
 
-      const tasks = created.items.map((batchItem, index) => async () => {
+      const tasks = batch.items.map((batchItem, index) => async () => {
+        const persisted = current.items.find((item) => item.id === batchItem.id);
+        if (persisted?.packageId) {
+          setStage(index, "queued");
+          return;
+        }
         try {
+          setItemErrors((errors) => errors.map((message, i) => i === index ? "" : message));
           setStage(index, "preparing");
           const thumbnail = await imageToThumbnail(imageFiles[imagePairs[index]]);
           const formData = new FormData();
@@ -259,14 +215,16 @@ export default function BatchUploader({
           formData.set("exclusivePrice", exclusivePrice.trim());
           setStage(index, "uploading");
           await uploadForm(
-            `/api/batches/${created.batchId}/items/${batchItem.id}`,
+            `/api/batches/${batch.batchId}/items/${batchItem.id}`,
             formData,
             (percent) => setItemProgress(index, percent),
           );
           setStage(index, "queued");
         } catch (err) {
           const message = err instanceof Error ? err.message : "One beat failed to upload.";
-          await fetch(`/api/batches/${created.batchId}/items/${batchItem.id}`, {
+          failures.push(index);
+          setItemErrors((errors) => Array.from({ length: audioFiles.length }, (_, i) => i === index ? message : errors[i] || ""));
+          await fetch(`/api/batches/${batch.batchId}/items/${batchItem.id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ error: message }),
@@ -277,10 +235,17 @@ export default function BatchUploader({
       });
 
       await runTwoAtATime(tasks);
-      router.push(`/beats/batch/${created.batchId}`);
+      if (failures.length) {
+        setError(`${failures.length} file${failures.length === 1 ? "" : "s"} could not upload. Your successful beats are queued. Retry the remaining files below.`);
+        setSubmitting(false);
+      } else {
+        router.push(`/beats/batch/${batch.batchId}`);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not start this batch.");
       setSubmitting(false);
+    } finally {
+      submitLock.current = false;
     }
   };
 
@@ -325,6 +290,7 @@ export default function BatchUploader({
 
   return (
     <div className="batch-builder">
+      <fieldset disabled={submitting} style={{ display: "contents" }}>
       {error && <div className="form-error" role="alert">{error}</div>}
 
       <section className="card batch-step-card">
@@ -333,13 +299,13 @@ export default function BatchUploader({
           <label className="batch-drop-zone">
             <strong>Beat audio</strong>
             <span>MP3, WAV, M4A, OGG, FLAC or AIFF · 50 MB each</span>
-            <input type="file" accept={AUDIO_ACCEPT} multiple onChange={(event) => selectAudio(event.target.files)} />
+            <input type="file" accept={AUDIO_ACCEPT} multiple disabled={submitting || !!createdBatch} onChange={(event) => selectAudio(event.target.files)} />
             <em>{audioFiles.length ? `${audioFiles.length} beat${audioFiles.length === 1 ? "" : "s"} selected` : "Choose audio files"}</em>
           </label>
           <label className="batch-drop-zone">
             <strong>Artwork</strong>
             <span>JPG or PNG · fitted to {VIDEO_WIDTH}×{VIDEO_HEIGHT}</span>
-            <input type="file" accept="image/png,image/jpeg" multiple onChange={(event) => selectImages(event.target.files)} />
+            <input type="file" accept="image/png,image/jpeg" multiple disabled={submitting || !!createdBatch} onChange={(event) => selectImages(event.target.files)} />
             <em>{imageFiles.length ? `${imageFiles.length} image${imageFiles.length === 1 ? "" : "s"} selected` : "Choose images"}</em>
           </label>
         </div>
@@ -361,11 +327,12 @@ export default function BatchUploader({
                     </td>
                     <td><input aria-label={`Artist override for beat ${index + 1}`} placeholder="Use shared artist" value={artistOverrides[index] || ""} onChange={(event) => setArtistOverrides((current) => current.map((artist, i) => i === index ? event.target.value : artist))} /></td>
                     <td>
-                      {submitting ? (
+                      {submitting || createdBatch ? (
                         <span className={`badge batch-local-${stages[index] || "ready"}`}>
-                          {stages[index] === "uploading" ? `${progress[index] || 0}%` : stages[index] || "ready"}
+                          {stages[index] === "uploading" ? progress[index] === 100 ? "Preparing package…" : `${progress[index] || 0}%` : stages[index] || "ready"}
                         </span>
                       ) : <span className="tb-muted">{pairNames[index] === "No image" ? "Needs image" : "Paired"}</span>}
+                      {itemErrors[index] && <p className="form-error">{itemErrors[index]}</p>}
                     </td>
                   </tr>
                 ))}
@@ -402,9 +369,11 @@ export default function BatchUploader({
       <div className="batch-submit-bar">
         <div><strong>{audioFiles.length || 0} beats</strong><span>{isAdmin ? "Unlimited packs available" : `${remaining} upload packs remaining`}</span></div>
         <button className="btn btn-primary" type="button" onClick={submit} disabled={submitting || !completePairs} aria-busy={submitting}>
-          {submitting ? "Uploading batch…" : `Build and queue ${audioFiles.length || 0} beats →`}
+          {submitting ? `Uploading batch · ${stages.filter((stage) => stage === "queued").length}/${audioFiles.length} queued…` : createdBatch ? "Retry remaining files →" : `Build and queue ${audioFiles.length || 0} beats →`}
         </button>
+        {createdBatch && !submitting && <Link className="btn btn-ghost" href={`/beats/batch/${createdBatch.batchId}`}>View batch progress</Link>}
       </div>
+      </fieldset>
     </div>
   );
 }

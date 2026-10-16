@@ -1,7 +1,7 @@
 import { spawn } from "child_process";
 import ffmpegPath from "ffmpeg-static";
-import MusicTempo from "music-tempo";
-import FFT from "fft.js";
+import { Worker } from "node:worker_threads";
+import path from "node:path";
 
 const SAMPLE_RATE = 44100;
 const ANALYZE_SECONDS = 75;
@@ -16,6 +16,7 @@ function decodePcm(filePath: string): Promise<Float32Array> {
       ffmpegPath as unknown as string,
       [
         "-nostdin",
+        "-threads", "1",
         "-i", filePath,
         "-t", String(ANALYZE_SECONDS),
         "-ac", "1",
@@ -45,106 +46,47 @@ function decodePcm(filePath: string): Promise<Float32Array> {
   });
 }
 
-/** Fold detected tempo into the range type beats actually live in. */
-function foldTempo(bpm: number) {
-  let t = bpm;
-  while (t < 70) t *= 2;
-  while (t > 190) t /= 2;
-  return Math.round(t);
-}
-
-function detectBpm(samples: Float32Array): number | null {
-  try {
-    const mt = new MusicTempo(samples);
-    const tempo = Number(mt.tempo);
-    if (!tempo || isNaN(tempo)) return null;
-    return foldTempo(tempo);
-  } catch {
-    return null;
-  }
-}
-
-const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-// Krumhansl-Schmuckler key profiles
-const MAJOR_PROFILE = [6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88];
-const MINOR_PROFILE = [6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17];
-
-function correlation(a: number[], b: number[]) {
-  const n = a.length;
-  const meanA = a.reduce((s, v) => s + v, 0) / n;
-  const meanB = b.reduce((s, v) => s + v, 0) / n;
-  let num = 0;
-  let denA = 0;
-  let denB = 0;
-  for (let i = 0; i < n; i++) {
-    const da = a[i] - meanA;
-    const db = b[i] - meanB;
-    num += da * db;
-    denA += da * da;
-    denB += db * db;
-  }
-  const den = Math.sqrt(denA * denB);
-  return den === 0 ? 0 : num / den;
-}
-
-function detectKey(samples: Float32Array): string | null {
-  try {
-    const size = 8192;
-    const hop = 4096;
-    const fft = new FFT(size);
-    const out = fft.createComplexArray();
-    const frame = new Float32Array(size);
-    const chroma = new Array(12).fill(0);
-
-    const frames = Math.floor((samples.length - size) / hop);
-    if (frames < 4) return null;
-
-    for (let f = 0; f < frames; f++) {
-      const offset = f * hop;
-      for (let i = 0; i < size; i++) {
-        // Hann window
-        frame[i] = samples[offset + i] * (0.5 - 0.5 * Math.cos((2 * Math.PI * i) / (size - 1)));
-      }
-      fft.realTransform(out, frame);
-      const minBin = Math.ceil((55 * size) / SAMPLE_RATE);
-      const maxBin = Math.floor((4000 * size) / SAMPLE_RATE);
-      for (let bin = minBin; bin <= maxBin; bin++) {
-        const re = out[2 * bin];
-        const im = out[2 * bin + 1];
-        const mag = Math.sqrt(re * re + im * im);
-        if (mag < 1e-6) continue;
-        const freq = (bin * SAMPLE_RATE) / size;
-        const midi = 69 + 12 * Math.log2(freq / 440);
-        const pc = ((Math.round(midi) % 12) + 12) % 12;
-        chroma[pc] += mag;
-      }
-    }
-
-    if (chroma.every((v) => v === 0)) return null;
-
-    let best = { score: -Infinity, note: 0, mode: "major" };
-    for (let root = 0; root < 12; root++) {
-      const rotated = [...chroma.slice(root), ...chroma.slice(0, root)];
-      const maj = correlation(rotated, MAJOR_PROFILE);
-      const min = correlation(rotated, MINOR_PROFILE);
-      if (maj > best.score) best = { score: maj, note: root, mode: "major" };
-      if (min > best.score) best = { score: min, note: root, mode: "minor" };
-    }
-    return `${NOTE_NAMES[best.note]} ${best.mode}`;
-  } catch {
-    return null;
-  }
-}
-
 export type AudioAnalysis = { bpm: number | null; key: string | null };
 
-/** Detect BPM and musical key from an audio file. Returns nulls on failure — never throws. */
-export async function analyzeAudio(filePath: string): Promise<AudioAnalysis> {
-  try {
-    const samples = await decodePcm(filePath);
-    if (samples.length < SAMPLE_RATE * 4) return { bpm: null, key: null };
-    return { bpm: detectBpm(samples), key: detectKey(samples) };
-  } catch {
-    return { bpm: null, key: null };
-  }
+const EMPTY: AudioAnalysis = { bpm: null, key: null };
+const analysisState = globalThis as unknown as { audioAnalysisQueue?: Promise<unknown> };
+analysisState.audioAnalysisQueue ??= Promise.resolve();
+
+function analyzeInWorker(samples: Float32Array): Promise<AudioAnalysis> {
+  return new Promise((resolve) => {
+    // Own the buffer so transferring it cannot detach a pooled Node Buffer.
+    const owned = new Float32Array(samples);
+    const worker = new Worker(path.join(process.cwd(), "lib/audio-analysis-worker.cjs"), {
+      workerData: owned,
+      transferList: [owned.buffer],
+      resourceLimits: { maxOldGenerationSizeMb: 256 },
+    });
+    let settled = false;
+    const finish = (result: AudioAnalysis) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      void worker.terminate();
+      resolve(result);
+    };
+    const timer = setTimeout(() => finish(EMPTY), 30000);
+    worker.once("message", (result: AudioAnalysis) => finish(result));
+    worker.once("error", () => finish(EMPTY));
+    worker.once("exit", () => finish(EMPTY));
+  });
+}
+
+/** Decode and analyze one file at a time without blocking uploads or page requests. */
+export function analyzeAudio(filePath: string): Promise<AudioAnalysis> {
+  const job = analysisState.audioAnalysisQueue!.then(async () => {
+    try {
+      const samples = await decodePcm(filePath);
+      if (samples.length < SAMPLE_RATE * 4) return EMPTY;
+      return await analyzeInWorker(samples);
+    } catch {
+      return EMPTY;
+    }
+  });
+  analysisState.audioAnalysisQueue = job.catch(() => undefined);
+  return job;
 }

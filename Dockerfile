@@ -67,6 +67,9 @@ COPY --from=builder --chown=nextjs:nextjs /app/public ./public
 COPY --from=builder --chown=nextjs:nextjs /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder --chown=nextjs:nextjs /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder --chown=nextjs:nextjs /app/node_modules/ffmpeg-static ./node_modules/ffmpeg-static
+COPY --from=builder --chown=nextjs:nextjs /app/lib/audio-analysis-worker.cjs ./lib/audio-analysis-worker.cjs
+COPY --from=builder --chown=nextjs:nextjs /app/node_modules/music-tempo ./node_modules/music-tempo
+COPY --from=builder --chown=nextjs:nextjs /app/node_modules/fft.js ./node_modules/fft.js
 
 # Writable surface for renders + uploads. On Fly this gets mounted as a
 # volume (see fly.toml [mounts]) so files survive machine restarts.
