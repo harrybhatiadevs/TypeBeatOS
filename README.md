@@ -13,7 +13,7 @@ files to a queued release.
 
 The latest release adds:
 
-- a Pro/Serious-only batch queue for **2–5 beats plus 2–5 artworks**;
+- a Pro/Serious-only batch queue for **2–30 beats plus 2–30 artworks**;
 - two concurrent browser uploads, automatic artwork pairing/cropping, shared
   metadata, automatic scheduling, static-artwork video rendering, optional
   YouTube upload, and a persisted progress screen;
@@ -36,7 +36,7 @@ refreshes. See [the current workflow roadmap](docs/core-workflow-roadmap.md).
 | Accounts | Better Auth email/password, verification, reset flow, seven-day renewable inactivity window |
 | Plans | Stripe-backed Free, Pro, and Serious tiers with monthly package limits and feature gates |
 | Single upload | Audio/details form, BPM/key analysis, metadata package, thumbnail, static video, schedule, YouTube upload |
-| Batch upload | Pro/Serious users pair 2–5 audio files and images, apply shared settings, then queue the run |
+| Batch upload | Pro/Serious users pair 2–30 audio files and images, apply shared settings, then queue the run |
 | Metadata | Offline templates plus optional Gemini or Claude title/template enhancement |
 | Thumbnails | Canvas editor with persisted editor state and source artwork |
 | Video | 1280×720 H.264/AAC MP4 using static artwork; in-process render queue |

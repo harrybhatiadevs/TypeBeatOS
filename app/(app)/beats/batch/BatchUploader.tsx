@@ -202,7 +202,7 @@ export default function BatchUploader({
 
   const submit = async () => {
     if (!allowed) return setError("Upgrade to Pro to use the batch upload queue.");
-    if (!completePairs) return setError("Choose the same number of audio files and images (2–5).");
+    if (!completePairs) return setError(`Choose the same number of audio files and images (2–${MAX_BATCH_ITEMS}).`);
     if (audioFiles.length > remaining && !isAdmin) {
       return setError(`This batch needs ${audioFiles.length} upload packs, but only ${remaining} remain.`);
     }
@@ -289,12 +289,12 @@ export default function BatchUploader({
       <div className="card batch-upgrade-card">
         <div className="batch-upgrade-copy">
           <span className="badge badge-scheduled">Pro workflow</span>
-          <h2>Turn five uploads into one workflow.</h2>
+          <h2>Turn up to {MAX_BATCH_ITEMS} uploads into one workflow.</h2>
           <p className="tb-helper">
             Add your beats and artwork once. TypeBeatOS pairs the files, applies your shared details, renders every video, and lines up the release run.
           </p>
           <ul className="batch-upgrade-benefits">
-            <li><span>01</span><strong>Pair 2–5 beats with artwork automatically</strong></li>
+            <li><span>01</span><strong>Pair 2–{MAX_BATCH_ITEMS} beats with artwork automatically</strong></li>
             <li><span>02</span><strong>Set artist, pricing, and visibility once</strong></li>
             <li><span>03</span><strong>Render, schedule, and upload as one queue</strong></li>
           </ul>
@@ -328,7 +328,7 @@ export default function BatchUploader({
       {error && <div className="form-error" role="alert">{error}</div>}
 
       <section className="card batch-step-card">
-        <div className="batch-step-head"><span>1</span><div><h2>Add files</h2><p>Choose 2–5 audio files and the same number of images.</p></div></div>
+        <div className="batch-step-head"><span>1</span><div><h2>Add files</h2><p>Choose 2–{MAX_BATCH_ITEMS} audio files and the same number of images.</p></div></div>
         <div className="batch-drop-grid">
           <label className="batch-drop-zone">
             <strong>Beat audio</strong>

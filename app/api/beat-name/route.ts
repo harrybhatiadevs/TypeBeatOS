@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
 import { getUser } from "@/lib/auth";
 import { beatNameFromFilename } from "@/lib/beat-name";
+import { MAX_BATCH_ITEMS } from "@/lib/batch-types";
 import { refineBeatNames } from "@/lib/generate";
 
-/** Filenames per request — the batch uploader caps a batch well below this. */
-const MAX_FILENAMES = 25;
 const MAX_FILENAME_LENGTH = 300;
 
 /**
@@ -33,7 +32,7 @@ export async function POST(request: Request) {
 
   const filenames = raw
     .filter((f): f is string => typeof f === "string")
-    .slice(0, MAX_FILENAMES)
+    .slice(0, MAX_BATCH_ITEMS)
     .map((f) => f.slice(0, MAX_FILENAME_LENGTH));
 
   const items = filenames.map((filename) => ({

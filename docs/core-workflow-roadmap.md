@@ -8,7 +8,7 @@ Roadmap stages 2–5 are implemented and in production. TypeBeatOS is now in
 **post-MVP production hardening and publishing-speed optimisation**.
 
 The newest feature is the paid batch workflow: Pro and Serious producers can
-pair 2–5 audio files with 2–5 artworks, apply shared beat/publishing defaults,
+pair 2–30 audio files with 2–30 artworks, apply shared beat/publishing defaults,
 upload two files at a time, reserve plan quota, schedule the next open slots,
 render static-artwork videos, and optionally queue YouTube uploads. Progress is
 persisted so the batch screen can reconcile after a process restart.
@@ -25,7 +25,7 @@ entry point and the API enforce the paid plan gate.
 | Billing and quotas | Complete | Stripe Checkout/Portal/webhooks; Free 3, Pro 60, Serious 150 packs/month |
 | Producer settings/templates | Complete | Profile folded into Settings; timezone, schedule, store links, template limits |
 | Single beat intake | Complete | Audio upload, metadata fields, optional BPM/key detection |
-| Batch beat intake | Complete | Paid 2–5 item pairing, shared settings, concurrent upload, quota reservation |
+| Batch beat intake | Complete | Paid 2–30 item pairing, shared settings, concurrent upload, quota reservation |
 | Package generation | Complete | Offline metadata plus optional Gemini/Claude enhancements |
 | Thumbnail editor | Complete | Saved composite and persisted editor/source-image configuration |
 | Video rendering | Complete | 1280×720 H.264/AAC static artwork, in-process serial queue |

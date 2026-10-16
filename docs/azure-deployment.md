@@ -9,7 +9,7 @@
 > blindly reuse the examples below.
 
 **Current application stage:** roadmap stages 2–5 are live. The active release
-adds paid 2–5 beat batch upload, static-only videos, seven-day renewable
+adds paid 2–30 beat batch upload, static-only videos, seven-day renewable
 inactivity sessions, stable Beats table columns, corrected landing viewport
 coverage, mobile-nav cleanup, and pricing/paywall polish.
 
@@ -370,7 +370,7 @@ Against `https://$FQDN`:
 - [ ] **Video format** → only static artwork is offered; no waveform option or
       waveform filter path remains.
 - [ ] **Batch plan gate** → Free sees the upgrade path; Pro/Serious can open
-      `Batch upload` and queue 2–5 pairs.
+      `Batch upload` and queue 2–30 pairs.
 - [ ] **Session policy** → active use can renew the session; seven days without
       renewal requires a new login.
 - [ ] **Persistence test:** `az containerapp revision restart` (or deploy a new

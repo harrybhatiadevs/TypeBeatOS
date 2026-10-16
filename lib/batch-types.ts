@@ -1,4 +1,4 @@
-export const MAX_BATCH_ITEMS = 5;
+export const MAX_BATCH_ITEMS = 30;
 
 export type BatchPrivacyStatus = "private" | "unlisted" | "public";
 

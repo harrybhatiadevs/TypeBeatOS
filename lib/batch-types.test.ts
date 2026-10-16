@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { validateCreateBatchInput } from "./batch-types";
+import { MAX_BATCH_ITEMS, validateCreateBatchInput } from "./batch-types";
 
 const valid = {
   items: [
@@ -20,7 +20,28 @@ describe("validateCreateBatchInput", () => {
   it("rejects a one-item batch", () => {
     expect(validateCreateBatchInput({ ...valid, items: valid.items.slice(0, 1) })).toEqual({
       ok: false,
-      error: "Choose between 2 and 5 beats.",
+      error: `Choose between 2 and ${MAX_BATCH_ITEMS} beats.`,
+    });
+  });
+
+  it("accepts exactly 30 beats", () => {
+    const items = Array.from({ length: MAX_BATCH_ITEMS }, (_, index) => ({
+      audioName: `beat-${index + 1}.wav`,
+      imageName: `beat-${index + 1}.png`,
+    }));
+
+    expect(validateCreateBatchInput({ ...valid, items })).toMatchObject({ ok: true });
+  });
+
+  it("rejects more than 30 beats", () => {
+    const items = Array.from({ length: MAX_BATCH_ITEMS + 1 }, (_, index) => ({
+      audioName: `beat-${index + 1}.wav`,
+      imageName: `beat-${index + 1}.png`,
+    }));
+
+    expect(validateCreateBatchInput({ ...valid, items })).toEqual({
+      ok: false,
+      error: `Choose between 2 and ${MAX_BATCH_ITEMS} beats.`,
     });
   });
 
