@@ -4,6 +4,7 @@ import { getPlanState } from "@/lib/billing";
 import { getStripe, readStripeEnv, stripeConfigured } from "@/lib/stripe";
 import { isPaidPlan } from "@/lib/plans";
 import BillingPlans from "./BillingPlans";
+import { launchEligibleForCustomer } from "@/lib/launch-discount";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +30,14 @@ export default async function BillingPage({
 
   const publishableKey = readStripeEnv("STRIPE_PUBLISHABLE_KEY");
   const paid = isPaidPlan(planId);
+  let launchEligible = !paid;
+  if (!paid && subscription?.stripeCustomerId && stripeConfigured()) {
+    try {
+      launchEligible = await launchEligibleForCustomer(getStripe(), subscription.stripeCustomerId);
+    } catch {
+      launchEligible = false;
+    }
+  }
   const limitLabel = isAdmin ? "unlimited" : String(limit);
   const usagePct = isAdmin || !isFinite(limit) || limit <= 0 ? 0 : Math.min(100, Math.round((used / limit) * 100));
 
@@ -89,6 +98,7 @@ export default async function BillingPage({
         isPaid={paid}
         configured={stripeConfigured()}
         publishableKey={publishableKey}
+        launchEligible={launchEligible}
       />
     </>
   );

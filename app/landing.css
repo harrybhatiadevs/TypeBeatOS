@@ -402,6 +402,22 @@
 .lp-list-b { font-size: 0.94rem; line-height: 1.55; color: var(--muted); }
 
 /* ---------- Pricing ---------- */
+.lp-launch-banner {
+  margin-top: 2rem;
+  padding: 1.4rem 1.6rem;
+  border: 1px solid rgba(255, 29, 63, 0.35);
+  border-radius: var(--radius-card);
+  background: linear-gradient(110deg, rgba(255, 29, 63, 0.12), var(--surface));
+}
+.lp-launch-label { color: #ff607d; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
+.lp-launch-banner h3 { margin: 0.6rem 0 0.4rem; color: var(--ink); font-size: 1.45rem; }
+.lp-launch-banner p { margin: 0; color: var(--muted); font-size: 0.95rem; line-height: 1.6; }
+.lp-launch-banner + .lp-plans { margin-top: 2rem; }
+.lp-launch-saving { margin-top: 1rem; color: #ff607d; font-size: 0.74rem; font-weight: 700; line-height: 1.5; }
+.lp-plan-price .lp-plan-was { display: block; margin-bottom: 0.5rem; color: var(--faint); font-size: 1.25rem; font-weight: 500; }
+.lp-plan-price small { display: inline-block; margin-left: 0.25rem; }
+.lp-plan-renewal { margin: 0.75rem 0 0; font-size: 0.86rem; line-height: 1.5; color: var(--text); }
+.lp-launch-terms { margin: 1.25rem 0 0; max-width: 60rem; color: var(--muted); font-size: 0.8rem; line-height: 1.7; }
 .lp-plans { margin-top: clamp(4rem, 9vh, 5.75rem); display: grid; gap: 1.5rem; }
 @media (min-width: 860px) {
   .lp-plans {

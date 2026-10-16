@@ -1,5 +1,22 @@
 /* Billing page — scoped under .app-page to match app-chrome specificity. */
 
+.app-page .billing-launch-banner {
+  margin-top: 1.5rem;
+  padding: 1.4rem 1.6rem;
+  border: 1px solid rgba(255, 29, 63, 0.35);
+  border-radius: var(--radius-card);
+  background: linear-gradient(110deg, rgba(255, 29, 63, 0.12), var(--surface));
+}
+.app-page .billing-launch-label { color: #ff607d; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
+.app-page .billing-launch-banner h2 { margin: 0.6rem 0 0.4rem; font-size: 1.45rem; color: var(--ink); }
+.app-page .billing-launch-banner p,
+.app-page .billing-checkout-offer { margin: 0; font-size: 0.9rem; line-height: 1.6; color: var(--muted); }
+.app-page .billing-checkout-offer { margin-bottom: 1.25rem; }
+.app-page .billing-launch-saving { margin-top: 1rem; color: #ff607d; font-size: 0.74rem; font-weight: 700; line-height: 1.5; }
+.app-page .billing-plan-price .billing-plan-was { display: block; margin-bottom: 0.5rem; font-size: 1.25rem; font-weight: 500; color: var(--soft); }
+.app-page .billing-plan-price small { display: inline-block; margin-left: 0.25rem; }
+.app-page .billing-offer-note { margin: 1rem 0; color: var(--muted); font-size: 0.8rem; line-height: 1.7; }
+
 .app-page .billing-alert {
   border-radius: 0.85rem;
   padding: 0.9rem 1.15rem;

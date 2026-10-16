@@ -3,24 +3,27 @@
 import { useCallback, useMemo, useState } from "react";
 import { loadStripe, type Stripe } from "@stripe/stripe-js";
 import { EmbeddedCheckoutProvider, EmbeddedCheckout } from "@stripe/react-stripe-js";
-import { PLANS, PLAN_ORDER, type Interval, type PlanId } from "@/lib/plans";
+import { LAUNCH_OFFER, launchOfferFor, PLANS, PLAN_ORDER, type Interval, type PlanId } from "@/lib/plans";
 
 export default function BillingPlans({
   currentPlanId,
   isPaid,
   configured,
   publishableKey,
+  launchEligible,
 }: {
   currentPlanId: PlanId;
   isPaid: boolean;
   configured: boolean;
   publishableKey: string;
+  launchEligible: boolean;
 }) {
   const [interval, setInterval] = useState<Interval>("month");
   const [checkoutPlan, setCheckoutPlan] = useState<PlanId | null>(null);
   const [betaCode, setBetaCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const showLaunch = launchEligible && interval === "month" && !betaCode.trim();
 
   // One Stripe.js instance for the whole component.
   const stripePromise = useMemo<Promise<Stripe | null> | null>(
@@ -32,7 +35,7 @@ export default function BillingPlans({
     const res = await fetch("/api/billing/checkout", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ plan: checkoutPlan, interval, betaCode: betaCode.trim() || undefined }),
+      body: JSON.stringify({ plan: checkoutPlan, interval, betaCode: betaCode.trim() || undefined, launchOffer: showLaunch }),
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
@@ -40,7 +43,7 @@ export default function BillingPlans({
     }
     const { clientSecret } = await res.json();
     return clientSecret as string;
-  }, [checkoutPlan, interval, betaCode]);
+  }, [checkoutPlan, interval, betaCode, showLaunch]);
 
   async function openPortal() {
     setBusy(true);
@@ -63,6 +66,7 @@ export default function BillingPlans({
         <button type="button" className="copy-btn" onClick={() => setCheckoutPlan(null)} style={{ marginBottom: "1rem" }}>
           ← Back to plans
         </button>
+        {showLaunch && <p className="billing-checkout-offer">{LAUNCH_OFFER.label}: ${launchOfferFor(checkoutPlan)?.firstMonthPrice} for your first month, then ${PLANS[checkoutPlan].priceMonthly}/month. USD.</p>}
         <EmbeddedCheckoutProvider key={`${checkoutPlan}-${interval}`} stripe={stripePromise} options={{ fetchClientSecret }}>
           <EmbeddedCheckout />
         </EmbeddedCheckoutProvider>
@@ -73,6 +77,12 @@ export default function BillingPlans({
   return (
     <>
       {error && <div className="form-error">{error}</div>}
+
+      {showLaunch && <div className="billing-launch-banner">
+        <span className="billing-launch-label">{LAUNCH_OFFER.label} · One-month discount</span>
+        <h2>Your first month, for less.</h2>
+        <p>Pro ${LAUNCH_OFFER.prices.pro} or Serious ${LAUNCH_OFFER.prices.serious} for your first month. Then ${PLANS.pro.priceMonthly} or ${PLANS.serious.priceMonthly}/month. New monthly subscribers only. Applied automatically at checkout.</p>
+      </div>}
 
       <div className="billing-toggle" role="group" aria-label="Billing interval">
         <button
@@ -90,6 +100,7 @@ export default function BillingPlans({
           Annual <span className="billing-save">2 months free</span>
         </button>
       </div>
+      {betaCode.trim() && <p className="billing-offer-note">Beta codes replace the launch offer and cannot be combined with it.</p>}
 
       <div className="billing-beta">
         <label htmlFor="billing-beta-code">Beta code</label>
@@ -107,7 +118,8 @@ export default function BillingPlans({
         {PLAN_ORDER.map((id) => {
           const plan = PLANS[id];
           const isCurrent = id === currentPlanId;
-          const price = interval === "year" ? plan.priceAnnual : plan.priceMonthly;
+          const offer = showLaunch ? launchOfferFor(id) : null;
+          const price = offer ? offer.firstMonthPrice : interval === "year" ? plan.priceAnnual : plan.priceMonthly;
           const unit = interval === "year" ? "/yr" : "/mo";
           const featured = id === "pro";
 
@@ -116,10 +128,13 @@ export default function BillingPlans({
               {isCurrent && <span className="billing-plan-flag">Current plan</span>}
               {!isCurrent && featured && <span className="billing-plan-flag">Most popular</span>}
               <div className="billing-plan-name">{plan.label}</div>
+              {offer && <div className="billing-launch-saving">{offer.percentOff}% off your first month{id === "serious" ? " · Best launch value" : ""}</div>}
               <div className="billing-plan-price">
+                {offer && <del className="billing-plan-was" aria-label={`Regular price $${offer.regularPrice} per month`}>${offer.regularPrice}</del>}
                 ${price}
-                <small>{plan.priceMonthly === 0 ? "" : unit}</small>
+                <small>{plan.priceMonthly === 0 ? "" : offer ? "/first month" : unit}</small>
               </div>
+              {offer && <div className="billing-plan-sub">Then ${plan.priceMonthly}/month. Cancel anytime.</div>}
               {interval === "year" && plan.priceMonthly > 0 && (
                 <div className="billing-plan-sub">${Math.round(plan.priceAnnual / 12)}/mo billed yearly</div>
               )}
@@ -145,19 +160,21 @@ export default function BillingPlans({
                 <button
                   type="button"
                   className={featured ? "btn btn-primary" : "btn btn-ghost"}
-                  disabled={!configured}
+                  disabled={!configured || busy}
                   onClick={() => {
                     setError(null);
-                    setCheckoutPlan(id);
+                    if (isPaid) void openPortal();
+                    else setCheckoutPlan(id);
                   }}
                 >
-                  {configured ? `Choose ${plan.label}` : "Coming soon"}
+                  {configured ? `${isPaid ? "Switch to" : "Choose"} ${plan.label}` : "Coming soon"}
                 </button>
               )}
             </div>
           );
         })}
       </div>
+      <p className="billing-offer-note">All prices are in USD. The launch special applies to the first month of a new monthly subscription only. Annual plans and existing subscriptions keep their regular prices.</p>
 
       {!configured && (
         <p className="page-sub" style={{ marginTop: "1rem", fontSize: "0.9rem" }}>

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getUser } from "@/lib/auth";
 import LpEffects from "./LpEffects";
 import PublicNav from "./PublicNav";
+import { LAUNCH_OFFER, launchOfferFor, PLANS, PLAN_ORDER } from "@/lib/plans";
 import "./landing.css";
 
 export const metadata: Metadata = {
@@ -39,36 +40,6 @@ const FEATURE_LIST = [
   { t: "Tags + hashtags", b: "Searchable tags from artist, genre, mood, BPM, key, and the right “type beat” variations." },
   { t: "Pinned comment ready", b: "The purchase-link comment written and queued the moment the video goes live." },
   { t: "Upload calendar", b: "Batch a month of beats and auto-spread them across your schedule. One session, a month of content." },
-];
-
-const PLANS = [
-  {
-    name: "Free",
-    price: "$0",
-    cycle: "/mo",
-    annual: "",
-    perks: ["3 upload packs / mo", "Titles + descriptions", "Direct YouTube publish"],
-    cta: "Start free",
-    featured: false,
-  },
-  {
-    name: "Pro",
-    price: "$19",
-    cycle: "/mo",
-    annual: "or $190/yr — 2 months free",
-    perks: ["60 upload packs / mo", "Batch upload queue", "Direct YouTube publish", "Custom templates"],
-    cta: "Get Pro",
-    featured: true,
-  },
-  {
-    name: "Serious",
-    price: "$29",
-    cycle: "/mo",
-    annual: "or $290/yr — 2 months free",
-    perks: ["150 upload packs / mo", "Multiple channels", "Analytics + keyword insights", "Advanced templates"],
-    cta: "Get Serious",
-    featured: false,
-  },
 ];
 
 const PROOF = [
@@ -222,22 +193,35 @@ export default async function Landing() {
             <span className="lp-red">Start free.</span> Upgrade when uploads stack.
           </h2>
         </div>
-        <div className="lp-plans lp-reveal">
-          {PLANS.map((p) => (
-            <div key={p.name} className={`lp-plan${p.featured ? " lp-plan-featured" : ""}`}>
-              {p.featured && <span className="lp-plan-flag">Most popular</span>}
-              <div className="lp-plan-name">{p.name}</div>
-              <div className="lp-display lp-plan-price">{p.price}<small>{p.cycle}</small></div>
-              {p.annual && <div className="lp-plan-annual">{p.annual}</div>}
-              <ul className="lp-plan-perks">
-                {p.perks.map((perk) => <li key={perk}>{perk}</li>)}
-              </ul>
-              <Link href={ctaHref} className={`lp-btn ${p.featured ? "lp-btn-primary" : "lp-btn-ghost"}`}>
-                {p.cta}
-              </Link>
-            </div>
-          ))}
+        <div className="lp-launch-banner lp-reveal">
+          <span className="lp-launch-label">{LAUNCH_OFFER.label} · One-month discount</span>
+          <h3>Your first month, for less.</h3>
+          <p>Start Pro for ${LAUNCH_OFFER.prices.pro} or Serious for ${LAUNCH_OFFER.prices.serious}. Full features. Lower first-month price.</p>
         </div>
+        <div className="lp-plans lp-reveal">
+          {PLAN_ORDER.map((id) => {
+            const p = PLANS[id];
+            const offer = launchOfferFor(id);
+            const featured = id === "pro";
+            return (
+              <div key={id} className={`lp-plan${featured ? " lp-plan-featured" : ""}`}>
+                {featured && <span className="lp-plan-flag">Most popular</span>}
+                <div className="lp-plan-name">{p.label}</div>
+                {offer && <div className="lp-launch-saving">{offer.percentOff}% off your first month{id === "serious" ? " · Best launch value" : ""}</div>}
+                <div className="lp-display lp-plan-price">{offer && <del className="lp-plan-was" aria-label={`Regular price $${p.priceMonthly} per month`}>${p.priceMonthly}</del>}${offer?.firstMonthPrice ?? p.priceMonthly}<small>{offer ? "/first month" : "/mo"}</small></div>
+                {offer && <p className="lp-plan-renewal">Then ${p.priceMonthly}/month. Cancel anytime.</p>}
+                {p.priceAnnual > 0 && <div className="lp-plan-annual">or ${p.priceAnnual}/yr — 2 months free</div>}
+                <ul className="lp-plan-perks">
+                  {p.perks.map((perk) => <li key={perk}>{perk}</li>)}
+                </ul>
+                <Link href={id === "free" ? ctaHref : user ? "/billing" : "/signup"} className={`lp-btn ${featured ? "lp-btn-primary" : "lp-btn-ghost"}`}>
+                  {id === "free" ? "Start free" : `Get ${p.label}`}
+                </Link>
+              </div>
+            );
+          })}
+        </div>
+        <p className="lp-launch-terms">Prices in USD. Launch special for new monthly subscribers: first month only, then $19/month for Pro or $29/month for Serious. Discount applied automatically at checkout. Annual pricing unchanged.</p>
       </section>
 
       {/* FINAL CTA */}

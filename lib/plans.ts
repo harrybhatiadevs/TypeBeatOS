@@ -59,6 +59,25 @@ export const PLANS: Record<PlanId, Plan> = {
 
 export const PLAN_ORDER: PlanId[] = ["free", "pro", "serious"];
 
+// First paid month only. Keep normal recurring and annual prices unchanged.
+export const LAUNCH_OFFER = {
+  label: "Launch special",
+  prices: { pro: 12, serious: 17 },
+} as const;
+
+export function launchOfferFor(planId: PlanId) {
+  if (planId === "free") return null;
+  const regularPrice = PLANS[planId].priceMonthly;
+  const firstMonthPrice = LAUNCH_OFFER.prices[planId];
+  return {
+    firstMonthPrice,
+    regularPrice,
+    amountOff: Math.round((regularPrice - firstMonthPrice) * 100),
+    percentOff: Math.round((1 - firstMonthPrice / regularPrice) * 100),
+    couponId: `typebeatos_launch_${planId}_first_month_v1`,
+  };
+}
+
 export function isPaidPlan(id: PlanId): boolean {
   return id === "pro" || id === "serious";
 }
