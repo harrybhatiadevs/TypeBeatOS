@@ -28,8 +28,28 @@ describe("first-month launch offer", () => {
     expect(PLANS.serious.priceAnnual).toBe(290);
   });
 
-  it.each(["active", "trialing", "canceled", "past_due", "unpaid"])("does not give a repeat launch discount to a %s subscriber", async (status) => {
+  it.each(["active", "trialing", "past_due", "unpaid"])("does not give a launch discount to a current %s subscriber", async (status) => {
     subscriptions.list.mockResolvedValue({ data: [{ status }], has_more: false });
+    expect(await launchEligibleForCustomer(stripe, "cus_1")).toBe(false);
+  });
+
+  it("allows a returning customer whose canceled subscription predates the launch", async () => {
+    subscriptions.list.mockResolvedValue({ data: [{ status: "canceled", metadata: {}, discounts: [] }], has_more: false });
+    expect(await launchEligibleForCustomer(stripe, "cus_1")).toBe(true);
+  });
+
+  it("keeps the offer visible when checkout will replace an old sandbox customer", async () => {
+    subscriptions.list.mockRejectedValue({ code: "resource_missing", param: "customer" });
+    expect(await launchEligibleForCustomer(stripe, "cus_old_sandbox")).toBe(true);
+  });
+
+  it("blocks repeat redemption after a discounted subscription is canceled", async () => {
+    subscriptions.list.mockResolvedValue({ data: [{ status: "canceled", metadata: { launch_offer: "launch_first_month_v1" }, discounts: [] }], has_more: false });
+    expect(await launchEligibleForCustomer(stripe, "cus_1")).toBe(false);
+  });
+
+  it("recognizes an existing launch coupon even without the campaign metadata", async () => {
+    subscriptions.list.mockResolvedValue({ data: [{ status: "canceled", metadata: {}, discounts: [{ source: { coupon: proCoupon.id } }] }], has_more: false });
     expect(await launchEligibleForCustomer(stripe, "cus_1")).toBe(false);
   });
 

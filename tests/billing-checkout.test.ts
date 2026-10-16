@@ -38,6 +38,7 @@ describe("launch checkout", () => {
     }));
     expect(mocks.create.mock.calls[0][0]).not.toHaveProperty("allow_promotion_codes");
     expect(mocks.create.mock.calls[0][0].subscription_data).not.toHaveProperty("trial_period_days");
+    expect(mocks.create.mock.calls[0][0].subscription_data.metadata.launch_offer).toBe("launch_first_month_v1");
   });
 
   it("leaves annual billing undiscounted", async () => {

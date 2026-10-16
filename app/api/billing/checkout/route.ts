@@ -53,12 +53,12 @@ export async function POST(request: Request) {
     const stripe = getStripe();
     const eligible = interval === "month" && betaTrialDays === 0 && await launchEligibleForCustomer(stripe, customer);
     if (body.launchOffer && !eligible) {
-      return NextResponse.json({ error: "The launch special is for new monthly subscribers only. Refresh the plans to see your available pricing." }, { status: 409 });
+      return NextResponse.json({ error: "The launch special is available once per customer on a new monthly subscription. Refresh the plans to see your available pricing." }, { status: 409 });
     }
     const coupon = eligible ? await launchCouponFor(stripe, plan, price) : null;
 
     const subscriptionData = {
-      metadata: { userId: user.id },
+      metadata: { userId: user.id, ...(coupon ? { launch_offer: "launch_first_month_v1" } : {}) },
       ...(betaTrialDays > 0 ? { trial_period_days: betaTrialDays } : {}),
     };
 

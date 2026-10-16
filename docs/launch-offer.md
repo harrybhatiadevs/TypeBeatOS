@@ -4,7 +4,7 @@ New monthly subscribers receive Pro for **$12 USD for the first month** (normall
 
 The normal recurring Stripe Price IDs remain unchanged. Checkout applies a product-scoped, USD, `duration: once` coupon: $7 off Pro or $12 off Serious. Stripe therefore bills the normal monthly price on renewal. Annual prices remain $190 and $290. Existing subscribers change plans through the billing portal and do not create a second discounted subscription. The launch discount does not stack with beta trials or manually entered promotion codes.
 
-Shared offer values live in `lib/plans.ts`. Both the landing page and billing page read those values. `lib/launch-discount.ts` verifies the real Stripe monthly price and coupon before checkout, and fails rather than silently charging an unexpected amount. Prior active, trialing, or canceled subscriptions make a customer ineligible for a repeat offer; incomplete unpaid attempts do not.
+Shared offer values live in `lib/plans.ts`. Both the landing page and billing page read those values. `lib/launch-discount.ts` verifies the real Stripe monthly price and coupon before checkout, and fails rather than silently charging an unexpected amount. Current subscriptions and previous launch-coupon redemptions make a customer ineligible for a repeat offer. Canceled subscriptions from before the launch and expired unpaid attempts do not. Discounted subscriptions carry a campaign marker so canceling and resubscribing cannot repeatedly claim the offer.
 
 ## Provisioning and verification
 

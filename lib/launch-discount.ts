@@ -2,12 +2,29 @@ import "server-only";
 import type Stripe from "stripe";
 import { launchOfferFor, type PlanId } from "./plans";
 
-/** The launch offer is for a customer's first subscription, not repeat renewals. */
+/** One launch redemption per customer; canceled subscriptions before the launch are eligible. */
 export async function launchEligibleForCustomer(stripe: Stripe, customerId: string): Promise<boolean> {
-  const subscriptions = await stripe.subscriptions.list({ customer: customerId, status: "all", limit: 100 });
-  return !subscriptions.has_more && subscriptions.data.every((subscription) =>
-    subscription.status === "incomplete" || subscription.status === "incomplete_expired",
-  );
+  let subscriptions: Stripe.ApiList<Stripe.Subscription>;
+  try {
+    subscriptions = await stripe.subscriptions.list({ customer: customerId, status: "all", limit: 100, expand: ["data.discounts"] });
+  } catch (error) {
+    const detail = error as { code?: string; param?: string };
+    // getOrCreateStripeCustomer replaces stale sandbox/deleted customer IDs
+    // before checkout; show that new customer's eligible offer consistently.
+    if (detail.code === "resource_missing" && detail.param === "customer") return true;
+    throw error;
+  }
+  const launchCoupons = new Set([launchOfferFor("pro")!.couponId, launchOfferFor("serious")!.couponId]);
+  return !subscriptions.has_more && subscriptions.data.every((subscription) => {
+    if (subscription.status === "incomplete_expired") return true;
+    if (subscription.status !== "canceled" && subscription.status !== "incomplete") return false;
+    if (subscription.metadata?.launch_offer === "launch_first_month_v1") return false;
+    return (subscription.discounts || []).every((discount) => {
+      if (typeof discount === "string") return false;
+      const coupon = discount.source?.coupon;
+      return !coupon || !launchCoupons.has(typeof coupon === "string" ? coupon : coupon.id);
+    });
+  });
 }
 
 /** Use a once-only coupon so Stripe automatically bills the normal price next month. */

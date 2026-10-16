@@ -81,7 +81,7 @@ export default function BillingPlans({
       {showLaunch && <div className="billing-launch-banner">
         <span className="billing-launch-label">{LAUNCH_OFFER.label} · One-month discount</span>
         <h2>Your first month, for less.</h2>
-        <p>Pro ${LAUNCH_OFFER.prices.pro} or Serious ${LAUNCH_OFFER.prices.serious} for your first month. Then ${PLANS.pro.priceMonthly} or ${PLANS.serious.priceMonthly}/month. New monthly subscribers only. Applied automatically at checkout.</p>
+        <p>Pro ${LAUNCH_OFFER.prices.pro} or Serious ${LAUNCH_OFFER.prices.serious} for your first month. Then ${PLANS.pro.priceMonthly} or ${PLANS.serious.priceMonthly}/month. New monthly subscriptions only. Applied automatically at checkout.</p>
       </div>}
 
       <div className="billing-toggle" role="group" aria-label="Billing interval">
